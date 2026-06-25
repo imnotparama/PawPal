@@ -28,10 +28,51 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
     let targetX = 0;
     let raf: number;
 
-    // Fast lerp — 0.18 is snappy (vs old 0.07 which was sluggish)
+    // Fast lerp
     const LERP_SPEED = reduced ? 1 : 0.18;
 
+    // Magnetic snap: when user stops scrolling near a panel, gently pull to center
+    let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+    let isSnapping = false;
+    const SNAP_DELAY = 200; // ms after scroll stops
+    const SNAP_ZONE = 0.15; // how close to panel center triggers snap (as fraction of one panel width)
+
+    const snapToNearest = () => {
+      if (isSnapping) return;
+      const panelProgress = progressRef.current * (panels - 1);
+      const nearestPanel = Math.round(panelProgress);
+      const dist = Math.abs(panelProgress - nearestPanel);
+
+      if (dist < SNAP_ZONE && dist > 0.005) {
+        isSnapping = true;
+        const targetProgress = nearestPanel / (panels - 1);
+        const maxScroll = container.offsetHeight - window.innerHeight;
+        const targetScroll = targetProgress * maxScroll;
+        const startScroll = window.scrollY;
+        const distance = targetScroll - startScroll;
+
+        if (Math.abs(distance) < 3) { isSnapping = false; return; }
+
+        const duration = 450;
+        const startTime = performance.now();
+
+        const animate = (now: number) => {
+          const t = Math.min((now - startTime) / duration, 1);
+          const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+          window.scrollTo(0, startScroll + distance * eased);
+          if (t < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            isSnapping = false;
+          }
+        };
+        requestAnimationFrame(animate);
+      }
+    };
+
     const onScroll = () => {
+      if (isSnapping) return;
+
       const scrollTop = window.scrollY;
       const maxScroll = container.offsetHeight - window.innerHeight;
       const progress = Math.min(Math.max(scrollTop / maxScroll, 0), 1);
@@ -42,6 +83,10 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
 
       const bar = container.querySelector<HTMLElement>("[data-progress-bar]");
       if (bar) bar.style.transform = `scaleX(${progress})`;
+
+      // Reset snap timer
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(snapToNearest, SNAP_DELAY);
     };
 
     const loop = () => {
@@ -118,6 +163,7 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
     return () => {
       window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
     };
   }, []);
 
