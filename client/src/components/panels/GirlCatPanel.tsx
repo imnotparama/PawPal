@@ -6,7 +6,7 @@ export function GirlCatPanel() {
       <AmbientShapes seed={53} count={32} />
 
       {/* Text LEFT */}
-      <div data-panel-content className="relative z-10 pl-12 lg:pl-20 xl:pl-28 max-w-[48%]">
+      <div data-panel-content className="relative z-10 pl-10 lg:pl-16 xl:pl-20 max-w-[42%]">
         <h2
           data-reveal data-reveal-delay="0.05"
           className="text-bone"

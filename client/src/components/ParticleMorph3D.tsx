@@ -224,7 +224,7 @@ export function ParticleMorph3D() {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.z = 3.8;
-    camera.position.x = -0.8; // Start with shape on the RIGHT
+    camera.position.x = -1.4; // Start with shape on the RIGHT
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -336,7 +336,7 @@ export function ParticleMorph3D() {
 
       // Per-panel X offset: camera moves so shape alternates sides
       // Negative camera X = shape appears on RIGHT, Positive = shape appears on LEFT
-      const panelOffsets = [-1.0, 1.0, -1.0, 0.0];
+      const panelOffsets = [-1.4, 1.4, -1.4, 0.0];
       const panelIndex = scrollProgress * (NUM_PANELS - 1);
       const pIdx = Math.min(Math.floor(panelIndex), NUM_PANELS - 2);
       const pLocal = panelIndex - pIdx;

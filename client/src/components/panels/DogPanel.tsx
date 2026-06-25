@@ -6,7 +6,7 @@ export function DogPanel() {
       <AmbientShapes seed={29} count={28} />
 
       {/* Text RIGHT — shape is on the left */}
-      <div data-panel-content className="relative z-10 pr-10 lg:pr-20 xl:pr-28 max-w-[42%]">
+      <div data-panel-content className="relative z-10 pr-10 lg:pr-16 xl:pr-20 max-w-[42%]">
         <h2
           data-reveal data-reveal-delay="0.05"
           className="text-bone"
