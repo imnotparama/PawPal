@@ -352,3 +352,102 @@ body {
     transform: none;
   }
 }
+
+/* ====================================
+   CTA Panel — Dramatic glow effects
+   ==================================== */
+
+/* Core center glow — slow breathe */
+.cta-glow-core {
+  animation: cta-breathe 5s ease-in-out infinite alternate;
+}
+
+@keyframes cta-breathe {
+  0% { opacity: 0.5; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1.08); }
+}
+
+/* Amber orb — slow drift top-right */
+.cta-glow-orb-1 {
+  animation: cta-drift-1 8s ease-in-out infinite alternate;
+}
+
+@keyframes cta-drift-1 {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+  100% { transform: translate(-20px, 15px) scale(1.1); opacity: 1; }
+}
+
+/* Lichen orb — slow drift bottom-left */
+.cta-glow-orb-2 {
+  animation: cta-drift-2 9s ease-in-out infinite alternate;
+}
+
+@keyframes cta-drift-2 {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+  100% { transform: translate(15px, -10px) scale(1.15); opacity: 0.9; }
+}
+
+/* Ring glow — slow rotation + pulse */
+.cta-ring-glow {
+  animation: cta-ring-spin 20s linear infinite;
+}
+
+@keyframes cta-ring-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Inner ring — counter-rotate */
+.cta-ring-glow-inner {
+  animation: cta-ring-counter 15s linear infinite;
+}
+
+@keyframes cta-ring-counter {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+/* Logo pulse glow */
+.cta-logo-pulse {
+  animation: cta-logo-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes cta-logo-glow {
+  0% { filter: drop-shadow(0 0 4px rgba(128,82,255,0.3)); }
+  100% { filter: drop-shadow(0 0 16px rgba(128,82,255,0.6)); }
+}
+
+/* Enhanced CTA button — stronger glow */
+.cta-btn-enhanced::before {
+  filter: blur(12px) !important;
+}
+
+.cta-btn-enhanced:hover::before {
+  opacity: 0.7 !important;
+}
+
+.cta-btn-enhanced::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 28px;
+  background: radial-gradient(ellipse at center, rgba(128,82,255,0.15) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 500ms var(--ease-dala);
+  pointer-events: none;
+}
+
+.cta-btn-enhanced:hover::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-glow-core,
+  .cta-glow-orb-1,
+  .cta-glow-orb-2,
+  .cta-ring-glow,
+  .cta-ring-glow-inner,
+  .cta-logo-pulse {
+    animation: none;
+  }
+}
