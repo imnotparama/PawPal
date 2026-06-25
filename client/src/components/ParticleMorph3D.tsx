@@ -100,7 +100,7 @@ const vertexShader = `
     finalPos += vec3(noiseX, noiseY, noiseZ);
 
     vec4 mvPosition = modelViewMatrix * vec4(finalPos, 1.0);
-    gl_PointSize = aSize * (300.0 / -mvPosition.z);
+    gl_PointSize = aSize * (180.0 / -mvPosition.z);
     gl_Position = projectionMatrix * mvPosition;
 
     // Color based on phase (creates multi-color gradient)
@@ -115,7 +115,7 @@ const vertexShader = `
       vColor = vec3(0.082, 0.522, 0.431); // lichen
     }
 
-    vAlpha = 0.7 + 0.3 * sin(uTime + aPhase * 6.28);
+    vAlpha = 0.4 + 0.2 * sin(uTime + aPhase * 6.28);
     // Fade during explosion
     vAlpha *= (1.0 - uExplode * 0.5);
   }
@@ -130,8 +130,8 @@ const fragmentShader = `
     float dist = length(gl_PointCoord - vec2(0.5));
     if (dist > 0.5) discard;
 
-    float alpha = vAlpha * (1.0 - dist * 2.0);
-    gl_FragColor = vec4(vColor, alpha);
+    float alpha = vAlpha * smoothstep(0.5, 0.1, dist);
+    gl_FragColor = vec4(vColor, alpha * 0.7);
   }
 `;
 
@@ -161,7 +161,7 @@ export function ParticleMorph3D() {
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.z = 2.5;
+    camera.position.z = 3.2;
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -182,7 +182,7 @@ export function ParticleMorph3D() {
     const sizes = new Float32Array(PARTICLE_COUNT);
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       phases[i] = Math.random() * Math.PI * 2;
-      sizes[i] = 1.5 + Math.random() * 3.0;
+      sizes[i] = 0.8 + Math.random() * 1.5;
     }
 
     // === Create geometry ===
