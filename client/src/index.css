@@ -451,3 +451,15 @@ body {
     animation: none;
   }
 }
+
+/* ====================================
+   Subtle background grid texture
+   ==================================== */
+.hero-grid-bg {
+  background-image:
+    linear-gradient(rgba(128, 82, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(128, 82, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at center, black 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at center, black 30%, transparent 70%);
+}

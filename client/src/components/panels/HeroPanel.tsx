@@ -22,7 +22,7 @@ export function HeroPanel() {
       <AmbientShapes seed={11} count={50} />
 
       {/* Scroll hint */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 text-smoke animate-pulse z-20" data-reveal data-reveal-delay="0.7">
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-2 text-smoke animate-pulse z-20" data-reveal data-reveal-delay="0.7">
         <span style={{ fontSize: 12, letterSpacing: "0.05em", textTransform: "uppercase" }}>
           Scroll to explore
         </span>
@@ -31,17 +31,17 @@ export function HeroPanel() {
         </svg>
       </div>
 
-      {/* Text LEFT side (max 45% width) — particles are on the right */}
-      <div data-panel-content className="relative z-10 pl-10 lg:pl-20 max-w-[45%]">
+      {/* Text LEFT side — vertically centered with proper spacing from nav */}
+      <div data-panel-content className="relative z-10 pl-12 lg:pl-24 max-w-[48%]">
         <div className="max-w-[480px]">
-          <div className="flex items-center gap-2 mb-8" data-reveal data-reveal-delay="0">
+          <div className="flex items-center gap-2 mb-6" data-reveal data-reveal-delay="0">
             <span className="block w-1.5 h-1.5 rounded-full bg-plum-voltage pawpal-pulse-dot" />
             <span className="text-amber-spark" style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
               Stop guessing. Start caring.
             </span>
           </div>
 
-          <h1 data-reveal data-reveal-delay="0.1" className="text-bone" style={{ fontSize: "clamp(44px, 6vw, 86px)", lineHeight: 0.88, letterSpacing: "-0.04em", fontWeight: 200 }}>
+          <h1 data-reveal data-reveal-delay="0.1" className="text-bone" style={{ fontSize: "clamp(52px, 7vw, 96px)", lineHeight: 0.9, letterSpacing: "-0.04em", fontWeight: 200 }}>
             Your pet&apos;s
             <br />
             health,
@@ -51,29 +51,29 @@ export function HeroPanel() {
             </span>
           </h1>
 
-          <p data-reveal data-reveal-delay="0.2" className="mt-8 text-ash max-w-[400px]" style={{ fontSize: 15, lineHeight: 1.55, letterSpacing: "0.015em" }}>
+          <p data-reveal data-reveal-delay="0.2" className="mt-10 text-ash max-w-[420px]" style={{ fontSize: 16, lineHeight: 1.6, letterSpacing: "0.015em" }}>
             PawPal AI quietly listens to every vaccine, every vet note, every
             symptom — and answers the next question before you think to ask it.
           </p>
 
           <div data-reveal data-reveal-delay="0.3" className="mt-10 flex items-center gap-4 flex-wrap">
             <MagneticButton strength={0.25}>
-              <Link to="/app" className="dala-btn-primary glow-btn inline-flex items-center justify-center rounded-3xl" style={{ padding: "14px 20px", fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+              <Link to="/app" className="dala-btn-primary glow-btn inline-flex items-center justify-center rounded-3xl" style={{ padding: "16px 24px", fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
                 Meet PawPal
               </Link>
             </MagneticButton>
             <MagneticButton strength={0.2}>
-              <a href="#" className="dala-btn-outline-amber inline-flex items-center justify-center rounded-3xl" style={{ padding: "14px 20px", fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+              <a href="#" className="dala-btn-outline-amber inline-flex items-center justify-center rounded-3xl" style={{ padding: "16px 24px", fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
                 Watch demo
               </a>
             </MagneticButton>
           </div>
 
-          <div data-reveal data-reveal-delay="0.45" className="mt-12 flex items-center gap-6 text-smoke">
+          <div data-reveal data-reveal-delay="0.45" className="mt-14 flex items-center gap-8 text-smoke">
             <Stat n={<AnimatedCounter end={12} suffix="k+" />} label="Pets onboarded" />
-            <div className="w-px h-8 bg-white/10" />
+            <div className="w-px h-9 bg-white/10" />
             <Stat n={<AnimatedCounter end={98} suffix="%" />} label="Owners calmer" />
-            <div className="w-px h-8 bg-white/10" />
+            <div className="w-px h-9 bg-white/10" />
             <Stat n="24/7" label="AI standby" />
           </div>
         </div>

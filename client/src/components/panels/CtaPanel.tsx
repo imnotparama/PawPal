@@ -9,9 +9,10 @@ export function CtaPanel() {
       <AmbientShapes seed={77} count={70} exclusionRadius={0.12} />
       <div className="absolute left-0 top-[10%] bottom-[10%] w-px bg-white/5" />
 
-      {/* === Multi-layered glow effects === */}
+      {/* Subtle grid in background */}
+      <div aria-hidden="true" className="absolute inset-0 pointer-events-none hero-grid-bg" />
 
-      {/* Large pulsing center glow */}
+      {/* === Multi-layered glow effects === */}
       <div
         aria-hidden="true"
         className="absolute pointer-events-none cta-glow-core"
@@ -25,7 +26,6 @@ export function CtaPanel() {
         }}
       />
 
-      {/* Amber accent orb — top right */}
       <div
         aria-hidden="true"
         className="absolute pointer-events-none cta-glow-orb-1"
@@ -39,7 +39,6 @@ export function CtaPanel() {
         }}
       />
 
-      {/* Lichen accent orb — bottom left */}
       <div
         aria-hidden="true"
         className="absolute pointer-events-none cta-glow-orb-2"
@@ -53,7 +52,6 @@ export function CtaPanel() {
         }}
       />
 
-      {/* Plum ring glow — animated pulse */}
       <div
         aria-hidden="true"
         className="absolute pointer-events-none cta-ring-glow"
@@ -63,12 +61,11 @@ export function CtaPanel() {
           left: "25vw",
           top: "25vh",
           borderRadius: "50%",
-          border: "1px solid rgba(128,82,255,0.15)",
-          boxShadow: "0 0 80px 20px rgba(128,82,255,0.06), inset 0 0 60px 10px rgba(128,82,255,0.04)",
+          border: "1px solid rgba(128,82,255,0.12)",
+          boxShadow: "0 0 80px 20px rgba(128,82,255,0.05), inset 0 0 60px 10px rgba(128,82,255,0.03)",
         }}
       />
 
-      {/* Smaller inner ring */}
       <div
         aria-hidden="true"
         className="absolute pointer-events-none cta-ring-glow-inner"
@@ -78,31 +75,31 @@ export function CtaPanel() {
           left: "35vw",
           top: "35vh",
           borderRadius: "50%",
-          border: "1px solid rgba(255,184,41,0.08)",
-          boxShadow: "0 0 40px 10px rgba(255,184,41,0.03)",
+          border: "1px solid rgba(255,184,41,0.06)",
+          boxShadow: "0 0 40px 10px rgba(255,184,41,0.02)",
         }}
       />
 
-      {/* === Content === */}
-      <div data-panel-content className="relative text-center max-w-[700px] px-6 z-10">
-        <div data-reveal data-reveal-delay="0" className="flex justify-center mb-8">
+      {/* === Content — properly spaced === */}
+      <div data-panel-content className="relative text-center max-w-[640px] px-8 z-10" style={{ marginTop: "-40px" }}>
+        <div data-reveal data-reveal-delay="0" className="flex justify-center mb-6">
           <div className="cta-logo-pulse">
             <LogoMark />
           </div>
         </div>
 
-        <h2 data-reveal data-reveal-delay="0.1" className="text-bone" style={{ fontSize: "clamp(40px, 6vw, 78px)", lineHeight: 0.9, letterSpacing: "-0.04em", fontWeight: 200 }}>
+        <h2 data-reveal data-reveal-delay="0.1" className="text-bone" style={{ fontSize: "clamp(42px, 7vw, 84px)", lineHeight: 0.92, letterSpacing: "-0.04em", fontWeight: 200 }}>
           Ready to hold
           <br />
-          <span className="hero-gradient-text">them closer?</span>
+          <span className="hero-gradient-text" style={{ fontStyle: "italic" }}>them closer?</span>
         </h2>
 
-        <p data-reveal data-reveal-delay="0.25" className="mt-8 text-ash mx-auto max-w-[480px]" style={{ fontSize: 16, lineHeight: 1.6 }}>
+        <p data-reveal data-reveal-delay="0.25" className="mt-7 text-ash mx-auto max-w-[440px]" style={{ fontSize: 16, lineHeight: 1.65, letterSpacing: "0.01em" }}>
           Join thousands of pet owners who stopped worrying and started
           understanding. PawPal AI is free to start.
         </p>
 
-        <div data-reveal data-reveal-delay="0.4" className="mt-12 flex items-center justify-center gap-4 flex-wrap">
+        <div data-reveal data-reveal-delay="0.4" className="mt-10 flex items-center justify-center gap-5 flex-wrap">
           <MagneticButton strength={0.3}>
             <Link to="/app" className="dala-btn-primary glow-btn cta-btn-enhanced inline-flex items-center justify-center rounded-3xl" style={{ padding: "18px 32px", fontSize: 13, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
               Create your pet profile
@@ -115,7 +112,7 @@ export function CtaPanel() {
           </MagneticButton>
         </div>
 
-        <div data-reveal data-reveal-delay="0.55" className="mt-16 flex items-center justify-center gap-8">
+        <div data-reveal data-reveal-delay="0.55" className="mt-14 flex items-center justify-center gap-8">
           {["Privacy", "Terms", "Contact"].map((l) => (
             <a key={l} href="#" className="dala-nav-link" style={{ fontSize: 13, letterSpacing: "0.021em" }}>
               {l}
@@ -123,7 +120,7 @@ export function CtaPanel() {
           ))}
         </div>
 
-        <p data-reveal data-reveal-delay="0.6" className="mt-6 text-smoke" style={{ fontSize: 12, letterSpacing: "0.02em" }}>
+        <p data-reveal data-reveal-delay="0.6" className="mt-5 text-smoke" style={{ fontSize: 12, letterSpacing: "0.02em" }}>
           © 2026 PawPal AI — built quietly, for the loud ones at home.
         </p>
       </div>
