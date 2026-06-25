@@ -1,7 +1,5 @@
 import { AmbientShapes } from "@/components/AmbientShapes";
-import { ParticleConstellation } from "@/components/ParticleConstellation";
 import { TiltCard } from "@/components/TiltCard";
-import { GIRL_CAT_PATH } from "@/lib/silhouettes";
 
 function FeatureCard({ kicker, title, body }: { kicker: string; title: string; body: string }) {
   return (
@@ -25,19 +23,8 @@ export function GirlCatPanel() {
       <AmbientShapes seed={53} count={44} />
       <div className="absolute left-0 top-[10%] bottom-[10%] w-px bg-white/5" />
 
-      {/* Constellation RIGHT */}
-      <div className="absolute right-[5%] top-[8%] bottom-[8%] w-[48%] dala-constellation-wrap">
-        <div aria-hidden="true" className="absolute inset-0 pointer-events-none constellation-glow" />
-        <ParticleConstellation
-          pathD={GIRL_CAT_PATH}
-          count={2800}
-          className="absolute inset-0 dala-constellation-surface"
-          ariaLabel="Girl and cat constellation"
-        />
-      </div>
-
-      {/* Text LEFT */}
-      <div data-panel-content className="relative z-10 pl-12 lg:pl-24 xl:pl-32 max-w-[46%]">
+      {/* Text LEFT — particles morph on the right via MorphingConstellation */}
+      <div data-panel-content className="relative z-10 pl-12 lg:pl-24 xl:pl-32 max-w-[45%]">
         <div className="max-w-[440px]">
           <span data-reveal data-reveal-delay="0" className="text-amber-spark" style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
             The bond is the product.

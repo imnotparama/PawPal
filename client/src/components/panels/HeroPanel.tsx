@@ -1,9 +1,7 @@
 import { Link } from "react-router-dom";
 import { AmbientShapes } from "@/components/AmbientShapes";
-import { ParticleConstellation } from "@/components/ParticleConstellation";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { MagneticButton } from "@/components/MagneticButton";
-import { CAT_PATH } from "@/lib/silhouettes";
 
 function Stat({ n, label }: { n: React.ReactNode; label: string }) {
   return (
@@ -34,8 +32,8 @@ export function HeroPanel() {
         </svg>
       </div>
 
-      {/* Text LEFT */}
-      <div data-panel-content className="relative z-10 pl-12 lg:pl-24 xl:pl-32 max-w-[48%]" style={{ paddingTop: "72px" }}>
+      {/* Text LEFT — particles morph on the right via MorphingConstellation */}
+      <div data-panel-content className="relative z-10 pl-12 lg:pl-24 xl:pl-32 max-w-[45%]" style={{ paddingTop: "72px" }}>
         <div className="max-w-[500px]">
           <div className="flex items-center gap-2.5 mb-10" data-reveal data-reveal-delay="0">
             <span className="block w-2 h-2 rounded-full bg-plum-voltage pawpal-pulse-dot" />
@@ -80,17 +78,6 @@ export function HeroPanel() {
             <Stat n="24/7" label="AI standby" />
           </div>
         </div>
-      </div>
-
-      {/* Constellation RIGHT */}
-      <div className="absolute right-[5%] top-[10%] bottom-[10%] w-[45%] dala-constellation-wrap">
-        <div aria-hidden="true" className="absolute inset-0 pointer-events-none constellation-glow" />
-        <ParticleConstellation
-          pathD={CAT_PATH}
-          count={2600}
-          className="absolute inset-0 dala-constellation-surface"
-          ariaLabel="Cat constellation"
-        />
       </div>
     </div>
   );

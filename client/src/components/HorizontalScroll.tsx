@@ -70,18 +70,6 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
           shape.style.transform = `translate(-50%, -50%) translateX(${tx}px) translateY(${ty}px) rotate(${rot}deg) scale(${scale})`;
         });
 
-        // Constellation scale + opacity based on proximity
-        const constellation = panel.querySelector<HTMLElement>(".dala-constellation-surface");
-        if (constellation) {
-          const proximity2 = Math.max(0, 1 - Math.abs(clamped));
-          // Aggressive fade: fully invisible when panel is even slightly off-center
-          const cScale = 0.7 + proximity2 * 0.3;
-          const cOpacity = Math.pow(proximity2, 3); // cubic falloff — fades quickly
-          constellation.style.transform = `scale(${cScale})`;
-          constellation.style.opacity = `${cOpacity}`;
-          constellation.style.transition = "none";
-        }
-
         // Content reveal
         const proximity = Math.max(0, 1 - Math.abs(clamped));
         const direction = -clamped;
