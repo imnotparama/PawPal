@@ -5,11 +5,12 @@ interface HorizontalScrollProps {
 }
 
 /**
- * Horizontal scroll container that converts vertical scroll into horizontal movement.
- * Each child is treated as a full-width panel. The container's height is set to
- * (panelCount * 100vh) so the user scrolls vertically, but we translateX the content.
+ * Horizontal scroll with full cinematic panel transitions.
+ * Converts vertical scroll → horizontal movement.
+ * Each panel's content fades/slides/scales based on scroll proximity.
  *
- * Ambient shapes and elements inside get a parallax-like transform based on scroll progress.
+ * Content elements with [data-reveal] get staggered entrance/exit animations.
+ * Elements with [data-reveal-delay="N"] get additional stagger offset.
  */
 export function HorizontalScroll({ children }: HorizontalScrollProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,9 +23,8 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
     if (!container || !track) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     const panels = track.children.length;
-    // Make the outer container tall enough to scroll through all panels
+
     container.style.height = `${panels * 100}vh`;
 
     let currentX = 0;
@@ -40,7 +40,6 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
       const maxTranslate = (panels - 1) * window.innerWidth;
       targetX = -progress * maxTranslate;
 
-      // Update progress bar
       const bar = container.querySelector<HTMLElement>("[data-progress-bar]");
       if (bar) bar.style.transform = `scaleX(${progress})`;
     };
@@ -49,46 +48,75 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
       if (reduced) {
         currentX = targetX;
       } else {
-        // Smooth lerp
-        currentX += (targetX - currentX) * 0.08;
+        currentX += (targetX - currentX) * 0.07;
       }
 
       track.style.transform = `translate3d(${currentX}px, 0, 0)`;
 
-      // Apply parallax to ambient shapes within each panel
       const panelElements = track.querySelectorAll<HTMLElement>("[data-h-panel]");
       panelElements.forEach((panel, i) => {
+        // -1 = panel fully to the left (gone), 0 = active, 1 = panel to the right (incoming)
         const panelProgress = progressRef.current * (panels - 1) - i;
-        const clampedProgress = Math.max(-1, Math.min(1, panelProgress));
+        const clamped = Math.max(-1.5, Math.min(1.5, panelProgress));
 
-        // Parallax ambient shapes
+        // — Ambient shapes parallax —
         const shapes = panel.querySelectorAll<HTMLElement>(".ambient-float");
         shapes.forEach((shape) => {
           const speed = parseFloat(shape.dataset.parallax || "0.3");
-          const tx = clampedProgress * 120 * speed;
-          const ty = clampedProgress * 40 * speed;
-          const rot = clampedProgress * 45 * speed;
-          const scale = 1 + Math.abs(clampedProgress) * 0.15;
+          const tx = clamped * 140 * speed;
+          const ty = clamped * 50 * speed;
+          const rot = clamped * 45 * speed;
+          const scale = 1 + Math.abs(clamped) * 0.12;
           shape.style.transform = `translate(-50%, -50%) translateX(${tx}px) translateY(${ty}px) rotate(${rot}deg) scale(${scale})`;
         });
 
-        // Scale constellation slightly based on scroll proximity
-        const constellation = panel.querySelector<HTMLElement>(".dala-constellation-surface");
-        if (constellation) {
-          const proximity = 1 - Math.abs(clampedProgress);
-          const cScale = 0.85 + proximity * 0.15;
-          const cOpacity = 0.4 + proximity * 0.6;
-          constellation.style.transform = `scale(${cScale})`;
-          constellation.style.opacity = `${cOpacity}`;
-          constellation.style.transition = "none";
+        // — Content reveal animations —
+        // proximity: 1 = fully visible, 0 = fully gone
+        const proximity = Math.max(0, 1 - Math.abs(clamped));
+        // direction: negative = leaving left, positive = entering from right
+        const direction = -clamped;
+
+        // Main content wrapper
+        const content = panel.querySelector<HTMLElement>("[data-panel-content]");
+        if (content) {
+          if (reduced) {
+            content.style.opacity = proximity > 0.3 ? "1" : "0";
+            content.style.transform = "none";
+          } else {
+            const translateX = direction * 80 * (1 - proximity);
+            const translateY = (1 - proximity) * 30;
+            const scale = 0.92 + proximity * 0.08;
+            content.style.opacity = `${Math.pow(proximity, 1.5)}`;
+            content.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
+            content.style.filter = proximity < 0.5 ? `blur(${(1 - proximity * 2) * 4}px)` : "none";
+          }
         }
+
+        // Staggered child reveals
+        const reveals = panel.querySelectorAll<HTMLElement>("[data-reveal]");
+        reveals.forEach((el, idx) => {
+          const delay = parseFloat(el.dataset.revealDelay || `${idx * 0.08}`);
+          // Offset proximity by delay for stagger effect
+          const staggeredProximity = Math.max(0, Math.min(1, proximity * 1.5 - delay));
+
+          if (reduced) {
+            el.style.opacity = staggeredProximity > 0.2 ? "1" : "0";
+            el.style.transform = "none";
+          } else {
+            const ty = (1 - staggeredProximity) * 40;
+            const tx = direction * 30 * (1 - staggeredProximity);
+            el.style.opacity = `${Math.pow(staggeredProximity, 2)}`;
+            el.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+            el.style.transition = "none";
+          }
+        });
       });
 
       raf = requestAnimationFrame(loop);
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll(); // Initial position
+    onScroll();
     raf = requestAnimationFrame(loop);
 
     return () => {
@@ -107,7 +135,7 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
         >
           {children}
         </div>
-        {/* Progress bar at bottom */}
+        {/* Progress bar */}
         <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/5 z-50">
           <div
             data-progress-bar
@@ -120,10 +148,6 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
   );
 }
 
-/**
- * A single panel within the horizontal scroll.
- * Takes up exactly 100vw width and 100vh height.
- */
 export function HPanel({
   children,
   className = "",
