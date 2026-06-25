@@ -5,12 +5,12 @@ interface HorizontalScrollProps {
 }
 
 /**
- * Horizontal scroll with full cinematic panel transitions.
+ * Horizontal scroll with cinematic panel transitions and magnetic snap-locking.
  * Converts vertical scroll → horizontal movement.
- * Each panel's content fades/slides/scales based on scroll proximity.
- *
- * Content elements with [data-reveal] get staggered entrance/exit animations.
- * Elements with [data-reveal-delay="N"] get additional stagger offset.
+ * 
+ * Magnetic behavior: when the user stops scrolling near a panel boundary,
+ * the page gently snaps to the nearest panel center. This creates a satisfying
+ * "lock-in" feel without hard scroll-snap jarring.
  */
 export function HorizontalScroll({ children }: HorizontalScrollProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -31,7 +31,63 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
     let targetX = 0;
     let raf: number;
 
+    // Magnetic snap state
+    let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+    let isSnapping = false;
+    const SNAP_DELAY = 150; // ms after scroll stops before snapping
+    const SNAP_THRESHOLD = 0.12; // how close to panel center to trigger snap (% of panel)
+
+    const getSnapTarget = (progress: number): number | null => {
+      const panelProgress = progress * (panels - 1);
+      const nearestPanel = Math.round(panelProgress);
+      const distToNearest = Math.abs(panelProgress - nearestPanel);
+
+      // Only snap if we're within threshold of a panel center
+      if (distToNearest < SNAP_THRESHOLD) {
+        return nearestPanel / (panels - 1);
+      }
+      return null;
+    };
+
+    const snapToPanel = (targetProgress: number) => {
+      if (isSnapping) return;
+      isSnapping = true;
+
+      const maxScroll = container.offsetHeight - window.innerHeight;
+      const targetScroll = targetProgress * maxScroll;
+      const startScroll = window.scrollY;
+      const distance = targetScroll - startScroll;
+
+      if (Math.abs(distance) < 2) {
+        isSnapping = false;
+        return;
+      }
+
+      const duration = 600; // ms
+      const startTime = performance.now();
+
+      const animateSnap = (now: number) => {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / duration, 1);
+        // Ease out cubic for smooth deceleration
+        const eased = 1 - Math.pow(1 - t, 3);
+
+        window.scrollTo(0, startScroll + distance * eased);
+
+        if (t < 1) {
+          requestAnimationFrame(animateSnap);
+        } else {
+          isSnapping = false;
+        }
+      };
+
+      requestAnimationFrame(animateSnap);
+    };
+
     const onScroll = () => {
+      // If we're in the middle of a programmatic snap, don't interfere
+      if (isSnapping) return;
+
       const scrollTop = window.scrollY;
       const maxScroll = container.offsetHeight - window.innerHeight;
       const progress = Math.min(Math.max(scrollTop / maxScroll, 0), 1);
@@ -42,6 +98,16 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
 
       const bar = container.querySelector<HTMLElement>("[data-progress-bar]");
       if (bar) bar.style.transform = `scaleX(${progress})`;
+
+      // Reset snap timer on each scroll event
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        // User stopped scrolling — check if we should snap
+        const snapTarget = getSnapTarget(progressRef.current);
+        if (snapTarget !== null) {
+          snapToPanel(snapTarget);
+        }
+      }, SNAP_DELAY);
     };
 
     const loop = () => {
@@ -55,11 +121,10 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
 
       const panelElements = track.querySelectorAll<HTMLElement>("[data-h-panel]");
       panelElements.forEach((panel, i) => {
-        // -1 = panel fully to the left (gone), 0 = active, 1 = panel to the right (incoming)
         const panelProgress = progressRef.current * (panels - 1) - i;
         const clamped = Math.max(-1.5, Math.min(1.5, panelProgress));
 
-        // — Ambient shapes parallax —
+        // Ambient shapes parallax
         const shapes = panel.querySelectorAll<HTMLElement>(".ambient-float");
         shapes.forEach((shape) => {
           const speed = parseFloat(shape.dataset.parallax || "0.3");
@@ -70,13 +135,10 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
           shape.style.transform = `translate(-50%, -50%) translateX(${tx}px) translateY(${ty}px) rotate(${rot}deg) scale(${scale})`;
         });
 
-        // — Content reveal animations —
-        // proximity: 1 = fully visible, 0 = fully gone
+        // Content reveal
         const proximity = Math.max(0, 1 - Math.abs(clamped));
-        // direction: negative = leaving left, positive = entering from right
         const direction = -clamped;
 
-        // Main content wrapper
         const content = panel.querySelector<HTMLElement>("[data-panel-content]");
         if (content) {
           if (reduced) {
@@ -96,7 +158,6 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
         const reveals = panel.querySelectorAll<HTMLElement>("[data-reveal]");
         reveals.forEach((el, idx) => {
           const delay = parseFloat(el.dataset.revealDelay || `${idx * 0.08}`);
-          // Offset proximity by delay for stagger effect
           const staggeredProximity = Math.max(0, Math.min(1, proximity * 1.5 - delay));
 
           if (reduced) {
@@ -122,6 +183,7 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
     return () => {
       window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
     };
   }, []);
 
