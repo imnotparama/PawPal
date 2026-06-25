@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { AmbientShapes } from "@/components/AmbientShapes";
+import { ParticleConstellation } from "@/components/ParticleConstellation";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { MagneticButton } from "@/components/MagneticButton";
+import { CAT_PATH } from "@/lib/silhouettes";
 
 function Stat({ n, label }: { n: React.ReactNode; label: string }) {
   return (
@@ -20,11 +22,9 @@ export function HeroPanel() {
   return (
     <div className="relative w-full h-full flex items-center">
       <AmbientShapes seed={11} count={50} />
-
-      {/* Subtle grid lines in background */}
       <div aria-hidden="true" className="absolute inset-0 pointer-events-none hero-grid-bg" />
 
-      {/* Scroll hint — pinned at bottom center */}
+      {/* Scroll hint */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-2 text-smoke animate-pulse z-20" data-reveal data-reveal-delay="0.7">
         <span style={{ fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase" }}>
           Scroll to explore
@@ -34,7 +34,7 @@ export function HeroPanel() {
         </svg>
       </div>
 
-      {/* Text LEFT — vertically centered with proper top offset for nav */}
+      {/* Text LEFT */}
       <div data-panel-content className="relative z-10 pl-12 lg:pl-24 xl:pl-32 max-w-[48%]" style={{ paddingTop: "72px" }}>
         <div className="max-w-[500px]">
           <div className="flex items-center gap-2.5 mb-10" data-reveal data-reveal-delay="0">
@@ -80,6 +80,17 @@ export function HeroPanel() {
             <Stat n="24/7" label="AI standby" />
           </div>
         </div>
+      </div>
+
+      {/* Constellation RIGHT */}
+      <div className="absolute right-[5%] top-[10%] bottom-[10%] w-[45%] dala-constellation-wrap">
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none constellation-glow" />
+        <ParticleConstellation
+          pathD={CAT_PATH}
+          count={2600}
+          className="absolute inset-0 dala-constellation-surface"
+          ariaLabel="Cat constellation"
+        />
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { HorizontalScroll, HPanel } from "@/components/HorizontalScroll";
 import { CursorGlow } from "@/components/CursorGlow";
-import { MorphingConstellation } from "@/components/MorphingConstellation";
 import { HeroPanel } from "@/components/panels/HeroPanel";
 import { DogPanel } from "@/components/panels/DogPanel";
 import { GirlCatPanel } from "@/components/panels/GirlCatPanel";
@@ -11,7 +10,6 @@ export function LandingPage() {
   return (
     <div className="bg-void text-bone font-acronym">
       <CursorGlow />
-      <MorphingConstellation />
       <Navigation />
       <HorizontalScroll>
         <HPanel>

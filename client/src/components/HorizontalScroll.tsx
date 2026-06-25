@@ -70,6 +70,17 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
           shape.style.transform = `translate(-50%, -50%) translateX(${tx}px) translateY(${ty}px) rotate(${rot}deg) scale(${scale})`;
         });
 
+        // Constellation scale + opacity based on proximity
+        const constellation = panel.querySelector<HTMLElement>(".dala-constellation-surface");
+        if (constellation) {
+          const proximity2 = Math.max(0, 1 - Math.abs(clamped));
+          const cScale = 0.8 + proximity2 * 0.2;
+          const cOpacity = 0.3 + proximity2 * 0.7;
+          constellation.style.transform = `scale(${cScale})`;
+          constellation.style.opacity = `${cOpacity}`;
+          constellation.style.transition = "none";
+        }
+
         // Content reveal
         const proximity = Math.max(0, 1 - Math.abs(clamped));
         const direction = -clamped;

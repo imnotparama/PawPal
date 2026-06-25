@@ -1,4 +1,6 @@
 import { AmbientShapes } from "@/components/AmbientShapes";
+import { ParticleConstellation } from "@/components/ParticleConstellation";
+import { DOG_PATH } from "@/lib/silhouettes";
 
 export function DogPanel() {
   return (
@@ -6,8 +8,19 @@ export function DogPanel() {
       <AmbientShapes seed={29} count={40} />
       <div className="absolute left-0 top-[10%] bottom-[10%] w-px bg-white/5" />
 
-      {/* Text RIGHT side (max 45% width) — particles are on the left */}
-      <div data-panel-content className="relative z-10 pr-10 lg:pr-20 max-w-[45%]">
+      {/* Constellation LEFT */}
+      <div className="absolute left-[5%] top-[10%] bottom-[10%] w-[45%] dala-constellation-wrap">
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none constellation-glow" />
+        <ParticleConstellation
+          pathD={DOG_PATH}
+          count={2400}
+          className="absolute inset-0 dala-constellation-surface"
+          ariaLabel="Dog constellation"
+        />
+      </div>
+
+      {/* Text RIGHT */}
+      <div data-panel-content className="relative z-10 pr-12 lg:pr-24 xl:pr-32 max-w-[48%]">
         <div className="max-w-[460px]">
           <span data-reveal data-reveal-delay="0" className="text-plum-voltage" style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
             For every species. Every breed. Every quirk.
