@@ -1,19 +1,32 @@
 import { Navigation } from "@/components/Navigation";
-import { HeroSection } from "@/components/HeroSection";
-import { DogSection } from "@/components/DogSection";
-import { GirlCatSection } from "@/components/GirlCatSection";
-import { Footer } from "@/components/Footer";
+import { HorizontalScroll, HPanel } from "@/components/HorizontalScroll";
 import { CursorGlow } from "@/components/CursorGlow";
+import { MorphingConstellation } from "@/components/MorphingConstellation";
+import { HeroPanel } from "@/components/panels/HeroPanel";
+import { DogPanel } from "@/components/panels/DogPanel";
+import { GirlCatPanel } from "@/components/panels/GirlCatPanel";
+import { CtaPanel } from "@/components/panels/CtaPanel";
 
 export function LandingPage() {
   return (
-    <main className="min-h-screen bg-void text-bone font-acronym overflow-x-hidden">
+    <div className="bg-void text-bone font-acronym">
       <CursorGlow />
+      <MorphingConstellation />
       <Navigation />
-      <HeroSection />
-      <DogSection />
-      <GirlCatSection />
-      <Footer />
-    </main>
+      <HorizontalScroll>
+        <HPanel>
+          <HeroPanel />
+        </HPanel>
+        <HPanel>
+          <DogPanel />
+        </HPanel>
+        <HPanel>
+          <GirlCatPanel />
+        </HPanel>
+        <HPanel>
+          <CtaPanel />
+        </HPanel>
+      </HorizontalScroll>
+    </div>
   );
 }

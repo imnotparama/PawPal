@@ -74,6 +74,7 @@ export function AmbientShapes({
         <span
           key={i}
           className="absolute opacity-60 ambient-float"
+          data-parallax={((it.dur - 8) / 12).toFixed(2)}
           style={{
             left: `${it.x * 100}%`,
             top: `${it.y * 100}%`,
