@@ -1,64 +1,85 @@
-import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { Typography } from '@/components/ui/Typography';
-import { ParticleConstellation } from '@/components/ParticleConstellation';
-import { DOG_SILHOUETTE } from '@/lib/silhouettes';
+import { ParticleConstellation } from "@/components/ParticleConstellation";
+import { AmbientShapes } from "@/components/AmbientShapes";
+import { DOG_PATH } from "@/lib/silhouettes";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } },
-};
-
-interface DogSectionProps {
-  className?: string;
-}
-
-export function DogSection({ className }: DogSectionProps) {
-  const ref = useRef<HTMLElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
-
+export function DogSection() {
   return (
-    <section
-      ref={ref}
-      className={`max-w-[1200px] mx-auto py-[60px] px-6 ${className ?? ''}`}
-    >
-      <motion.div
-        className="flex flex-col items-center text-center"
-        variants={containerVariants}
-        initial="hidden"
-        animate={isInView ? 'visible' : 'hidden'}
-      >
-        {/* Dog particle constellation */}
-        <motion.div variants={itemVariants} className="max-w-[600px] h-[450px] w-full mx-auto mb-10">
-          <ParticleConstellation silhouette={DOG_SILHOUETTE} className="w-full h-full" />
-        </motion.div>
+    <section className="relative py-[120px] border-t border-white/5 overflow-hidden">
+      <AmbientShapes seed={29} count={36} />
+      <div className="relative mx-auto max-w-[1200px] px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="relative h-[560px] order-2 lg:order-1 dala-constellation-wrap">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none constellation-glow"
+          />
+          <ParticleConstellation
+            pathD={DOG_PATH}
+            count={2400}
+            className="absolute inset-0 dala-constellation-surface"
+            ariaLabel="Constellation in the shape of a dog"
+          />
+        </div>
 
-        {/* Headline */}
-        <motion.div variants={itemVariants}>
-          <Typography variant="display" className="mb-4">
-            Smart Care for Every Breed
-          </Typography>
-        </motion.div>
+        <div className="max-w-[520px] order-1 lg:order-2 relative z-10">
+          <span
+            className="text-plum-voltage"
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+            }}
+          >
+            For every species. Every breed. Every quirk.
+          </span>
+          <h2
+            className="mt-6 text-bone"
+            style={{
+              fontSize: "clamp(40px, 6vw, 78px)",
+              lineHeight: 0.92,
+              letterSpacing: "-0.04em",
+              fontWeight: 200,
+            }}
+          >
+            A vet in
+            <br />
+            your pocket,
+            <br />
+            without the
+            <br />
+            <span className="text-plum-voltage" style={{ fontStyle: "italic" }}>
+              waiting room.
+            </span>
+          </h2>
+          <p
+            className="mt-10 text-ash"
+            style={{ fontSize: 16, lineHeight: 1.55, letterSpacing: "0.015em" }}
+          >
+            Upload a photo of a rash, paste a vet&apos;s report, ask why your
+            dog won&apos;t eat the kibble he loved yesterday. PawPal threads it
+            all into a single, growing portrait of your animal.
+          </p>
 
-        {/* Body text */}
-        <motion.div variants={itemVariants}>
-          <Typography variant="body" className="max-w-[560px]">
-            Our AI-powered symptom detection analyzes your dog's behavior and health
-            signals in real time, helping you catch issues early and keep your
-            companion happy and healthy.
-          </Typography>
-        </motion.div>
-      </motion.div>
+          <ul className="mt-12 space-y-6">
+            {[
+              "Vaccination schedules — auto-tracked from your vet PDFs.",
+              "Symptom triage that flags emergencies without panicking you.",
+              "A timeline of weight, mood, appetite — quietly observed.",
+            ].map((line) => (
+              <li
+                key={line}
+                className="dala-list-item flex gap-4 text-bone"
+                style={{ fontSize: 15, letterSpacing: "0.02em" }}
+              >
+                <span
+                  className="dala-list-dot mt-2 block w-1.5 h-1.5 rounded-full bg-plum-voltage shrink-0"
+                />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </section>
   );
 }

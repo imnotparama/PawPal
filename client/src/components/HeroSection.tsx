@@ -1,67 +1,140 @@
-import { motion } from 'framer-motion';
-import { Typography } from '@/components/ui/Typography';
-import { Button } from '@/components/ui/Button';
-import { ParticleConstellation } from '@/components/ParticleConstellation';
-import { CAT_SILHOUETTE } from '@/lib/silhouettes';
+import { Link } from "react-router-dom";
+import { ParticleConstellation } from "@/components/ParticleConstellation";
+import { AmbientShapes } from "@/components/AmbientShapes";
+import { AnimatedCounter } from "@/components/AnimatedCounter";
+import { MagneticButton } from "@/components/MagneticButton";
+import { CAT_PATH } from "@/lib/silhouettes";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.12,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } },
-};
-
-interface HeroSectionProps {
-  className?: string;
+function Stat({ n, label }: { n: React.ReactNode; label: string }) {
+  return (
+    <div className="dala-stat">
+      <div
+        className="text-bone"
+        style={{ fontSize: 22, fontWeight: 300, letterSpacing: "-0.02em" }}
+      >
+        {n}
+      </div>
+      <div
+        className="text-smoke mt-1"
+        style={{
+          fontSize: 11,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+        }}
+      >
+        {label}
+      </div>
+    </div>
+  );
 }
 
-export function HeroSection({ className }: HeroSectionProps) {
+export function HeroSection() {
   return (
-    <section
-      className={`min-h-[500px] md:min-h-screen grid grid-cols-1 md:grid-cols-2 items-center gap-8 max-w-[1200px] mx-auto px-6 pt-16 ${className ?? ''}`}
-    >
-      {/* Left column: text content + CTA */}
-      <motion.div
-        className="flex flex-col gap-6"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.div variants={itemVariants}>
-          <Typography variant="eyebrow">AI-Powered Pet Health Companion</Typography>
-        </motion.div>
+    <section className="relative pt-[140px] pb-[120px] overflow-hidden">
+      <AmbientShapes seed={11} count={42} />
+      <div className="relative mx-auto max-w-[1200px] px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-[520px] pawpal-fade-up relative z-10">
+          <div className="flex items-center gap-2 mb-8">
+            <span className="block w-1.5 h-1.5 rounded-full bg-plum-voltage pawpal-pulse-dot" />
+            <span
+              className="text-amber-spark"
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+            >
+              Stop guessing. Start caring.
+            </span>
+          </div>
 
-        <motion.div variants={itemVariants}>
-          <Typography variant="display" className="text-[48px] md:text-[78px]">
-            Your Pet's Health, Reimagined
-          </Typography>
-        </motion.div>
+          <h1
+            className="text-bone"
+            style={{
+              fontSize: "clamp(56px, 9vw, 113px)",
+              lineHeight: 0.85,
+              letterSpacing: "-0.04em",
+              fontWeight: 200,
+            }}
+          >
+            Your pet&apos;s
+            <br />
+            health,
+            <br />
+            <span className="hero-gradient-text" style={{ fontWeight: 300, fontStyle: "italic" }}>
+              answered.
+            </span>
+          </h1>
 
-        <motion.div variants={itemVariants}>
-          <Typography variant="body" className="max-w-[480px]">
-            Harness the power of AI to monitor your pet's health, track
-            vaccinations, and get real-time insights — all in one place.
-          </Typography>
-        </motion.div>
+          <p
+            className="mt-10 text-ash max-w-[440px]"
+            style={{
+              fontSize: 16,
+              lineHeight: 1.55,
+              letterSpacing: "0.015em",
+              fontWeight: 400,
+            }}
+          >
+            PawPal AI quietly listens to every vaccine, every vet note, every
+            symptom — and answers the next question before you think to ask it.
+          </p>
 
-        <motion.div variants={itemVariants}>
-          <Button variant="primary" size="lg">
-            GET STARTED
-          </Button>
-        </motion.div>
-      </motion.div>
+          <div className="mt-12 flex items-center gap-4 flex-wrap">
+            <MagneticButton strength={0.25}>
+              <Link
+                to="/app"
+                className="dala-btn-primary glow-btn inline-flex items-center justify-center rounded-3xl"
+                style={{
+                  padding: "16px 22px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Meet PawPal
+              </Link>
+            </MagneticButton>
+            <MagneticButton strength={0.2}>
+              <a
+                href="#request"
+                className="dala-btn-outline-amber inline-flex items-center justify-center rounded-3xl"
+                style={{
+                  padding: "16px 22px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Watch the demo
+              </a>
+            </MagneticButton>
+          </div>
 
-      {/* Right column: particle constellation */}
-      <div className="h-[500px] min-h-[400px]">
-        <ParticleConstellation silhouette={CAT_SILHOUETTE} className="w-full h-full" />
+          <div className="mt-16 flex items-center gap-8 text-smoke">
+            <Stat n={<><AnimatedCounter end={12} suffix="k+" /></>} label="Pets onboarded" />
+            <div className="w-px h-10 bg-white/10" />
+            <Stat n={<><AnimatedCounter end={98} suffix="%" /></>} label="Owners feel calmer" />
+            <div className="w-px h-10 bg-white/10" />
+            <Stat n="24/7" label="AI standby" />
+          </div>
+        </div>
+
+        <div className="relative h-[560px] lg:h-[680px] dala-constellation-wrap">
+          {/* Glow behind constellation */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none constellation-glow"
+          />
+          <ParticleConstellation
+            pathD={CAT_PATH}
+            count={2600}
+            className="absolute inset-0 dala-constellation-surface"
+            ariaLabel="Constellation in the shape of a sitting cat"
+          />
+        </div>
       </div>
     </section>
   );

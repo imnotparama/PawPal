@@ -8,10 +8,12 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonProps["variant"], string> = {
-  primary: "bg-plum-voltage text-bone rounded-3xl",
+  primary:
+    "dala-btn-primary bg-plum-voltage text-bone rounded-3xl font-semibold uppercase tracking-[0.05em] text-xs",
   outline:
-    "border-2 border-amber-spark text-amber-spark rounded-3xl bg-transparent",
-  ghost: "text-smoke hover:text-bone bg-transparent rounded-3xl",
+    "dala-btn-outline-amber border-2 border-amber-spark text-amber-spark rounded-3xl bg-transparent font-semibold uppercase tracking-[0.05em] text-xs",
+  ghost:
+    "dala-nav-link rounded-3xl bg-transparent font-semibold uppercase tracking-[0.05em] text-xs",
 };
 
 const sizeStyles: Record<NonNullable<ButtonProps["size"]>, string> = {
@@ -30,7 +32,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center font-medium transition-colors duration-200 cursor-pointer",
+        "inline-flex items-center justify-center font-medium cursor-pointer",
         variantStyles[variant],
         sizeStyles[size],
         className

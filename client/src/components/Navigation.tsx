@@ -1,43 +1,52 @@
-import { Button } from "@/components/ui/Button";
+import { Link } from "react-router-dom";
+import { LogoMark } from "@/components/LogoMark";
+import { MagneticButton } from "@/components/MagneticButton";
 
-const NAV_LINKS = [
-  { label: "FEATURES", href: "#features" },
-  { label: "ABOUT", href: "#about" },
-  { label: "CONTACT", href: "#contact" },
-];
+const NAV_LINKS = ["MANIFESTO", "PRODUCT", "PRICING", "BLOG"];
 
-export function Navigation({ className }: { className?: string }) {
+export function Navigation() {
   return (
-    <nav
-      className={`fixed top-0 w-full z-50 bg-void border-b border-white/10 ${className ?? ""}`}
-    >
-      <div className="max-w-[1200px] mx-auto flex items-center justify-between px-6 h-16">
-        {/* Logo */}
-        <a
-          href="/"
-          className="font-acronym text-xl font-semibold text-bone tracking-tight"
-        >
-          PawPal AI
-        </a>
+    <header className="fixed top-0 inset-x-0 z-50 backdrop-blur-sm bg-void/60">
+      <div className="mx-auto max-w-[1200px] px-6 lg:px-10 h-[72px] flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-3 group">
+          <LogoMark />
+          <span
+            className="text-bone"
+            style={{ fontWeight: 600, fontSize: 18, letterSpacing: "0.01em" }}
+          >
+            PawPal<span className="text-plum-voltage">.</span>ai
+          </span>
+        </Link>
 
-        {/* Nav Links - hidden on mobile */}
-        <div className="hidden md:flex items-center gap-8">
-          {NAV_LINKS.map((link) => (
+        <nav className="hidden md:flex items-center gap-10">
+          {NAV_LINKS.map((l) => (
             <a
-              key={link.label}
-              href={link.href}
-              className="text-caption font-semibold uppercase tracking-caption text-smoke hover:text-bone transition-colors duration-200"
+              key={l}
+              href={`#${l.toLowerCase()}`}
+              className="dala-nav-link"
+              style={{ fontSize: 14, letterSpacing: "0.021em", fontWeight: 400 }}
             >
-              {link.label}
+              {l}
             </a>
           ))}
-        </div>
+        </nav>
 
-        {/* CTA */}
-        <Button variant="primary" size="sm">
-          GET STARTED
-        </Button>
+        <MagneticButton strength={0.3}>
+          <a
+            href="#request"
+            className="dala-btn-primary glow-btn inline-flex items-center justify-center rounded-3xl"
+            style={{
+              padding: "12px 18px",
+              fontSize: 12,
+              fontWeight: 600,
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+            }}
+          >
+            Request access
+          </a>
+        </MagneticButton>
       </div>
-    </nav>
+    </header>
   );
 }

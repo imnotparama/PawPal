@@ -46,10 +46,10 @@ export function Sidebar({ className }: { className?: string }) {
               key={item.path}
               to={item.path}
               className={cn(
-                "flex items-center gap-3 px-4 py-2.5 rounded-3xl text-body-sm font-medium transition-colors duration-200",
+                "dala-interactive flex items-center gap-3 px-4 py-2.5 rounded-3xl text-body-sm font-medium",
                 isActive
                   ? "bg-plum-voltage/10 text-plum-voltage"
-                  : "text-smoke hover:text-bone"
+                  : "dala-nav-link"
               )}
             >
               <Icon size={18} />

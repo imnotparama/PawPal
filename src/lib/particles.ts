@@ -13,6 +13,7 @@ export type Particle = {
   speed: number;
 };
 
+const COLORS = ["#8052ff", "#ffb829", "#15846e", "#ffffff", "#ffffff"];
 const SHAPES: Shape[] = ["triangle", "circle", "diamond", "square"];
 
 // Build a sampler that returns true if a normalized (0-1) point lies inside
@@ -47,6 +48,8 @@ export function spawnParticles(
     const y = Math.random();
     if (!sampler(x, y)) continue;
     const r = Math.random();
+    // Color mix tuned for a Dala-brain-like richness: amber predominant, then
+    // plum, then bone, with occasional lichen.
     const color =
       r < 0.42
         ? "#ffb829"

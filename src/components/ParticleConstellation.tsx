@@ -13,13 +13,6 @@ type Props = {
   ariaLabel?: string;
 };
 
-type MouseState = {
-  x: number;
-  y: number;
-  targetX: number;
-  targetY: number;
-};
-
 export function ParticleConstellation({
   pathD,
   count = 900,
@@ -32,42 +25,15 @@ export function ParticleConstellation({
   const rafRef = useRef<number | null>(null);
   const startRef = useRef<number>(0);
   const sizeRef = useRef({ w: 0, h: 0, dpr: 1 });
-  const mouseRef = useRef<MouseState>({
-    x: 0,
-    y: 0,
-    targetX: 0,
-    targetY: 0,
-  });
 
   useEffect(() => {
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
+    // Build silhouette sampler once per pathD.
     const sampler = makePathSampler(pathD, 100, 100);
     particlesRef.current = spawnParticles(count, sampler);
-
-    const container = containerRef.current;
-    const maxParallax = reduced ? 0 : 28;
-
-    const onMouseMove = (e: MouseEvent) => {
-      if (!container) return;
-      const rect = container.getBoundingClientRect();
-      const nx = (e.clientX - rect.left) / rect.width - 0.5;
-      const ny = (e.clientY - rect.top) / rect.height - 0.5;
-      mouseRef.current.targetX = nx * maxParallax;
-      mouseRef.current.targetY = ny * maxParallax;
-    };
-
-    const onMouseLeave = () => {
-      mouseRef.current.targetX = 0;
-      mouseRef.current.targetY = 0;
-    };
-
-    if (container && !reduced) {
-      container.addEventListener("mousemove", onMouseMove);
-      container.addEventListener("mouseleave", onMouseLeave);
-    }
 
     const resize = () => {
       const el = containerRef.current;
@@ -96,14 +62,12 @@ export function ParticleConstellation({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
-      const mouse = mouseRef.current;
-      mouse.x += (mouse.targetX - mouse.x) * 0.1;
-      mouse.y += (mouse.targetY - mouse.y) * 0.1;
-
       const elapsed = (now - startRef.current) / 1000;
+      // 1.2s converge entrance: scatter -> base
       const intro = Math.min(elapsed / 1.2, 1);
       const ease = 1 - Math.pow(1 - intro, 3);
 
+      // Fit silhouette square inside container, centered.
       const side = Math.min(w, h);
       const ox = (w - side) / 2;
       const oy = (h - side) / 2;
@@ -112,6 +76,7 @@ export function ParticleConstellation({
         const baseX = ox + p.bx * side;
         const baseY = oy + p.by * side;
 
+        // Scatter offset for entrance: outward from center.
         const cx = ox + side / 2;
         const cy = oy + side / 2;
         const dx = baseX - cx;
@@ -119,14 +84,13 @@ export function ParticleConstellation({
         const scatterX = cx + dx * (1 + (1 - ease) * 1.2);
         const scatterY = cy + dy * (1 + (1 - ease) * 1.2);
 
+        // Sinusoidal drift after entrance.
         const drift = reduced ? 0 : elapsed * p.speed;
         const driftX = Math.cos(drift + p.phase) * p.amp * side;
         const driftY = Math.sin(drift * 0.7 + p.phase) * p.amp * side;
 
-        const x =
-          scatterX * (1 - ease) + (baseX + driftX + mouse.x) * ease;
-        const y =
-          scatterY * (1 - ease) + (baseY + driftY + mouse.y) * ease;
+        const x = scatterX * (1 - ease) + (baseX + driftX) * ease;
+        const y = scatterY * (1 - ease) + (baseY + driftY) * ease;
 
         drawParticle(ctx, p, x, y, ease);
       }
@@ -138,10 +102,6 @@ export function ParticleConstellation({
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       ro.disconnect();
-      if (container) {
-        container.removeEventListener("mousemove", onMouseMove);
-        container.removeEventListener("mouseleave", onMouseLeave);
-      }
     };
   }, [pathD, count]);
 
