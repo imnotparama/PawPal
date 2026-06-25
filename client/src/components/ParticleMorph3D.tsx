@@ -28,7 +28,7 @@ function samplePointsFromPath(pathD: string, count: number): Float32Array {
     // Convert to centered coordinates (-1 to 1 range)
     positions[placed * 3] = (x / 100 - 0.5) * 2;
     positions[placed * 3 + 1] = -(y / 100 - 0.5) * 2; // flip Y
-    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.3; // slight Z depth
+    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.8; // spread in Z for depth
     placed++;
   }
 
@@ -100,7 +100,7 @@ const vertexShader = `
     finalPos += vec3(noiseX, noiseY, noiseZ);
 
     vec4 mvPosition = modelViewMatrix * vec4(finalPos, 1.0);
-    gl_PointSize = aSize * (180.0 / -mvPosition.z);
+    gl_PointSize = aSize * (100.0 / -mvPosition.z);
     gl_Position = projectionMatrix * mvPosition;
 
     // Color based on phase (creates multi-color gradient)
@@ -182,7 +182,7 @@ export function ParticleMorph3D() {
     const sizes = new Float32Array(PARTICLE_COUNT);
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       phases[i] = Math.random() * Math.PI * 2;
-      sizes[i] = 0.8 + Math.random() * 1.5;
+      sizes[i] = 0.5 + Math.random() * 1.0;
     }
 
     // === Create geometry ===
@@ -206,7 +206,7 @@ export function ParticleMorph3D() {
       },
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      blending: THREE.NormalBlending,
     });
     materialRef.current = material;
 
