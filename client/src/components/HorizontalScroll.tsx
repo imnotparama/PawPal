@@ -5,9 +5,10 @@ interface HorizontalScrollProps {
 }
 
 /**
- * Horizontal scroll with fast smooth transitions.
- * Converts vertical scroll → horizontal movement with a fast lerp
- * so transitions feel snappy while still showing the morph between panels.
+ * Horizontal scroll with page-locked transitions.
+ * One scroll gesture = animate to the next/prev panel.
+ * During the animation you see the particle morph happening.
+ * Always lands on a full panel — never between pages.
  */
 export function HorizontalScroll({ children }: HorizontalScrollProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,86 +23,119 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const panels = track.children.length;
 
+    // Height needed for MorphingConstellation to read scroll progress
     container.style.height = `${panels * 100}vh`;
 
-    let currentX = 0;
-    let targetX = 0;
+    let currentPanel = 0;
+    let isAnimating = false;
+    let wheelAccumulator = 0;
+    let wheelTimer: ReturnType<typeof setTimeout> | null = null;
     let raf: number;
 
-    // Fast lerp
-    const LERP_SPEED = reduced ? 1 : 0.18;
+    // Smooth animation duration for page transition
+    const TRANSITION_DURATION = reduced ? 100 : 800; // ms
+    const WHEEL_THRESHOLD = 50; // accumulated delta before triggering
 
-    // Magnetic snap: when user stops scrolling near a panel, gently pull to center
-    let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
-    let isSnapping = false;
-    const SNAP_DELAY = 200; // ms after scroll stops
-    const SNAP_ZONE = 0.15; // how close to panel center triggers snap (as fraction of one panel width)
+    const animateToPanel = (targetPanel: number) => {
+      const clamped = Math.max(0, Math.min(panels - 1, targetPanel));
+      if (clamped === currentPanel && !isAnimating) return;
+      if (isAnimating) return;
 
-    const snapToNearest = () => {
-      if (isSnapping) return;
-      const panelProgress = progressRef.current * (panels - 1);
-      const nearestPanel = Math.round(panelProgress);
-      const dist = Math.abs(panelProgress - nearestPanel);
+      isAnimating = true;
+      const fromPanel = currentPanel;
+      currentPanel = clamped;
 
-      if (dist < SNAP_ZONE && dist > 0.005) {
-        isSnapping = true;
-        const targetProgress = nearestPanel / (panels - 1);
-        const maxScroll = container.offsetHeight - window.innerHeight;
-        const targetScroll = targetProgress * maxScroll;
-        const startScroll = window.scrollY;
-        const distance = targetScroll - startScroll;
+      const maxScroll = container.offsetHeight - window.innerHeight;
+      const fromScroll = (fromPanel / (panels - 1)) * maxScroll;
+      const toScroll = (clamped / (panels - 1)) * maxScroll;
+      const distance = toScroll - fromScroll;
+      const startTime = performance.now();
 
-        if (Math.abs(distance) < 3) { isSnapping = false; return; }
+      const animate = (now: number) => {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / TRANSITION_DURATION, 1);
+        // Ease in-out cubic for smooth feel with visible morph
+        const eased = t < 0.5
+          ? 4 * t * t * t
+          : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-        const duration = 450;
-        const startTime = performance.now();
+        window.scrollTo(0, fromScroll + distance * eased);
 
-        const animate = (now: number) => {
-          const t = Math.min((now - startTime) / duration, 1);
-          const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
-          window.scrollTo(0, startScroll + distance * eased);
-          if (t < 1) {
-            requestAnimationFrame(animate);
-          } else {
-            isSnapping = false;
-          }
-        };
-        requestAnimationFrame(animate);
+        if (t < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          isAnimating = false;
+        }
+      };
+
+      requestAnimationFrame(animate);
+    };
+
+    // Wheel: accumulate delta, trigger on threshold
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      if (isAnimating) return;
+
+      wheelAccumulator += e.deltaY || e.deltaX;
+
+      if (wheelTimer) clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(() => { wheelAccumulator = 0; }, 200);
+
+      if (Math.abs(wheelAccumulator) >= WHEEL_THRESHOLD) {
+        if (wheelAccumulator > 0) {
+          animateToPanel(currentPanel + 1);
+        } else {
+          animateToPanel(currentPanel - 1);
+        }
+        wheelAccumulator = 0;
       }
     };
 
+    // Touch swipe
+    let touchStartY = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      if (isAnimating) return;
+      const dy = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(dy) > 50) {
+        animateToPanel(dy > 0 ? currentPanel + 1 : currentPanel - 1);
+      }
+    };
+
+    // Keyboard
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (isAnimating) return;
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+        e.preventDefault();
+        animateToPanel(currentPanel + 1);
+      } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        animateToPanel(currentPanel - 1);
+      }
+    };
+
+    // Render loop for visual transforms
     const onScroll = () => {
-      if (isSnapping) return;
-
-      const scrollTop = window.scrollY;
       const maxScroll = container.offsetHeight - window.innerHeight;
-      const progress = Math.min(Math.max(scrollTop / maxScroll, 0), 1);
+      const progress = Math.min(Math.max(window.scrollY / maxScroll, 0), 1);
       progressRef.current = progress;
-
-      const maxTranslate = (panels - 1) * window.innerWidth;
-      targetX = -progress * maxTranslate;
-
-      const bar = container.querySelector<HTMLElement>("[data-progress-bar]");
-      if (bar) bar.style.transform = `scaleX(${progress})`;
-
-      // Reset snap timer
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(snapToNearest, SNAP_DELAY);
     };
 
     const loop = () => {
-      const diff = targetX - currentX;
-      if (Math.abs(diff) < 0.5) {
-        currentX = targetX;
-      } else {
-        currentX += diff * LERP_SPEED;
-      }
+      onScroll();
 
-      track.style.transform = `translate3d(${currentX}px, 0, 0)`;
+      const progress = progressRef.current;
+      const maxTranslate = (panels - 1) * window.innerWidth;
+      const targetX = -progress * maxTranslate;
 
+      track.style.transform = `translate3d(${targetX}px, 0, 0)`;
+
+      // Panel content animations
       const panelElements = track.querySelectorAll<HTMLElement>("[data-h-panel]");
       panelElements.forEach((panel, i) => {
-        const panelProgress = progressRef.current * (panels - 1) - i;
+        const panelProgress = progress * (panels - 1) - i;
         const clamped = Math.max(-1.5, Math.min(1.5, panelProgress));
 
         // Ambient shapes parallax
@@ -156,14 +190,22 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
       raf = requestAnimationFrame(loop);
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("keydown", onKeyDown);
+
+    // Start at panel 0
+    window.scrollTo(0, 0);
     raf = requestAnimationFrame(loop);
 
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("keydown", onKeyDown);
       cancelAnimationFrame(raf);
-      if (scrollTimeout) clearTimeout(scrollTimeout);
+      if (wheelTimer) clearTimeout(wheelTimer);
     };
   }, []);
 
@@ -182,7 +224,7 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
           <div
             data-progress-bar
             className="h-full bg-plum-voltage origin-left"
-            style={{ transform: "scaleX(0)", transition: "none" }}
+            style={{ transform: "scaleX(0)", transition: "transform 800ms cubic-bezier(0.33, 1, 0.68, 1)" }}
           />
         </div>
       </div>
