@@ -25,8 +25,8 @@ function samplePointsFromPath(pathD: string, count: number): Float32Array {
     const y = Math.random() * 100;
     if (!ctx.isPointInPath(path2d, x, y)) continue;
 
-    positions[placed * 3] = (x / 100 - 0.5) * 2.8;
-    positions[placed * 3 + 1] = -(y / 100 - 0.5) * 2.8;
+    positions[placed * 3] = (x / 100 - 0.5) * 3.2;
+    positions[placed * 3 + 1] = -(y / 100 - 0.5) * 3.2;
     // More Z depth variation for 3D feel
     positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.8;
     placed++;
@@ -223,8 +223,8 @@ export function ParticleMorph3D() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.z = 4.2;
-    camera.position.x = 0.8; // Offset right so shape fills right side
+    camera.position.z = 3.8;
+    camera.position.x = -0.8; // Start with shape on the RIGHT
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -336,7 +336,7 @@ export function ParticleMorph3D() {
 
       // Per-panel X offset: camera moves so shape alternates sides
       // Negative camera X = shape appears on RIGHT, Positive = shape appears on LEFT
-      const panelOffsets = [-0.8, 0.8, -0.8, 0.0];
+      const panelOffsets = [-1.0, 1.0, -1.0, 0.0];
       const panelIndex = scrollProgress * (NUM_PANELS - 1);
       const pIdx = Math.min(Math.floor(panelIndex), NUM_PANELS - 2);
       const pLocal = panelIndex - pIdx;

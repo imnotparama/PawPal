@@ -7,7 +7,7 @@ export function HeroPanel() {
     <div className="relative w-full h-full flex items-center">
       <AmbientShapes seed={11} count={55} />
       {/* Text overlaps with the particles — Dala style */}
-      <div data-panel-content className="relative z-10 pl-10 lg:pl-16 xl:pl-24 max-w-[55%]">
+      <div data-panel-content className="relative z-10 pl-10 lg:pl-16 xl:pl-20 max-w-[42%]">
         <h1
           data-reveal data-reveal-delay="0.05"
           className="text-bone"
