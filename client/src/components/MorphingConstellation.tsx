@@ -129,6 +129,10 @@ export function MorphingConstellation() {
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
 
+    // Re-check scroll height after layout settles (HorizontalScroll sets height async)
+    const recheckTimer = setTimeout(onScroll, 100);
+    const recheckTimer2 = setTimeout(onScroll, 500);
+
     const resize = () => {
       const r = container.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -155,6 +159,12 @@ export function MorphingConstellation() {
       const { w, h, dpr } = sizeRef.current;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
+
+      // Read scroll progress every frame for reliability
+      const maxScrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (maxScrollHeight > 0) {
+        scrollRef.current = Math.min(Math.max(window.scrollY / maxScrollHeight, 0), 1);
+      }
 
       const m = mouseRef.current;
       m.x += (m.tx - m.x) * 0.06;
@@ -232,6 +242,8 @@ export function MorphingConstellation() {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       ro.disconnect();
+      clearTimeout(recheckTimer);
+      clearTimeout(recheckTimer2);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("mousemove", onMouse);
       container.removeEventListener("mouseleave", onLeave);
@@ -239,7 +251,7 @@ export function MorphingConstellation() {
   }, []);
 
   return (
-    <div ref={containerRef} className="fixed inset-0 z-[1] pointer-events-none" aria-hidden="true">
+    <div ref={containerRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 2 }} aria-hidden="true">
       <div className="absolute inset-0 constellation-glow" />
       <canvas ref={canvasRef} className="block h-full w-full" />
     </div>
