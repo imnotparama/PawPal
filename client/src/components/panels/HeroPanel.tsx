@@ -31,8 +31,9 @@ export function HeroPanel() {
         </svg>
       </div>
 
-      <div data-panel-content className="relative mx-auto max-w-[1200px] px-6 lg:px-10 w-full z-10">
-        <div className="max-w-[520px]">
+      {/* Text LEFT side (max 45% width) — particles are on the right */}
+      <div data-panel-content className="relative z-10 pl-10 lg:pl-20 max-w-[45%]">
+        <div className="max-w-[480px]">
           <div className="flex items-center gap-2 mb-8" data-reveal data-reveal-delay="0">
             <span className="block w-1.5 h-1.5 rounded-full bg-plum-voltage pawpal-pulse-dot" />
             <span className="text-amber-spark" style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
@@ -40,7 +41,7 @@ export function HeroPanel() {
             </span>
           </div>
 
-          <h1 data-reveal data-reveal-delay="0.1" className="text-bone" style={{ fontSize: "clamp(48px, 7vw, 96px)", lineHeight: 0.88, letterSpacing: "-0.04em", fontWeight: 200 }}>
+          <h1 data-reveal data-reveal-delay="0.1" className="text-bone" style={{ fontSize: "clamp(44px, 6vw, 86px)", lineHeight: 0.88, letterSpacing: "-0.04em", fontWeight: 200 }}>
             Your pet&apos;s
             <br />
             health,
@@ -50,7 +51,7 @@ export function HeroPanel() {
             </span>
           </h1>
 
-          <p data-reveal data-reveal-delay="0.2" className="mt-8 text-ash max-w-[440px]" style={{ fontSize: 16, lineHeight: 1.55, letterSpacing: "0.015em" }}>
+          <p data-reveal data-reveal-delay="0.2" className="mt-8 text-ash max-w-[400px]" style={{ fontSize: 15, lineHeight: 1.55, letterSpacing: "0.015em" }}>
             PawPal AI quietly listens to every vaccine, every vet note, every
             symptom — and answers the next question before you think to ask it.
           </p>

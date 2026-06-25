@@ -9,6 +9,11 @@ interface MorphParticle extends Particle {
 const SHAPES: Shape[] = ["triangle", "circle", "diamond", "square"];
 const PARTICLE_COUNT = 2800;
 
+// Layout: which side particles render on per panel
+// 0 = Hero (right), 1 = Dog (left), 2 = GirlCat (right), 3 = CTA (center)
+// Values: 0 = left edge, 0.5 = center, 1 = right edge
+const PANEL_X_POSITIONS = [0.7, 0.3, 0.7, 0.5];
+
 function spawnMorphParticles(paths: string[]): MorphParticle[] {
   const samplers = paths.map((p) => makePathSampler(p, 100, 100));
   const positionsPerPath: { bx: number; by: number }[][] = paths.map(() => []);
@@ -67,9 +72,20 @@ function getTargetPosition(p: MorphParticle, progress: number) {
 }
 
 /**
- * Fixed full-screen particle canvas that morphs cat → dog → girl+cat
- * as the user scrolls through the horizontal panels.
+ * Get the X-center position for the constellation based on scroll progress.
+ * Smoothly interpolates between panel positions so particles glide left/right.
  */
+function getConstellationXCenter(scrollProgress: number, numPanels: number): number {
+  const panelIndex = scrollProgress * (numPanels - 1);
+  const idx = Math.min(Math.floor(panelIndex), numPanels - 2);
+  const local = panelIndex - idx;
+  const t = smoothstep(Math.min(Math.max(local, 0), 1));
+
+  const from = PANEL_X_POSITIONS[idx] ?? 0.5;
+  const to = PANEL_X_POSITIONS[idx + 1] ?? 0.5;
+  return from + (to - from) * t;
+}
+
 export function MorphingConstellation() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -88,7 +104,7 @@ export function MorphingConstellation() {
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
 
-    const maxP = reduced ? 0 : 20;
+    const maxP = reduced ? 0 : 18;
 
     const onMouse = (e: MouseEvent) => {
       const r = container.getBoundingClientRect();
@@ -124,6 +140,8 @@ export function MorphingConstellation() {
 
     startRef.current = performance.now();
 
+    const NUM_PANELS = 4;
+
     const render = (now: number) => {
       const ctx = canvas.getContext("2d")!;
       const { w, h, dpr } = sizeRef.current;
@@ -138,16 +156,24 @@ export function MorphingConstellation() {
       const intro = Math.min(elapsed / 1.5, 1);
       const ease = 1 - Math.pow(1 - intro, 3);
 
-      const side = Math.min(w, h) * 0.75;
-      const ox = (w - side) / 2;
+      const progress = scrollRef.current;
+
+      // Constellation size: 55% of viewport height, constrained
+      const side = Math.min(w * 0.5, h * 0.7);
+
+      // X center slides between left/right based on which panel is active
+      const xCenter = getConstellationXCenter(progress, NUM_PANELS);
+      const ox = w * xCenter - side / 2;
       const oy = (h - side) / 2;
       const cx = ox + side / 2;
       const cy = oy + side / 2;
 
-      const progress = scrollRef.current;
+      // Morph progress only applies to the 3 shape panels (0..2 out of 4 panels)
+      // Map scroll progress to shape morph progress (panels 0-2 do the morphing)
+      const morphProgress = Math.min(progress * (NUM_PANELS - 1) / (NUM_PANELS - 2), 1);
 
       for (const p of particlesRef.current) {
-        const target = getTargetPosition(p, progress);
+        const target = getTargetPosition(p, morphProgress);
         const baseX = ox + target.bx * side;
         const baseY = oy + target.by * side;
 
@@ -163,7 +189,7 @@ export function MorphingConstellation() {
         const x = scatterX * (1 - ease) + (baseX + driftX + m.x) * ease;
         const y = scatterY * (1 - ease) + (baseY + driftY + m.y) * ease;
 
-        drawParticle(ctx, p, x, y, ease * 0.85);
+        drawParticle(ctx, p, x, y, ease * 0.9);
       }
 
       rafRef.current = requestAnimationFrame(render);
