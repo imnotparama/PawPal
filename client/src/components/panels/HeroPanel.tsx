@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
+import { AmbientShapes } from "@/components/AmbientShapes";
 import { MagneticButton } from "@/components/MagneticButton";
 
 export function HeroPanel() {
   return (
     <div className="relative w-full h-full flex items-center">
+      <AmbientShapes seed={11} count={55} />
       {/* Text overlaps with the particles — Dala style */}
       <div data-panel-content className="relative z-10 pl-10 lg:pl-16 xl:pl-24 max-w-[55%]">
         <h1

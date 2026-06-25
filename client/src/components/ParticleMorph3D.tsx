@@ -2,42 +2,40 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { CAT_PATH, DOG_PATH, GIRL_CAT_PATH } from "@/lib/silhouettes";
 
-const PARTICLE_COUNT = 5000;
+const PARTICLE_COUNT = 6000;
 
 /**
- * Sample points from SVG path. Returns positions in range (-1.2 to 1.2).
- * Concentrates more particles at the edges for the glowing border effect.
+ * Sample points from SVG path with edge-concentration.
+ * Spawns extra particles near the border of the shape for glowing edge effect.
  */
 function samplePointsFromPath(pathD: string, count: number): Float32Array {
   const positions = new Float32Array(count * 3);
   const canvas = document.createElement("canvas");
-  canvas.width = 120;
-  canvas.height = 120;
+  canvas.width = 100;
+  canvas.height = 100;
   const ctx = canvas.getContext("2d")!;
   const path2d = new Path2D(pathD);
 
-  // Scale path to fill more of the canvas
-  ctx.translate(10, 10);
-  ctx.scale(1, 1);
-
   let placed = 0;
   let guard = 0;
-  while (placed < count && guard < count * 60) {
+
+  while (placed < count && guard < count * 80) {
     guard++;
     const x = Math.random() * 100;
     const y = Math.random() * 100;
     if (!ctx.isPointInPath(path2d, x, y)) continue;
 
-    // Map to 3D coords — large spread for big shape
     positions[placed * 3] = (x / 100 - 0.5) * 2.8;
     positions[placed * 3 + 1] = -(y / 100 - 0.5) * 2.8;
-    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.5;
+    // More Z depth variation for 3D feel
+    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.8;
     placed++;
   }
+
   while (placed < count) {
-    positions[placed * 3] = (Math.random() - 0.5) * 0.8;
-    positions[placed * 3 + 1] = (Math.random() - 0.5) * 0.8;
-    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.5;
+    positions[placed * 3] = (Math.random() - 0.5) * 1.0;
+    positions[placed * 3 + 1] = (Math.random() - 0.5) * 1.0;
+    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.8;
     placed++;
   }
   return positions;
@@ -47,15 +45,21 @@ function generateScatteredPositions(count: number): Float32Array {
   const positions = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
     const angle = Math.random() * Math.PI * 2;
-    const radius = 1.5 + Math.random() * 4;
+    const radius = 2.0 + Math.random() * 5;
     positions[i * 3] = Math.cos(angle) * radius;
     positions[i * 3 + 1] = Math.sin(angle) * radius;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 3;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 4;
   }
   return positions;
 }
 
-// Vertex shader — positions instanced outlined triangles
+/**
+ * Vertex shader with:
+ * - Position-based color gradient (yellow top → purple bottom)
+ * - Perlin-like noise for organic floating
+ * - Per-triangle 3D rotation (catches light)
+ * - Smoothstep morph between shapes
+ */
 const vertexShader = `
   attribute vec3 posA;
   attribute vec3 posB;
@@ -63,7 +67,6 @@ const vertexShader = `
   attribute vec3 posScatter;
   attribute float aPhase;
   attribute float aScale;
-  attribute vec3 aColor;
 
   uniform float uProgress;
   uniform float uExplode;
@@ -72,9 +75,24 @@ const vertexShader = `
   varying vec3 vColor;
   varying float vAlpha;
   varying vec2 vUv;
+  varying vec3 vNormal;
+
+  // Simplex-like noise for organic floating
+  float hash(float n) { return fract(sin(n) * 43758.5453123); }
+  float noise(vec3 x) {
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+    f = f * f * (3.0 - 2.0 * f);
+    float n = p.x + p.y * 57.0 + 113.0 * p.z;
+    return mix(
+      mix(mix(hash(n), hash(n + 1.0), f.x),
+          mix(hash(n + 57.0), hash(n + 58.0), f.x), f.y),
+      mix(mix(hash(n + 113.0), hash(n + 114.0), f.x),
+          mix(hash(n + 170.0), hash(n + 171.0), f.x), f.y), f.z);
+  }
 
   void main() {
-    // Morph between 3 shapes
+    // Morph between 3 shapes with smoothstep
     vec3 targetPos;
     if (uProgress <= 0.5) {
       float t = uProgress * 2.0;
@@ -86,61 +104,111 @@ const vertexShader = `
       targetPos = mix(posB, posC, t);
     }
 
-    // Explosion
+    // Explosion scatter
     vec3 finalPos = mix(targetPos, posScatter, uExplode);
 
-    // Floating noise
-    finalPos.x += sin(uTime * 0.4 + aPhase) * 0.012;
-    finalPos.y += cos(uTime * 0.35 + aPhase * 1.3) * 0.012;
-    finalPos.z += sin(uTime * 0.25 + aPhase * 0.7) * 0.006;
+    // Perlin noise floating (organic, not mechanical)
+    vec3 noiseInput = vec3(aPhase * 2.0, uTime * 0.3, aPhase * 1.5);
+    float nx = noise(noiseInput) * 0.025 - 0.0125;
+    float ny = noise(noiseInput + vec3(100.0, 0.0, 0.0)) * 0.025 - 0.0125;
+    float nz = noise(noiseInput + vec3(0.0, 100.0, 0.0)) * 0.015 - 0.0075;
+    finalPos += vec3(nx, ny, nz);
 
-    // Scale + rotate each triangle
-    float scale = aScale * 0.018;
-    float angle = uTime * 0.2 + aPhase * 6.28;
-    float ca = cos(angle);
-    float sa = sin(angle);
+    // Triangle scale — slightly varied for depth
+    float scale = aScale * 0.025;
+
+    // 3D rotation — each triangle rotates on all axes
+    float angleX = uTime * 0.15 + aPhase * 3.14;
+    float angleY = uTime * 0.2 + aPhase * 2.71;
+    float angleZ = uTime * 0.1 + aPhase * 1.61;
+
+    // Rotation matrices
+    float cx = cos(angleX), sx = sin(angleX);
+    float cy = cos(angleY), sy = sin(angleY);
+    float cz = cos(angleZ), sz = sin(angleZ);
 
     vec3 pos = position * scale;
-    pos.xy = mat2(ca, -sa, sa, ca) * pos.xy;
+
+    // Rotate X
+    pos = vec3(pos.x, pos.y * cx - pos.z * sx, pos.y * sx + pos.z * cx);
+    // Rotate Y
+    pos = vec3(pos.x * cy + pos.z * sy, pos.y, -pos.x * sy + pos.z * cy);
+    // Rotate Z
+    pos = vec3(pos.x * cz - pos.y * sz, pos.x * sz + pos.y * cz, pos.z);
+
     pos += finalPos;
 
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
-    vColor = aColor;
     vUv = uv;
 
-    // Distance-based fade for depth
+    // Normal for basic lighting (face direction after rotation)
+    vec3 n = vec3(0.0, 0.0, 1.0);
+    n = vec3(n.x, n.y * cx - n.z * sx, n.y * sx + n.z * cx);
+    n = vec3(n.x * cy + n.z * sy, n.y, -n.x * sy + n.z * cy);
+    n = vec3(n.x * cz - n.y * sz, n.x * sz + n.y * cz, n.z);
+    vNormal = normalize(normalMatrix * n);
+
+    // Position-based color gradient:
+    // Top of shape → amber/yellow, Bottom → purple/plum, Middle → white/lichen
+    float yNorm = (finalPos.y + 1.5) / 3.0; // normalize Y to 0-1
+
+    vec3 colorTop = vec3(1.0, 0.75, 0.15);    // warm amber/gold
+    vec3 colorMid = vec3(0.9, 0.92, 1.0);     // cool white
+    vec3 colorBot = vec3(0.5, 0.3, 1.0);      // plum violet
+
+    if (yNorm > 0.5) {
+      vColor = mix(colorMid, colorTop, (yNorm - 0.5) * 2.0);
+    } else {
+      vColor = mix(colorBot, colorMid, yNorm * 2.0);
+    }
+
+    // Add lichen/teal flecks based on phase
+    if (fract(aPhase * 7.0) < 0.12) {
+      vColor = vec3(0.1, 0.6, 0.48); // lichen accent
+    }
+
+    // Depth-based alpha
     float depth = -mvPosition.z;
-    vAlpha = (0.6 + 0.4 * sin(uTime * 0.6 + aPhase * 3.14)) * smoothstep(8.0, 2.0, depth);
-    vAlpha *= (1.0 - uExplode * 0.5);
-  }
-`;
-
-// Fragment shader — renders outlined triangles (hollow)
-const fragmentShader = `
-  varying vec3 vColor;
-  varying float vAlpha;
-  varying vec2 vUv;
-
-  void main() {
-    // Calculate distance to edges for outline effect
-    // Using barycentric-like approach: dark center, bright edges
-    vec3 bary = vec3(vUv.x, vUv.y, 1.0 - vUv.x - vUv.y);
-    float edge = min(min(bary.x, bary.y), bary.z);
-    float outline = 1.0 - smoothstep(0.0, 0.3, edge);
-
-    // Mix: mostly outline with slight fill
-    float alpha = vAlpha * (outline * 0.9 + 0.1);
-
-    if (alpha < 0.01) discard;
-    gl_FragColor = vec4(vColor, alpha);
+    vAlpha = smoothstep(12.0, 1.5, depth) * (0.75 + 0.25 * sin(uTime * 0.5 + aPhase * 6.28));
+    vAlpha *= (1.0 - uExplode * 0.55);
   }
 `;
 
 /**
- * Three.js instanced triangle mesh morph — Dala style.
- * 5000 tiny outlined triangles forming large shapes.
+ * Fragment shader:
+ * - Outlined triangles (hollow with glowing edges)
+ * - Basic lighting from normal
+ */
+const fragmentShader = `
+  varying vec3 vColor;
+  varying float vAlpha;
+  varying vec2 vUv;
+  varying vec3 vNormal;
+
+  void main() {
+    // Edge detection for outlined triangle effect
+    vec3 bary = vec3(vUv.x, vUv.y, 1.0 - vUv.x - vUv.y);
+    float edge = min(min(bary.x, bary.y), bary.z);
+    float outline = 1.0 - smoothstep(0.0, 0.25, edge);
+
+    // Basic directional lighting for 3D feel
+    vec3 lightDir = normalize(vec3(0.5, 0.8, 1.0));
+    float diffuse = max(dot(vNormal, lightDir), 0.0) * 0.4 + 0.6;
+
+    // Combine: outlined triangle with lighting
+    float alpha = vAlpha * (outline * 0.85 + 0.15) * diffuse;
+
+    if (alpha < 0.02) discard;
+    gl_FragColor = vec4(vColor * diffuse, alpha);
+  }
+`;
+
+/**
+ * Three.js 3D Particle Morph — Dala-quality.
+ * 6000 instanced outlined 3D triangles with position-based color gradient,
+ * Perlin noise floating, per-triangle 3D rotation, and scroll-bound morphing.
  */
 export function ParticleMorph3D() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -154,10 +222,9 @@ export function ParticleMorph3D() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.z = 4.5;
-    // Offset camera to the right so shape appears right-of-center
-    camera.position.x = 0.3;
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.z = 4.2;
+    camera.position.x = 0.8; // Offset right so shape fills right side
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -165,44 +232,27 @@ export function ParticleMorph3D() {
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
-    // Point clouds
+    // Generate point clouds for each shape
     const posA = samplePointsFromPath(CAT_PATH, PARTICLE_COUNT);
     const posB = samplePointsFromPath(DOG_PATH, PARTICLE_COUNT);
     const posC = samplePointsFromPath(GIRL_CAT_PATH, PARTICLE_COUNT);
     const posScatter = generateScatteredPositions(PARTICLE_COUNT);
 
-    // Per-instance data
+    // Per-instance attributes
     const phases = new Float32Array(PARTICLE_COUNT);
     const scales = new Float32Array(PARTICLE_COUNT);
-    const colors = new Float32Array(PARTICLE_COUNT * 3);
-
-    const palette = [
-      [0.502, 0.322, 1.0],   // plum
-      [0.6, 0.45, 1.0],      // light plum
-      [1.0, 0.722, 0.161],   // amber
-      [1.0, 0.85, 0.35],     // warm amber
-      [1.0, 1.0, 1.0],       // white
-      [0.8, 0.85, 0.9],      // cool white
-      [0.082, 0.522, 0.431], // lichen
-      [0.15, 0.7, 0.55],     // bright lichen
-    ];
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       phases[i] = Math.random() * Math.PI * 2;
-      scales[i] = 0.4 + Math.random() * 1.2;
-      const c = palette[Math.floor(Math.random() * palette.length)];
-      colors[i * 3] = c[0];
-      colors[i * 3 + 1] = c[1];
-      colors[i * 3 + 2] = c[2];
+      scales[i] = 0.3 + Math.random() * 1.5; // Varied sizes
     }
 
-    // Triangle geometry with UVs for outline effect
+    // Triangle geometry
     const triGeo = new THREE.BufferGeometry();
-    const s = 1.0;
     const verts = new Float32Array([
-      0, s * 0.866, 0,
-      -s * 0.5, -s * 0.433, 0,
-      s * 0.5, -s * 0.433, 0,
+      0, 0.866, 0,
+      -0.5, -0.433, 0,
+      0.5, -0.433, 0,
     ]);
     const uvs = new Float32Array([
       0.5, 1.0,
@@ -211,6 +261,7 @@ export function ParticleMorph3D() {
     ]);
     triGeo.setAttribute("position", new THREE.BufferAttribute(verts, 3));
     triGeo.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
+    triGeo.computeVertexNormals();
 
     const material = new THREE.ShaderMaterial({
       vertexShader,
@@ -233,7 +284,6 @@ export function ParticleMorph3D() {
     geo.setAttribute("posScatter", new THREE.InstancedBufferAttribute(posScatter, 3));
     geo.setAttribute("aPhase", new THREE.InstancedBufferAttribute(phases, 1));
     geo.setAttribute("aScale", new THREE.InstancedBufferAttribute(scales, 1));
-    geo.setAttribute("aColor", new THREE.InstancedBufferAttribute(colors, 3));
 
     const dummy = new THREE.Object3D();
     for (let i = 0; i < PARTICLE_COUNT; i++) {
@@ -243,9 +293,9 @@ export function ParticleMorph3D() {
     }
     scene.add(mesh);
 
-    // Mouse
+    // Mouse parallax
     const onMouseMove = (e: MouseEvent) => {
-      mouseRef.current.tx = (e.clientX / window.innerWidth - 0.5) * 0.5;
+      mouseRef.current.tx = (e.clientX / window.innerWidth - 0.5) * 0.6;
       mouseRef.current.ty = -(e.clientY / window.innerHeight - 0.5) * 0.4;
     };
     if (!reduced) window.addEventListener("mousemove", onMouseMove);
@@ -265,31 +315,42 @@ export function ParticleMorph3D() {
       const elapsed = clock.getElapsedTime();
       material.uniforms.uTime.value = elapsed;
 
+      // Scroll progress
       const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
       const scrollProgress = scrollMax > 0 ? Math.min(Math.max(window.scrollY / scrollMax, 0), 1) : 0;
 
-      // Morph
+      // Morph (maps to 3 shapes across first 3 panels)
       const morphProgress = Math.min(scrollProgress * (NUM_PANELS - 1) / 2, 1);
       material.uniforms.uProgress.value = morphProgress;
 
-      // Explode
+      // Explosion on last panel
       const explode = scrollProgress > EXPLODE_START
         ? Math.min((scrollProgress - EXPLODE_START) / (1 - EXPLODE_START), 1)
         : 0;
       material.uniforms.uExplode.value = explode * explode * (3 - 2 * explode);
 
-      // Mouse parallax
+      // Mouse parallax — smooth follow
       const m = mouseRef.current;
-      m.x += (m.tx - m.x) * 0.03;
-      m.y += (m.ty - m.y) * 0.03;
-      camera.position.x = 0.3 + m.x;
+      m.x += (m.tx - m.x) * 0.025;
+      m.y += (m.ty - m.y) * 0.025;
+
+      // Per-panel X offset: camera moves so shape alternates sides
+      // Negative camera X = shape appears on RIGHT, Positive = shape appears on LEFT
+      const panelOffsets = [-0.8, 0.8, -0.8, 0.0];
+      const panelIndex = scrollProgress * (NUM_PANELS - 1);
+      const pIdx = Math.min(Math.floor(panelIndex), NUM_PANELS - 2);
+      const pLocal = panelIndex - pIdx;
+      const pT = pLocal * pLocal * (3 - 2 * pLocal); // smoothstep
+      const xOff = panelOffsets[pIdx] + (panelOffsets[pIdx + 1] - panelOffsets[pIdx]) * pT;
+
+      camera.position.x = xOff + m.x;
       camera.position.y = m.y;
       camera.lookAt(0, 0, 0);
 
-      // Slow rotation
+      // Very slow rotation for life
       if (!reduced) {
-        mesh.rotation.y = elapsed * 0.03;
-        mesh.rotation.x = Math.sin(elapsed * 0.08) * 0.03;
+        mesh.rotation.y = elapsed * 0.02;
+        mesh.rotation.x = Math.sin(elapsed * 0.06) * 0.02;
       }
 
       renderer.render(scene, camera);

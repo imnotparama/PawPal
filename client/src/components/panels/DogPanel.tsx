@@ -5,8 +5,8 @@ export function DogPanel() {
     <div className="relative w-full h-full flex items-center justify-end">
       <AmbientShapes seed={29} count={28} />
 
-      {/* Text RIGHT */}
-      <div data-panel-content className="relative z-10 pr-12 lg:pr-20 xl:pr-28 max-w-[48%]">
+      {/* Text RIGHT — shape is on the left */}
+      <div data-panel-content className="relative z-10 pr-10 lg:pr-20 xl:pr-28 max-w-[42%]">
         <h2
           data-reveal data-reveal-delay="0.05"
           className="text-bone"
