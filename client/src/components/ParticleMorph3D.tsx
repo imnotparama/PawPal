@@ -2,36 +2,42 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { CAT_PATH, DOG_PATH, GIRL_CAT_PATH } from "@/lib/silhouettes";
 
-const PARTICLE_COUNT = 4000;
+const PARTICLE_COUNT = 5000;
 
 /**
- * Sample points from an SVG path using a hidden canvas.
+ * Sample points from SVG path. Returns positions in range (-1.2 to 1.2).
+ * Concentrates more particles at the edges for the glowing border effect.
  */
 function samplePointsFromPath(pathD: string, count: number): Float32Array {
   const positions = new Float32Array(count * 3);
   const canvas = document.createElement("canvas");
-  canvas.width = 100;
-  canvas.height = 100;
+  canvas.width = 120;
+  canvas.height = 120;
   const ctx = canvas.getContext("2d")!;
   const path2d = new Path2D(pathD);
 
+  // Scale path to fill more of the canvas
+  ctx.translate(10, 10);
+  ctx.scale(1, 1);
+
   let placed = 0;
   let guard = 0;
-  while (placed < count && guard < count * 50) {
+  while (placed < count && guard < count * 60) {
     guard++;
     const x = Math.random() * 100;
     const y = Math.random() * 100;
     if (!ctx.isPointInPath(path2d, x, y)) continue;
 
-    positions[placed * 3] = (x / 100 - 0.5) * 2.2;
-    positions[placed * 3 + 1] = -(y / 100 - 0.5) * 2.2;
-    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.6;
+    // Map to 3D coords — large spread for big shape
+    positions[placed * 3] = (x / 100 - 0.5) * 2.8;
+    positions[placed * 3 + 1] = -(y / 100 - 0.5) * 2.8;
+    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.5;
     placed++;
   }
   while (placed < count) {
-    positions[placed * 3] = (Math.random() - 0.5) * 0.5;
-    positions[placed * 3 + 1] = (Math.random() - 0.5) * 0.5;
-    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.6;
+    positions[placed * 3] = (Math.random() - 0.5) * 0.8;
+    positions[placed * 3 + 1] = (Math.random() - 0.5) * 0.8;
+    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.5;
     placed++;
   }
   return positions;
@@ -40,13 +46,16 @@ function samplePointsFromPath(pathD: string, count: number): Float32Array {
 function generateScatteredPositions(count: number): Float32Array {
   const positions = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 5;
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 5;
+    const angle = Math.random() * Math.PI * 2;
+    const radius = 1.5 + Math.random() * 4;
+    positions[i * 3] = Math.cos(angle) * radius;
+    positions[i * 3 + 1] = Math.sin(angle) * radius;
     positions[i * 3 + 2] = (Math.random() - 0.5) * 3;
   }
   return positions;
 }
 
+// Vertex shader — positions instanced outlined triangles
 const vertexShader = `
   attribute vec3 posA;
   attribute vec3 posB;
@@ -62,6 +71,7 @@ const vertexShader = `
 
   varying vec3 vColor;
   varying float vAlpha;
+  varying vec2 vUv;
 
   void main() {
     // Morph between 3 shapes
@@ -76,49 +86,61 @@ const vertexShader = `
       targetPos = mix(posB, posC, t);
     }
 
-    // Explosion scatter
+    // Explosion
     vec3 finalPos = mix(targetPos, posScatter, uExplode);
 
     // Floating noise
-    float nx = sin(uTime * 0.5 + aPhase) * 0.015;
-    float ny = cos(uTime * 0.4 + aPhase * 1.3) * 0.015;
-    float nz = sin(uTime * 0.3 + aPhase * 0.7) * 0.008;
-    finalPos += vec3(nx, ny, nz);
+    finalPos.x += sin(uTime * 0.4 + aPhase) * 0.012;
+    finalPos.y += cos(uTime * 0.35 + aPhase * 1.3) * 0.012;
+    finalPos.z += sin(uTime * 0.25 + aPhase * 0.7) * 0.006;
 
-    // Scale each triangle instance
-    vec3 pos = position * aScale * 0.012;
-
-    // Rotation per instance based on time + phase
-    float angle = uTime * 0.3 + aPhase * 6.28;
+    // Scale + rotate each triangle
+    float scale = aScale * 0.018;
+    float angle = uTime * 0.2 + aPhase * 6.28;
     float ca = cos(angle);
     float sa = sin(angle);
-    mat2 rot = mat2(ca, -sa, sa, ca);
-    pos.xy = rot * pos.xy;
 
+    vec3 pos = position * scale;
+    pos.xy = mat2(ca, -sa, sa, ca) * pos.xy;
     pos += finalPos;
 
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
     vColor = aColor;
-    vAlpha = 0.7 + 0.3 * sin(uTime * 0.8 + aPhase * 3.14);
-    vAlpha *= (1.0 - uExplode * 0.4);
+    vUv = uv;
+
+    // Distance-based fade for depth
+    float depth = -mvPosition.z;
+    vAlpha = (0.6 + 0.4 * sin(uTime * 0.6 + aPhase * 3.14)) * smoothstep(8.0, 2.0, depth);
+    vAlpha *= (1.0 - uExplode * 0.5);
   }
 `;
 
+// Fragment shader — renders outlined triangles (hollow)
 const fragmentShader = `
   varying vec3 vColor;
   varying float vAlpha;
+  varying vec2 vUv;
 
   void main() {
-    gl_FragColor = vec4(vColor, vAlpha);
+    // Calculate distance to edges for outline effect
+    // Using barycentric-like approach: dark center, bright edges
+    vec3 bary = vec3(vUv.x, vUv.y, 1.0 - vUv.x - vUv.y);
+    float edge = min(min(bary.x, bary.y), bary.z);
+    float outline = 1.0 - smoothstep(0.0, 0.3, edge);
+
+    // Mix: mostly outline with slight fill
+    float alpha = vAlpha * (outline * 0.9 + 0.1);
+
+    if (alpha < 0.01) discard;
+    gl_FragColor = vec4(vColor, alpha);
   }
 `;
 
 /**
- * Three.js WebGL 3D particle morph using instanced tiny triangles.
- * Each particle is a small triangle mesh that morphs between shapes on scroll.
- * Like the Dala brain reference.
+ * Three.js instanced triangle mesh morph — Dala style.
+ * 5000 tiny outlined triangles forming large shapes.
  */
 export function ParticleMorph3D() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -131,10 +153,11 @@ export function ParticleMorph3D() {
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // Setup
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.z = 3.5;
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.z = 4.5;
+    // Offset camera to the right so shape appears right-of-center
+    camera.position.x = 0.3;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -142,46 +165,53 @@ export function ParticleMorph3D() {
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
-    // Generate point clouds
-    const positionsA = samplePointsFromPath(CAT_PATH, PARTICLE_COUNT);
-    const positionsB = samplePointsFromPath(DOG_PATH, PARTICLE_COUNT);
-    const positionsC = samplePointsFromPath(GIRL_CAT_PATH, PARTICLE_COUNT);
-    const positionsScatter = generateScatteredPositions(PARTICLE_COUNT);
+    // Point clouds
+    const posA = samplePointsFromPath(CAT_PATH, PARTICLE_COUNT);
+    const posB = samplePointsFromPath(DOG_PATH, PARTICLE_COUNT);
+    const posC = samplePointsFromPath(GIRL_CAT_PATH, PARTICLE_COUNT);
+    const posScatter = generateScatteredPositions(PARTICLE_COUNT);
 
-    // Per-instance attributes
+    // Per-instance data
     const phases = new Float32Array(PARTICLE_COUNT);
     const scales = new Float32Array(PARTICLE_COUNT);
     const colors = new Float32Array(PARTICLE_COUNT * 3);
 
-    const colorPalette = [
-      [0.502, 0.322, 1.0],   // plum voltage
-      [1.0, 0.722, 0.161],   // amber spark
+    const palette = [
+      [0.502, 0.322, 1.0],   // plum
+      [0.6, 0.45, 1.0],      // light plum
+      [1.0, 0.722, 0.161],   // amber
+      [1.0, 0.85, 0.35],     // warm amber
       [1.0, 1.0, 1.0],       // white
+      [0.8, 0.85, 0.9],      // cool white
       [0.082, 0.522, 0.431], // lichen
-      [0.6, 0.4, 1.0],       // light plum
-      [1.0, 0.85, 0.3],      // warm amber
+      [0.15, 0.7, 0.55],     // bright lichen
     ];
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       phases[i] = Math.random() * Math.PI * 2;
-      scales[i] = 0.6 + Math.random() * 1.4;
-      const c = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+      scales[i] = 0.4 + Math.random() * 1.2;
+      const c = palette[Math.floor(Math.random() * palette.length)];
       colors[i * 3] = c[0];
       colors[i * 3 + 1] = c[1];
       colors[i * 3 + 2] = c[2];
     }
 
-    // Base triangle geometry (tiny equilateral triangle)
+    // Triangle geometry with UVs for outline effect
     const triGeo = new THREE.BufferGeometry();
     const s = 1.0;
-    const triVerts = new Float32Array([
+    const verts = new Float32Array([
       0, s * 0.866, 0,
       -s * 0.5, -s * 0.433, 0,
       s * 0.5, -s * 0.433, 0,
     ]);
-    triGeo.setAttribute("position", new THREE.BufferAttribute(triVerts, 3));
+    const uvs = new Float32Array([
+      0.5, 1.0,
+      0.0, 0.0,
+      1.0, 0.0,
+    ]);
+    triGeo.setAttribute("position", new THREE.BufferAttribute(verts, 3));
+    triGeo.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
 
-    // Instanced mesh
     const material = new THREE.ShaderMaterial({
       vertexShader,
       fragmentShader,
@@ -196,35 +226,30 @@ export function ParticleMorph3D() {
     });
 
     const mesh = new THREE.InstancedMesh(triGeo, material, PARTICLE_COUNT);
+    const geo = mesh.geometry;
+    geo.setAttribute("posA", new THREE.InstancedBufferAttribute(posA, 3));
+    geo.setAttribute("posB", new THREE.InstancedBufferAttribute(posB, 3));
+    geo.setAttribute("posC", new THREE.InstancedBufferAttribute(posC, 3));
+    geo.setAttribute("posScatter", new THREE.InstancedBufferAttribute(posScatter, 3));
+    geo.setAttribute("aPhase", new THREE.InstancedBufferAttribute(phases, 1));
+    geo.setAttribute("aScale", new THREE.InstancedBufferAttribute(scales, 1));
+    geo.setAttribute("aColor", new THREE.InstancedBufferAttribute(colors, 3));
 
-    // Set instanced attributes
-    const iGeo = mesh.geometry;
-    iGeo.setAttribute("posA", new THREE.InstancedBufferAttribute(positionsA, 3));
-    iGeo.setAttribute("posB", new THREE.InstancedBufferAttribute(positionsB, 3));
-    iGeo.setAttribute("posC", new THREE.InstancedBufferAttribute(positionsC, 3));
-    iGeo.setAttribute("posScatter", new THREE.InstancedBufferAttribute(positionsScatter, 3));
-    iGeo.setAttribute("aPhase", new THREE.InstancedBufferAttribute(phases, 1));
-    iGeo.setAttribute("aScale", new THREE.InstancedBufferAttribute(scales, 1));
-    iGeo.setAttribute("aColor", new THREE.InstancedBufferAttribute(colors, 3));
-
-    // Set identity matrices for all instances
     const dummy = new THREE.Object3D();
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       dummy.position.set(0, 0, 0);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
     }
-
     scene.add(mesh);
 
     // Mouse
     const onMouseMove = (e: MouseEvent) => {
-      mouseRef.current.tx = (e.clientX / window.innerWidth - 0.5) * 0.4;
-      mouseRef.current.ty = -(e.clientY / window.innerHeight - 0.5) * 0.3;
+      mouseRef.current.tx = (e.clientX / window.innerWidth - 0.5) * 0.5;
+      mouseRef.current.ty = -(e.clientY / window.innerHeight - 0.5) * 0.4;
     };
     if (!reduced) window.addEventListener("mousemove", onMouseMove);
 
-    // Resize
     const onResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -232,17 +257,14 @@ export function ParticleMorph3D() {
     };
     window.addEventListener("resize", onResize);
 
-    // Animation
     const clock = new THREE.Clock();
     const NUM_PANELS = 4;
     const EXPLODE_START = 0.74;
-    const panelPositions = [0.5, -0.5, 0.5, 0];
 
     const animate = () => {
       const elapsed = clock.getElapsedTime();
       material.uniforms.uTime.value = elapsed;
 
-      // Scroll
       const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
       const scrollProgress = scrollMax > 0 ? Math.min(Math.max(window.scrollY / scrollMax, 0), 1) : 0;
 
@@ -258,23 +280,16 @@ export function ParticleMorph3D() {
 
       // Mouse parallax
       const m = mouseRef.current;
-      m.x += (m.tx - m.x) * 0.04;
-      m.y += (m.ty - m.y) * 0.04;
-      camera.position.x = m.x;
+      m.x += (m.tx - m.x) * 0.03;
+      m.y += (m.ty - m.y) * 0.03;
+      camera.position.x = 0.3 + m.x;
       camera.position.y = m.y;
       camera.lookAt(0, 0, 0);
 
-      // X offset per panel
-      const panelIndex = scrollProgress * (NUM_PANELS - 1);
-      const pIdx = Math.min(Math.floor(panelIndex), NUM_PANELS - 2);
-      const pLocal = panelIndex - pIdx;
-      const pT = pLocal * pLocal * (3 - 2 * pLocal);
-      const xOffset = panelPositions[pIdx] + (panelPositions[pIdx + 1] - panelPositions[pIdx]) * pT;
-      mesh.position.x = xOffset;
-
-      // Gentle rotation
+      // Slow rotation
       if (!reduced) {
-        mesh.rotation.y = elapsed * 0.04;
+        mesh.rotation.y = elapsed * 0.03;
+        mesh.rotation.x = Math.sin(elapsed * 0.08) * 0.03;
       }
 
       renderer.render(scene, camera);

@@ -1,42 +1,38 @@
 import { Link } from "react-router-dom";
 import { LogoMark } from "@/components/LogoMark";
-import { MagneticButton } from "@/components/MagneticButton";
-
-const NAV_LINKS = ["MANIFESTO", "PRODUCT", "TEAM", "BLOG"];
 
 export function Navigation() {
   return (
     <header className="fixed top-0 inset-x-0 z-50">
-      <div className="mx-auto max-w-[1300px] px-6 lg:px-10 h-[64px] flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5 group">
+      <div className="mx-auto px-6 lg:px-10 h-[60px] flex items-center justify-between">
+        {/* Logo LEFT */}
+        <Link to="/" className="flex items-center gap-2 group">
           <LogoMark />
-          <span className="text-bone" style={{ fontWeight: 600, fontSize: 16, letterSpacing: "0.01em" }}>
-            PawPal<span className="text-plum-voltage">.</span>ai
+          <span className="text-bone" style={{ fontWeight: 500, fontSize: 15 }}>
+            PawPal
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8">
-          {NAV_LINKS.map((l) => (
+        {/* Links + CTA RIGHT — like Dala */}
+        <div className="flex items-center gap-7">
+          {["MANIFESTO", "TEAM", "BLOG"].map((l) => (
             <a
               key={l}
               href={`#${l.toLowerCase()}`}
-              className="text-smoke transition-colors duration-200 hover:text-bone"
-              style={{ fontSize: 13, letterSpacing: "0.02em", fontWeight: 400 }}
+              className="hidden md:inline text-smoke hover:text-bone transition-colors duration-200"
+              style={{ fontSize: 12, letterSpacing: "0.03em", fontWeight: 400 }}
             >
               {l}
             </a>
           ))}
-        </nav>
-
-        <MagneticButton strength={0.25}>
           <Link
             to="/app"
-            className="dala-btn-primary inline-flex items-center justify-center rounded-3xl"
-            style={{ padding: "10px 18px", fontSize: 11, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}
+            className="inline-flex items-center justify-center rounded-full border border-plum-voltage text-bone"
+            style={{ padding: "8px 16px", fontSize: 11, fontWeight: 500, letterSpacing: "0.04em", textTransform: "uppercase" }}
           >
             Request Access
           </Link>
-        </MagneticButton>
+        </div>
       </div>
     </header>
   );
