@@ -4,14 +4,16 @@ import { CAT_PATH, DOG_PATH, GIRL_CAT_PATH } from "@/lib/silhouettes";
 
 interface MorphParticle extends Particle {
   targets: { bx: number; by: number }[];
+  // Explosion target — random position across full viewport
+  explodeX: number; // 0-1 normalized
+  explodeY: number; // 0-1 normalized
+  explodeAngle: number; // radial direction from center
+  explodeSpeed: number; // how fast it drifts in explode mode
 }
 
 const SHAPES: Shape[] = ["triangle", "circle", "diamond", "square"];
 const PARTICLE_COUNT = 2800;
 
-// Layout: which side particles render on per panel
-// 0 = Hero (right), 1 = Dog (left), 2 = GirlCat (right), 3 = CTA (center)
-// Values: 0 = left edge, 0.5 = center, 1 = right edge
 const PANEL_X_POSITIONS = [0.7, 0.3, 0.7, 0.5];
 
 function spawnMorphParticles(paths: string[]): MorphParticle[] {
@@ -38,6 +40,9 @@ function spawnMorphParticles(paths: string[]): MorphParticle[] {
     const r = Math.random();
     const color =
       r < 0.42 ? "#ffb829" : r < 0.72 ? "#8052ff" : r < 0.92 ? "#ffffff" : "#15846e";
+
+    // Random explosion target — spread across entire viewport
+    const angle = Math.random() * Math.PI * 2;
     particles.push({
       bx: positionsPerPath[0][i].bx,
       by: positionsPerPath[0][i].by,
@@ -48,6 +53,10 @@ function spawnMorphParticles(paths: string[]): MorphParticle[] {
       amp: 0.002 + Math.random() * 0.006,
       speed: 0.4 + Math.random() * 0.8,
       targets: paths.map((_, pathIdx) => positionsPerPath[pathIdx][i]),
+      explodeX: Math.random(),
+      explodeY: Math.random(),
+      explodeAngle: angle,
+      explodeSpeed: 0.3 + Math.random() * 0.7,
     });
   }
   return particles;
@@ -71,16 +80,11 @@ function getTargetPosition(p: MorphParticle, progress: number) {
   };
 }
 
-/**
- * Get the X-center position for the constellation based on scroll progress.
- * Smoothly interpolates between panel positions so particles glide left/right.
- */
 function getConstellationXCenter(scrollProgress: number, numPanels: number): number {
   const panelIndex = scrollProgress * (numPanels - 1);
   const idx = Math.min(Math.floor(panelIndex), numPanels - 2);
   const local = panelIndex - idx;
   const t = smoothstep(Math.min(Math.max(local, 0), 1));
-
   const from = PANEL_X_POSITIONS[idx] ?? 0.5;
   const to = PANEL_X_POSITIONS[idx + 1] ?? 0.5;
   return from + (to - from) * t;
@@ -141,6 +145,10 @@ export function MorphingConstellation() {
     startRef.current = performance.now();
 
     const NUM_PANELS = 4;
+    // The explosion starts when we enter the 4th panel
+    // Panel 4 starts at progress = 3/3 = 1.0 of panel transitions
+    // So explosion begins at ~0.72 (entering last panel region)
+    const EXPLODE_START = 0.72;
 
     const render = (now: number) => {
       const ctx = canvas.getContext("2d")!;
@@ -158,38 +166,62 @@ export function MorphingConstellation() {
 
       const progress = scrollRef.current;
 
-      // Constellation size: 55% of viewport height, constrained
-      const side = Math.min(w * 0.5, h * 0.7);
+      // Calculate explosion factor: 0 = no explosion, 1 = fully exploded
+      const explodeFactor = progress > EXPLODE_START
+        ? smoothstep(Math.min((progress - EXPLODE_START) / (1 - EXPLODE_START), 1))
+        : 0;
 
-      // X center slides between left/right based on which panel is active
+      const side = Math.min(w * 0.5, h * 0.7);
       const xCenter = getConstellationXCenter(progress, NUM_PANELS);
       const ox = w * xCenter - side / 2;
       const oy = (h - side) / 2;
       const cx = ox + side / 2;
       const cy = oy + side / 2;
 
-      // Morph progress only applies to the 3 shape panels (0..2 out of 4 panels)
-      // Map scroll progress to shape morph progress (panels 0-2 do the morphing)
+      // Morph progress capped at 1.0 (only first 3 panels morph shapes)
       const morphProgress = Math.min(progress * (NUM_PANELS - 1) / (NUM_PANELS - 2), 1);
 
       for (const p of particlesRef.current) {
-        const target = getTargetPosition(p, morphProgress);
+        const target = getTargetPosition(p, Math.min(morphProgress, 1));
+
+        // Base position in the silhouette
         const baseX = ox + target.bx * side;
         const baseY = oy + target.by * side;
 
+        // Intro scatter
         const dx = baseX - cx;
         const dy = baseY - cy;
         const scatterX = cx + dx * (1 + (1 - ease) * 1.5);
         const scatterY = cy + dy * (1 + (1 - ease) * 1.5);
 
+        // Normal drift
         const drift = reduced ? 0 : elapsed * p.speed;
         const driftX = Math.cos(drift + p.phase) * p.amp * side;
         const driftY = Math.sin(drift * 0.7 + p.phase) * p.amp * side;
 
-        const x = scatterX * (1 - ease) + (baseX + driftX + m.x) * ease;
-        const y = scatterY * (1 - ease) + (baseY + driftY + m.y) * ease;
+        // Shaped position (normal morph mode)
+        const shapedX = scatterX * (1 - ease) + (baseX + driftX + m.x) * ease;
+        const shapedY = scatterY * (1 - ease) + (baseY + driftY + m.y) * ease;
 
-        drawParticle(ctx, p, x, y, ease * 0.9);
+        if (explodeFactor <= 0) {
+          // Normal mode — render in silhouette
+          drawParticle(ctx, p, shapedX, shapedY, ease * 0.9);
+        } else {
+          // Explosion mode — lerp from shaped position to scattered free-floating
+          // Exploded target: random position across full viewport with slow drift
+          const freeDriftX = Math.cos(elapsed * p.explodeSpeed * 0.3 + p.phase) * 20;
+          const freeDriftY = Math.sin(elapsed * p.explodeSpeed * 0.2 + p.phase * 1.3) * 15;
+          const explodedX = p.explodeX * w + freeDriftX + m.x;
+          const explodedY = p.explodeY * h + freeDriftY + m.y;
+
+          // Lerp between shaped and exploded
+          const finalX = shapedX + (explodedX - shapedX) * explodeFactor;
+          const finalY = shapedY + (explodedY - shapedY) * explodeFactor;
+
+          // Reduce opacity slightly in explode mode so dots are subtle
+          const alpha = ease * (0.9 - explodeFactor * 0.45);
+          drawParticle(ctx, p, finalX, finalY, Math.max(alpha, 0.15));
+        }
       }
 
       rafRef.current = requestAnimationFrame(render);
