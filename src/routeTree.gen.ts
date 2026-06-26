@@ -9,38 +9,132 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as AppVaccinationsRouteImport } from './routes/app/vaccinations'
+import { Route as AppTimelineRouteImport } from './routes/app/timeline'
+import { Route as AppRecordsRouteImport } from './routes/app/records'
+import { Route as AppPetsRouteImport } from './routes/app/pets'
+import { Route as AppChatRouteImport } from './routes/app/chat'
 
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppVaccinationsRoute = AppVaccinationsRouteImport.update({
+  id: '/vaccinations',
+  path: '/vaccinations',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTimelineRoute = AppTimelineRouteImport.update({
+  id: '/timeline',
+  path: '/timeline',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRecordsRoute = AppRecordsRouteImport.update({
+  id: '/records',
+  path: '/records',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPetsRoute = AppPetsRouteImport.update({
+  id: '/pets',
+  path: '/pets',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppChatRoute = AppChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/app/chat': typeof AppChatRoute
+  '/app/pets': typeof AppPetsRoute
+  '/app/records': typeof AppRecordsRoute
+  '/app/timeline': typeof AppTimelineRoute
+  '/app/vaccinations': typeof AppVaccinationsRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app/chat': typeof AppChatRoute
+  '/app/pets': typeof AppPetsRoute
+  '/app/records': typeof AppRecordsRoute
+  '/app/timeline': typeof AppTimelineRoute
+  '/app/vaccinations': typeof AppVaccinationsRoute
+  '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/app/chat': typeof AppChatRoute
+  '/app/pets': typeof AppPetsRoute
+  '/app/records': typeof AppRecordsRoute
+  '/app/timeline': typeof AppTimelineRoute
+  '/app/vaccinations': typeof AppVaccinationsRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/app/chat'
+    | '/app/pets'
+    | '/app/records'
+    | '/app/timeline'
+    | '/app/vaccinations'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/app/chat'
+    | '/app/pets'
+    | '/app/records'
+    | '/app/timeline'
+    | '/app/vaccinations'
+    | '/app'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/app/chat'
+    | '/app/pets'
+    | '/app/records'
+    | '/app/timeline'
+    | '/app/vaccinations'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +142,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/vaccinations': {
+      id: '/app/vaccinations'
+      path: '/vaccinations'
+      fullPath: '/app/vaccinations'
+      preLoaderRoute: typeof AppVaccinationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/timeline': {
+      id: '/app/timeline'
+      path: '/timeline'
+      fullPath: '/app/timeline'
+      preLoaderRoute: typeof AppTimelineRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/records': {
+      id: '/app/records'
+      path: '/records'
+      fullPath: '/app/records'
+      preLoaderRoute: typeof AppRecordsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/pets': {
+      id: '/app/pets'
+      path: '/pets'
+      fullPath: '/app/pets'
+      preLoaderRoute: typeof AppPetsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/chat': {
+      id: '/app/chat'
+      path: '/chat'
+      fullPath: '/app/chat'
+      preLoaderRoute: typeof AppChatRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppChatRoute: typeof AppChatRoute
+  AppPetsRoute: typeof AppPetsRoute
+  AppRecordsRoute: typeof AppRecordsRoute
+  AppTimelineRoute: typeof AppTimelineRoute
+  AppVaccinationsRoute: typeof AppVaccinationsRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppChatRoute: AppChatRoute,
+  AppPetsRoute: AppPetsRoute,
+  AppRecordsRoute: AppRecordsRoute,
+  AppTimelineRoute: AppTimelineRoute,
+  AppVaccinationsRoute: AppVaccinationsRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
