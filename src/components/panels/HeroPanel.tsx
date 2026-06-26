@@ -41,7 +41,7 @@ export function HeroPanel() {
         <div data-reveal data-reveal-delay="0.4" className="mt-8">
           <MagneticButton strength={0.2}>
             <Link
-              to="/app"
+              to="/login"
               className="dala-btn-primary glow-btn inline-flex items-center justify-center rounded-3xl"
               style={{ padding: "12px 22px", fontSize: 11, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}
             >

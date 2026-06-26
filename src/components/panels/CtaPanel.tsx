@@ -41,12 +41,12 @@ export function CtaPanel() {
 
         <div data-reveal data-reveal-delay="0.35" className="mt-10 flex items-center justify-center gap-4">
           <MagneticButton strength={0.3}>
-            <Link to="/app" className="dala-btn-primary glow-btn inline-flex items-center justify-center rounded-3xl" style={{ padding: "16px 28px", fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            <Link to="/login" className="dala-btn-primary glow-btn inline-flex items-center justify-center rounded-3xl" style={{ padding: "16px 28px", fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
               Create your pet profile
             </Link>
           </MagneticButton>
           <MagneticButton strength={0.2}>
-            <Link to="/app" className="dala-btn-ghost rounded-3xl inline-flex items-center justify-center" style={{ padding: "16px 24px", fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            <Link to="/login" className="dala-btn-ghost rounded-3xl inline-flex items-center justify-center" style={{ padding: "16px 24px", fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
               Sign in
             </Link>
           </MagneticButton>

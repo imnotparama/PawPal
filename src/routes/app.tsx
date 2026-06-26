@@ -1,4 +1,6 @@
-import { createFileRoute, Outlet, Link, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "@/lib/auth";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -15,6 +17,24 @@ const navItems = [
 
 function AppLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, loading, signOut } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate({ to: "/login" });
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-void flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full bg-plum-voltage animate-pulse" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <div className="flex min-h-screen bg-void text-bone font-sans">
@@ -51,6 +71,17 @@ function AppLayout() {
             );
           })}
         </nav>
+
+        {/* Sign out */}
+        <div className="mt-auto pt-8">
+          <p className="text-smoke text-xs px-3 mb-2 truncate">{user.email}</p>
+          <button
+            onClick={() => signOut()}
+            className="w-full px-3 py-2.5 rounded-xl text-sm font-medium text-smoke hover:text-bone hover:bg-white/5 transition-colors text-left"
+          >
+            Sign out
+          </button>
+        </div>
       </aside>
 
       {/* Main content */}
