@@ -100,6 +100,7 @@ const vertexShader = `
 
   uniform float uProgress;
   uniform float uExplode;
+  uniform float uIntro;
   uniform float uTime;
 
   varying vec3 vColor;
@@ -134,8 +135,9 @@ const vertexShader = `
       targetPos = mix(posB, posC, t);
     }
 
-    // Explosion scatter
-    vec3 finalPos = mix(targetPos, posScatter, uExplode);
+    // Explosion scatter OR intro scatter (intro takes priority on load)
+    float scatterAmount = max(uExplode, uIntro);
+    vec3 finalPos = mix(targetPos, posScatter, scatterAmount);
 
     // Perlin noise floating (organic, not mechanical)
     vec3 noiseInput = vec3(aPhase * 2.0, uTime * 0.3, aPhase * 1.5);
@@ -205,6 +207,7 @@ const vertexShader = `
     vAlpha = smoothstep(12.0, 1.5, depth) * (0.7 + 0.3 * sin(uTime * 0.5 + aPhase * 6.28));
     vAlpha *= (1.0 + edgeBoost * 0.4); // edge particles up to 40% brighter
     vAlpha *= (1.0 - uExplode * 0.55);
+    vAlpha *= (1.0 - uIntro * 0.3); // slightly dimmer during entrance
     vAlpha = min(vAlpha, 1.0);
   }
 `;
@@ -306,6 +309,7 @@ export function ParticleMorph3D() {
       uniforms: {
         uProgress: { value: 0 },
         uExplode: { value: 0 },
+        uIntro: { value: 1.0 }, // starts scattered, goes to 0 as shape forms
         uTime: { value: 0 },
       },
       transparent: true,
@@ -351,6 +355,11 @@ export function ParticleMorph3D() {
     const animate = () => {
       const elapsed = clock.getElapsedTime();
       material.uniforms.uTime.value = elapsed;
+
+      // Intro: scatter → shape over 2.5 seconds with ease-out cubic
+      const introT = Math.min(elapsed / 2.5, 1);
+      const introEased = 1 - Math.pow(introT, 2); // starts at 1, goes to 0
+      material.uniforms.uIntro.value = introEased;
 
       // Scroll progress
       const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
