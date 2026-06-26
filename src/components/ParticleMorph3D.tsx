@@ -2,11 +2,11 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { CAT_PATH, DOG_PATH, GIRL_CAT_PATH } from "@/lib/silhouettes";
 
-const PARTICLE_COUNT = 6000;
+const PARTICLE_COUNT = 11000;
 
 /**
- * Sample points from SVG path with edge-concentration.
- * Spawns extra particles near the border of the shape for glowing edge effect.
+ * Sample points from SVG path and assign a narrow, crisp Z-depth layer.
+ * Replaces commas with spaces to prevent Path2D parsing errors on some browsers.
  */
 function samplePointsFromPath(pathD: string, count: number): Float32Array {
   const positions = new Float32Array(count * 3);
@@ -14,7 +14,7 @@ function samplePointsFromPath(pathD: string, count: number): Float32Array {
   canvas.width = 100;
   canvas.height = 100;
   const ctx = canvas.getContext("2d")!;
-  const path2d = new Path2D(pathD);
+  const path2d = new Path2D(pathD.replace(/,/g, " "));
 
   let placed = 0;
   let guard = 0;
@@ -25,30 +25,40 @@ function samplePointsFromPath(pathD: string, count: number): Float32Array {
     const y = Math.random() * 100;
     if (!ctx.isPointInPath(path2d, x, y)) continue;
 
-    positions[placed * 3] = (x / 100 - 0.5) * 3.2;
-    positions[placed * 3 + 1] = -(y / 100 - 0.5) * 3.2;
-    // More Z depth variation for 3D feel
-    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.8;
+    const px = (x / 100 - 0.5) * 4.3;
+    const py = -(y / 100 - 0.5) * 4.3;
+
+    positions[placed * 3] = px;
+    positions[placed * 3 + 1] = py;
+    // Narrow, clean Z depth keeps silhouettes sharp and recognizable
+    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.3;
     placed++;
   }
 
   while (placed < count) {
-    positions[placed * 3] = (Math.random() - 0.5) * 1.0;
-    positions[placed * 3 + 1] = (Math.random() - 0.5) * 1.0;
-    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.8;
+    // Focused fallback to prevent noisy bounding box bloating if guard is hit
+    const rx = (Math.random() - 0.5) * 1.5;
+    const ry = (Math.random() - 0.5) * 1.5;
+    positions[placed * 3] = rx;
+    positions[placed * 3 + 1] = ry;
+    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.3;
     placed++;
   }
   return positions;
 }
 
+/**
+ * Generate a dramatic volumetric 3D supernova disk explosion (boom effect)
+ * expanding outward in the XY plane, keeping particles visible and impactful.
+ */
 function generateScatteredPositions(count: number): Float32Array {
   const positions = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
     const angle = Math.random() * Math.PI * 2;
-    const radius = 2.0 + Math.random() * 5;
+    const radius = 1.5 + Math.random() * 4.5;
     positions[i * 3] = Math.cos(angle) * radius;
     positions[i * 3 + 1] = Math.sin(angle) * radius;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 4;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 3.0;
   }
   return positions;
 }
@@ -152,7 +162,7 @@ const vertexShader = `
 
     // Position-based color gradient:
     // Top of shape → amber/yellow, Bottom → purple/plum, Middle → white/lichen
-    float yNorm = (finalPos.y + 1.5) / 3.0; // normalize Y to 0-1
+    float yNorm = (finalPos.y + 2.2) / 4.4; // normalize Y to 0-1
 
     vec3 colorTop = vec3(1.0, 0.75, 0.15);    // warm amber/gold
     vec3 colorMid = vec3(0.9, 0.92, 1.0);     // cool white
@@ -223,8 +233,8 @@ export function ParticleMorph3D() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.z = 3.8;
-    camera.position.x = -1.4; // Start with shape on the RIGHT
+    camera.position.set(0, 0, 3.8);
+    camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -334,18 +344,18 @@ export function ParticleMorph3D() {
       m.x += (m.tx - m.x) * 0.025;
       m.y += (m.ty - m.y) * 0.025;
 
-      // Per-panel X offset: camera moves so shape alternates sides
-      // Negative camera X = shape appears on RIGHT, Positive = shape appears on LEFT
-      const panelOffsets = [-1.4, 1.4, -1.4, 0.0];
+      // Per-panel X offset for the shape (mesh.position.x) to alternate sides:
+      // Positive mesh X = shape appears on RIGHT, Negative mesh X = shape appears on LEFT
+      const panelOffsets = [1.3, -1.3, 1.3, 0.0];
       const panelIndex = scrollProgress * (NUM_PANELS - 1);
       const pIdx = Math.min(Math.floor(panelIndex), NUM_PANELS - 2);
       const pLocal = panelIndex - pIdx;
       const pT = pLocal * pLocal * (3 - 2 * pLocal); // smoothstep
       const xOff = panelOffsets[pIdx] + (panelOffsets[pIdx + 1] - panelOffsets[pIdx]) * pT;
 
-      camera.position.x = xOff + m.x;
-      camera.position.y = m.y;
-      camera.lookAt(0, 0, 0);
+      // Set mesh position smoothly based on scroll translation and mouse parallax
+      mesh.position.x = xOff + m.x;
+      mesh.position.y = m.y;
 
       // Very slow rotation for life
       if (!reduced) {

@@ -1,8 +1,0 @@
-/* Acronym is a premium font — load Space Grotesk as a visual stand-in if Acronym is not available locally */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@200;300;400;500;600;700&display=swap');
-
-@font-face {
-  font-family: 'Acronym';
-  src: local('Acronym');
-  font-display: swap;
-}

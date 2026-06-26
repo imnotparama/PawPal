@@ -1,10 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/LogoMark";
 
 export function Navigation() {
   return (
     <header className="fixed top-0 inset-x-0 z-50">
-      <div className="mx-auto px-6 lg:px-10 h-[60px] flex items-center justify-between">
+      <div className="mx-auto px-6 lg:px-10 h-[60px] flex items-center justify-between animate-fade-in">
         {/* Logo LEFT */}
         <Link to="/" className="flex items-center gap-2 group">
           <LogoMark />
@@ -27,7 +27,7 @@ export function Navigation() {
           ))}
           <Link
             to="/app"
-            className="inline-flex items-center justify-center rounded-full border border-plum-voltage text-bone"
+            className="inline-flex items-center justify-center rounded-full border border-plum-voltage text-bone hover:bg-plum-voltage/10 transition-colors"
             style={{ padding: "8px 16px", fontSize: 11, fontWeight: 500, letterSpacing: "0.04em", textTransform: "uppercase" }}
           >
             Request Access

@@ -158,3 +158,326 @@
 @media (prefers-reduced-motion: reduce) {
   .ambient-float { animation: none; }
 }
+
+/* —— Dala hover motion (no shadows / no glow) —— */
+:root {
+  --ease-dala: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-dala: 280ms;
+}
+
+.dala-nav-link {
+  color: var(--color-smoke);
+  transition:
+    color var(--duration-dala) var(--ease-dala),
+    transform var(--duration-dala) var(--ease-dala);
+}
+
+.dala-nav-link:hover {
+  color: var(--color-bone);
+  transform: translateY(-2px);
+}
+
+.dala-btn-primary {
+  background-color: var(--color-plum-voltage);
+  color: var(--color-bone);
+  transition:
+    transform var(--duration-dala) var(--ease-dala),
+    filter var(--duration-dala) var(--ease-dala);
+}
+
+.dala-btn-primary:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.08);
+}
+
+.dala-btn-primary:active {
+  transform: translateY(-1px);
+  filter: brightness(1);
+}
+
+.dala-btn-outline-amber {
+  border: 1px solid var(--color-amber-spark);
+  color: var(--color-amber-spark);
+  background-color: transparent;
+  transition:
+    color var(--duration-dala) var(--ease-dala),
+    background-color var(--duration-dala) var(--ease-dala),
+    transform var(--duration-dala) var(--ease-dala);
+}
+
+.dala-btn-outline-amber:hover {
+  background-color: color-mix(in srgb, var(--color-amber-spark) 8%, transparent);
+  transform: translateY(-3px);
+}
+
+.dala-btn-ghost {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-bone);
+  background-color: transparent;
+  transition:
+    background-color var(--duration-dala) var(--ease-dala),
+    border-color var(--duration-dala) var(--ease-dala),
+    transform var(--duration-dala) var(--ease-dala);
+}
+
+.dala-btn-ghost:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px);
+}
+
+.dala-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition:
+    border-color var(--duration-dala) var(--ease-dala),
+    transform var(--duration-dala) var(--ease-dala);
+}
+
+.dala-card:hover {
+  border-color: color-mix(in srgb, var(--color-plum-voltage) 45%, transparent);
+  transform: translateY(-6px);
+}
+
+.dala-logo-mark {
+  transition: transform 500ms var(--ease-dala);
+}
+
+.group:hover .dala-logo-mark {
+  transform: rotate(-6deg) scale(1.06);
+}
+
+.dala-list-item {
+  transition: transform var(--duration-dala) var(--ease-dala);
+}
+
+.dala-list-item:hover {
+  transform: translateX(6px);
+}
+
+.dala-list-item .dala-list-dot {
+  transition: transform var(--duration-dala) var(--ease-dala);
+}
+
+.dala-list-item:hover .dala-list-dot {
+  transform: scale(1.5);
+}
+
+.dala-stat {
+  transition: transform var(--duration-dala) var(--ease-dala);
+}
+
+.dala-stat:hover {
+  transform: translateY(-3px);
+}
+
+.dala-constellation-surface {
+  transition: transform 600ms var(--ease-dala);
+}
+
+.dala-constellation-wrap:hover .dala-constellation-surface {
+  transform: scale(1.03);
+}
+
+.dala-interactive {
+  transition: transform var(--duration-dala) var(--ease-dala);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dala-nav-link:hover,
+  .dala-btn-primary:hover,
+  .dala-btn-outline-amber:hover,
+  .dala-btn-ghost:hover,
+  .dala-card:hover,
+  .dala-list-item:hover,
+  .dala-stat:hover,
+  .group:hover .dala-logo-mark,
+  .dala-constellation-wrap:hover .dala-constellation-surface {
+    transform: none;
+  }
+
+  .dala-list-item:hover .dala-list-dot {
+    transform: none;
+  }
+}
+
+/* —— Constellation glow backdrop —— */
+.constellation-glow {
+  background: radial-gradient(
+    ellipse 60% 50% at center,
+    rgba(128, 82, 255, 0.12) 0%,
+    rgba(128, 82, 255, 0.04) 40%,
+    transparent 70%
+  );
+  animation: constellation-pulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes constellation-pulse {
+  0% { opacity: 0.6; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1.05); }
+}
+
+/* —— Hero gradient text —— */
+.hero-gradient-text {
+  background: linear-gradient(135deg, #8052ff 0%, #ffb829 50%, #15846e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* —— Glow button pulse ring —— */
+.glow-btn {
+  position: relative;
+}
+
+.glow-btn::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #8052ff, #ffb829);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 400ms var(--ease-dala);
+  filter: blur(8px);
+}
+
+.glow-btn:hover::before {
+  opacity: 0.5;
+}
+
+/* —— Smooth section reveals —— */
+.section-reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 800ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.section-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .constellation-glow {
+    animation: none;
+  }
+  .glow-btn::before {
+    display: none;
+  }
+  .section-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ====================================
+   CTA Panel — Dramatic glow effects
+   ==================================== */
+
+/* Core center glow — slow breathe */
+.cta-glow-core {
+  animation: cta-breathe 5s ease-in-out infinite alternate;
+}
+
+@keyframes cta-breathe {
+  0% { opacity: 0.5; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1.08); }
+}
+
+/* Amber orb — slow drift top-right */
+.cta-glow-orb-1 {
+  animation: cta-drift-1 8s ease-in-out infinite alternate;
+}
+
+@keyframes cta-drift-1 {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+  100% { transform: translate(-20px, 15px) scale(1.1); opacity: 1; }
+}
+
+/* Lichen orb — slow drift bottom-left */
+.cta-glow-orb-2 {
+  animation: cta-drift-2 9s ease-in-out infinite alternate;
+}
+
+@keyframes cta-drift-2 {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+  100% { transform: translate(15px, -10px) scale(1.15); opacity: 0.9; }
+}
+
+/* Ring glow — slow rotation + pulse */
+.cta-ring-glow {
+  animation: cta-ring-spin 20s linear infinite;
+}
+
+@keyframes cta-ring-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Inner ring — counter-rotate */
+.cta-ring-glow-inner {
+  animation: cta-ring-counter 15s linear infinite;
+}
+
+@keyframes cta-ring-counter {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+/* Logo pulse glow */
+.cta-logo-pulse {
+  animation: cta-logo-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes cta-logo-glow {
+  0% { filter: drop-shadow(0 0 4px rgba(128,82,255,0.3)); }
+  100% { filter: drop-shadow(0 0 16px rgba(128,82,255,0.6)); }
+}
+
+/* Enhanced CTA button — stronger glow */
+.cta-btn-enhanced::before {
+  filter: blur(12px) !important;
+}
+
+.cta-btn-enhanced:hover::before {
+  opacity: 0.7 !important;
+}
+
+.cta-btn-enhanced::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 28px;
+  background: radial-gradient(ellipse at center, rgba(128,82,255,0.15) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 500ms var(--ease-dala);
+  pointer-events: none;
+}
+
+.cta-btn-enhanced:hover::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-glow-core,
+  .cta-glow-orb-1,
+  .cta-glow-orb-2,
+  .cta-ring-glow,
+  .cta-ring-glow-inner,
+  .cta-logo-pulse {
+    animation: none;
+  }
+}
+
+/* ====================================
+   Subtle background grid texture
+   ==================================== */
+.hero-grid-bg {
+  background-image:
+    linear-gradient(rgba(128, 82, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(128, 82, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at center, black 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at center, black 30%, transparent 70%);
+}

@@ -22,6 +22,7 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const panels = track.children.length;
+    console.log("[HorizontalScroll Debug] panels count detected:", panels);
 
     // Height needed for MorphingConstellation to read scroll progress
     container.style.height = `${panels * 100}vh`;
@@ -45,7 +46,8 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
       const fromPanel = currentPanel;
       currentPanel = clamped;
 
-      const maxScroll = container.offsetHeight - window.innerHeight;
+      const viewportHeight = window.innerHeight;
+      const maxScroll = (panels - 1) * viewportHeight;
       const fromScroll = (fromPanel / (panels - 1)) * maxScroll;
       const toScroll = (clamped / (panels - 1)) * maxScroll;
       const distance = toScroll - fromScroll;
@@ -116,11 +118,31 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
       }
     };
 
+    let lastScrollY = -1;
+    let scrollChanged = false;
     // Render loop for visual transforms
     const onScroll = () => {
-      const maxScroll = container.offsetHeight - window.innerHeight;
-      const progress = Math.min(Math.max(window.scrollY / maxScroll, 0), 1);
+      const viewportHeight = window.innerHeight;
+      const maxScroll = (panels - 1) * viewportHeight;
+      const progress = maxScroll > 0 ? Math.min(Math.max(window.scrollY / maxScroll, 0), 1) : 0;
       progressRef.current = progress;
+      
+      if (window.scrollY !== lastScrollY) {
+        scrollChanged = true;
+        const maxTranslate = (panels - 1) * window.innerWidth;
+        const targetX = -progress * maxTranslate;
+        console.log("[HorizontalScroll Debug] " + JSON.stringify({
+          scrollY: window.scrollY,
+          viewportHeight,
+          maxScroll,
+          progress,
+          targetX,
+          panels
+        }));
+        lastScrollY = window.scrollY;
+      } else {
+        scrollChanged = false;
+      }
     };
 
     const loop = () => {
@@ -137,6 +159,12 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
       panelElements.forEach((panel, i) => {
         const panelProgress = progress * (panels - 1) - i;
         const clamped = Math.max(-1.5, Math.min(1.5, panelProgress));
+        const proximity = Math.max(0, 1 - Math.abs(clamped));
+
+        const content = panel.querySelector<HTMLElement>("[data-panel-content]");
+        if (scrollChanged) {
+          console.log(`[HorizontalScroll Loop] Panel ${i}: progress=${panelProgress.toFixed(3)}, clamped=${clamped.toFixed(3)}, proximity=${proximity.toFixed(3)}, content=${content ? 'yes' : 'no'}`);
+        }
 
         // Ambient shapes parallax
         const shapes = panel.querySelectorAll<HTMLElement>(".ambient-float");
@@ -150,10 +178,8 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
         });
 
         // Content reveal
-        const proximity = Math.max(0, 1 - Math.abs(clamped));
         const direction = -clamped;
 
-        const content = panel.querySelector<HTMLElement>("[data-panel-content]");
         if (content) {
           if (reduced) {
             content.style.opacity = proximity > 0.3 ? "1" : "0";
