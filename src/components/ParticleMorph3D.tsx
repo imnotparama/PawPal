@@ -5,8 +5,8 @@ import { CAT_PATH, DOG_PATH, GIRL_CAT_PATH } from "@/lib/silhouettes";
 const PARTICLE_COUNT = 11000;
 
 /**
- * Sample points from SVG path and assign a narrow, crisp Z-depth layer.
- * Replaces commas with spaces to prevent Path2D parsing errors on some browsers.
+ * Sample points from SVG path with edge concentration.
+ * ~40% of particles are forced near the boundary for the glowing outline effect.
  */
 function samplePointsFromPath(pathD: string, count: number): Float32Array {
   const positions = new Float32Array(count * 3);
@@ -16,31 +16,51 @@ function samplePointsFromPath(pathD: string, count: number): Float32Array {
   const ctx = canvas.getContext("2d")!;
   const path2d = new Path2D(pathD.replace(/,/g, " "));
 
+  // First pass: sample interior points normally
+  const interiorCount = Math.floor(count * 0.6);
   let placed = 0;
   let guard = 0;
 
-  while (placed < count && guard < count * 80) {
+  while (placed < interiorCount && guard < count * 80) {
     guard++;
     const x = Math.random() * 100;
     const y = Math.random() * 100;
     if (!ctx.isPointInPath(path2d, x, y)) continue;
 
-    const px = (x / 100 - 0.5) * 4.3;
-    const py = -(y / 100 - 0.5) * 4.3;
-
-    positions[placed * 3] = px;
-    positions[placed * 3 + 1] = py;
-    // Narrow, clean Z depth keeps silhouettes sharp and recognizable
+    positions[placed * 3] = (x / 100 - 0.5) * 4.3;
+    positions[placed * 3 + 1] = -(y / 100 - 0.5) * 4.3;
     positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.3;
     placed++;
   }
 
+  // Second pass: edge-concentrated particles (sample near boundary)
+  guard = 0;
+  while (placed < count && guard < count * 120) {
+    guard++;
+    const x = Math.random() * 100;
+    const y = Math.random() * 100;
+    const inside = ctx.isPointInPath(path2d, x, y);
+
+    // Check if this point is near the edge by testing neighbors
+    if (!inside) continue;
+    const step = 2.5; // pixels to check for boundary
+    const nearEdge =
+      !ctx.isPointInPath(path2d, x + step, y) ||
+      !ctx.isPointInPath(path2d, x - step, y) ||
+      !ctx.isPointInPath(path2d, x, y + step) ||
+      !ctx.isPointInPath(path2d, x, y - step);
+
+    if (!nearEdge && Math.random() > 0.15) continue; // skip most non-edge points
+
+    positions[placed * 3] = (x / 100 - 0.5) * 4.3;
+    positions[placed * 3 + 1] = -(y / 100 - 0.5) * 4.3;
+    positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.2; // tighter Z at edges
+    placed++;
+  }
+
   while (placed < count) {
-    // Focused fallback to prevent noisy bounding box bloating if guard is hit
-    const rx = (Math.random() - 0.5) * 1.5;
-    const ry = (Math.random() - 0.5) * 1.5;
-    positions[placed * 3] = rx;
-    positions[placed * 3 + 1] = ry;
+    positions[placed * 3] = (Math.random() - 0.5) * 1.5;
+    positions[placed * 3 + 1] = (Math.random() - 0.5) * 1.5;
     positions[placed * 3 + 2] = (Math.random() - 0.5) * 0.3;
     placed++;
   }
@@ -179,10 +199,13 @@ const vertexShader = `
       vColor = vec3(0.1, 0.6, 0.48); // lichen accent
     }
 
-    // Depth-based alpha
+    // Depth-based alpha with edge brightness boost
     float depth = -mvPosition.z;
-    vAlpha = smoothstep(12.0, 1.5, depth) * (0.75 + 0.25 * sin(uTime * 0.5 + aPhase * 6.28));
+    float edgeBoost = smoothstep(0.5, 1.8, aScale); // larger particles = near edge = brighter
+    vAlpha = smoothstep(12.0, 1.5, depth) * (0.7 + 0.3 * sin(uTime * 0.5 + aPhase * 6.28));
+    vAlpha *= (1.0 + edgeBoost * 0.4); // edge particles up to 40% brighter
     vAlpha *= (1.0 - uExplode * 0.55);
+    vAlpha = min(vAlpha, 1.0);
   }
 `;
 
@@ -254,7 +277,11 @@ export function ParticleMorph3D() {
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       phases[i] = Math.random() * Math.PI * 2;
-      scales[i] = 0.3 + Math.random() * 1.5; // Varied sizes
+      // Edge particles (last 40%) get slightly larger scales for glow effect
+      const isEdge = i >= Math.floor(PARTICLE_COUNT * 0.6);
+      scales[i] = isEdge
+        ? 0.6 + Math.random() * 1.8  // edge: larger
+        : 0.3 + Math.random() * 1.2; // interior: normal
     }
 
     // Triangle geometry
