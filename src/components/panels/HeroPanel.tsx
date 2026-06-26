@@ -9,7 +9,7 @@ const headlineWords = ["Your", "pet's", "health,", "reimagined."];
 const gradientWords = ["health,", "reimagined."];
 
 const gradientStyle: React.CSSProperties = {
-  background: "linear-gradient(90deg, #ffffff 30%, #8052ff 100%)",
+  background: "linear-gradient(90deg, #ffffff 20%, #8052ff 100%)",
   WebkitBackgroundClip: "text",
   WebkitTextFillColor: "transparent",
 };
@@ -60,8 +60,7 @@ export function HeroPanel() {
           className="mt-10 max-w-[400px]"
         >
           <p
-            className="text-amber-spark"
-            style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}
+            style={{ color: "#8052ff", fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}
           >
             Stop guessing. Start caring.
           </p>

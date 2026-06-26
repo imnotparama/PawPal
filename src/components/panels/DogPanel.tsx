@@ -26,17 +26,33 @@ export function DogPanel() {
         }}
       />
 
+      {/* Dark scrim overlay */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          right: 0,
+          top: 0,
+          width: "50%",
+          height: "100%",
+          zIndex: 1,
+          pointerEvents: "none",
+          background: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.7) 30%)",
+        }}
+      />
+
       {/* Text block — right half only */}
       <div
         data-panel-content
-        className="relative z-10"
+        className="relative"
         style={{
-          paddingLeft: "50vw",
-          paddingRight: "64px",
+          marginLeft: "50vw",
+          padding: "0 64px 0 0",
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
+          zIndex: 2,
         }}
       >
         {/* Eyebrow */}

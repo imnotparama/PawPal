@@ -1,49 +1,13 @@
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
 
 const headlineWords = ["Hold", "them", "closer."];
 
 const stats = [
-  { end: 12, suffix: "k+", label: "PETS ONBOARDED" },
-  { end: 98, suffix: "%", label: "OWNERS CALMER" },
-  { end: 24, suffix: "/7", label: "AI STANDBY" },
+  { display: "12k+", label: "PETS ONBOARDED" },
+  { display: "98%", label: "OWNERS CALMER" },
+  { display: "24/7", label: "AI STANDBY" },
 ];
-
-function AnimatedStat({ end, suffix, label, delay }: { end: number; suffix: string; label: string; delay: number }) {
-  const [value, setValue] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const hasAnimated = useRef(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true;
-          const mv = useMotionValue(0);
-          mv.on("change", (v) => setValue(Math.round(v)));
-          animate(mv, end, { duration: 1.5, delay, ease: "easeOut" });
-        }
-      },
-      { threshold: 0.3 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [end, delay]);
-
-  return (
-    <div ref={ref} style={{ display: "flex", flexDirection: "column" }}>
-      <span style={{ fontSize: 32, fontWeight: 600, color: "#ffffff" }}>
-        {value}{suffix}
-      </span>
-      <span style={{ fontSize: 11, fontWeight: 400, color: "#9a9a9a", letterSpacing: "0.05em", textTransform: "uppercase", marginTop: 4 }}>
-        {label}
-      </span>
-    </div>
-  );
-}
 
 export function GirlCatPanel() {
   return (
@@ -96,7 +60,7 @@ export function GirlCatPanel() {
         {/* Headline — staggered */}
         <h2
           style={{
-            fontSize: "clamp(48px, 7vw, 96px)",
+            fontSize: "clamp(40px, 5vw, 64px)",
             lineHeight: 0.95,
             letterSpacing: "-0.03em",
             fontWeight: 300,
@@ -146,7 +110,14 @@ export function GirlCatPanel() {
         >
           {stats.map((stat, i) => (
             <div key={stat.label} style={{ display: "flex", alignItems: "flex-start", gap: 32 }}>
-              <AnimatedStat end={stat.end} suffix={stat.suffix} label={stat.label} delay={0.7 + i * 0.15} />
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: 32, fontWeight: 600, color: "#ffffff" }}>
+                  {stat.display}
+                </span>
+                <span style={{ fontSize: 11, fontWeight: 400, color: "#9a9a9a", letterSpacing: "0.05em", textTransform: "uppercase", marginTop: 4 }}>
+                  {stat.label}
+                </span>
+              </div>
               {i < stats.length - 1 && (
                 <div style={{ width: 1, height: 48, backgroundColor: "rgba(255,255,255,0.12)", alignSelf: "center" }} />
               )}

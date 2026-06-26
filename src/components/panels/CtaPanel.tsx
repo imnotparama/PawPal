@@ -9,6 +9,16 @@ export function CtaPanel() {
 
       <div
         aria-hidden="true"
+        className="absolute pointer-events-none"
+        style={{
+          inset: 0,
+          zIndex: 1,
+          background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,0,0,0.5) 0%, transparent 100%)",
+        }}
+      />
+
+      <div
+        aria-hidden="true"
         className="absolute pointer-events-none cta-glow-core"
         style={{
           width: "60vw", height: "60vh", left: "20vw", top: "20vh",
@@ -17,7 +27,7 @@ export function CtaPanel() {
         }}
       />
 
-      <div data-panel-content className="relative text-center max-w-[600px] px-8 z-10">
+      <div data-panel-content className="relative text-center max-w-[600px] px-8" style={{ position: "relative", zIndex: 2 }}>
         <h2
           data-reveal data-reveal-delay="0.05"
           className="text-bone"
