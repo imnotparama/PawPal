@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppVaccinationsRouteImport } from './routes/app/vaccinations'
 import { Route as AppTimelineRouteImport } from './routes/app/timeline'
@@ -32,6 +33,11 @@ const AppRoute = AppRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/auth/',
+  path: '/auth/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/app/timeline': typeof AppTimelineRoute
   '/app/vaccinations': typeof AppVaccinationsRoute
   '/app/': typeof AppIndexRoute
+  '/auth/': typeof AuthIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/app/timeline': typeof AppTimelineRoute
   '/app/vaccinations': typeof AppVaccinationsRoute
   '/app': typeof AppIndexRoute
+  '/auth': typeof AuthIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/app/timeline': typeof AppTimelineRoute
   '/app/vaccinations': typeof AppVaccinationsRoute
   '/app/': typeof AppIndexRoute
+  '/auth/': typeof AuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/app/timeline'
     | '/app/vaccinations'
     | '/app/'
+    | '/auth/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/app/timeline'
     | '/app/vaccinations'
     | '/app'
+    | '/auth'
   id:
     | '__root__'
     | '/'
@@ -131,12 +142,14 @@ export interface FileRouteTypes {
     | '/app/timeline'
     | '/app/vaccinations'
     | '/app/'
+    | '/auth/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
+  AuthIndexRoute: typeof AuthIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -160,6 +173,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/': {
+      id: '/auth/'
+      path: '/auth'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/': {
@@ -231,6 +251,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
+  AuthIndexRoute: AuthIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -7,7 +7,6 @@ export function CtaPanel() {
     <div className="relative w-full h-full flex items-center justify-center">
       <AmbientShapes seed={77} count={50} exclusionRadius={0.12} />
 
-      {/* Subtle center glow */}
       <div
         aria-hidden="true"
         className="absolute pointer-events-none cta-glow-core"
@@ -22,43 +21,67 @@ export function CtaPanel() {
         <h2
           data-reveal data-reveal-delay="0.05"
           className="text-bone"
-          style={{
-            fontSize: "clamp(44px, 7vw, 88px)",
-            lineHeight: 0.95,
-            letterSpacing: "-0.03em",
-            fontWeight: 300,
-          }}
+          style={{ fontSize: "clamp(40px, 6vw, 64px)", lineHeight: 1, letterSpacing: "-0.03em", fontWeight: 300 }}
         >
-          Ready to
-          <br />
-          start caring?
+          Ready to care smarter?
         </h2>
 
-        <p data-reveal data-reveal-delay="0.2" className="mt-8 text-ash mx-auto max-w-[420px]" style={{ fontSize: 15, lineHeight: 1.65 }}>
-          Join thousands of pet owners who stopped worrying and started
-          understanding. PawPal AI is free to start.
+        <p data-reveal data-reveal-delay="0.15" className="mt-5 mx-auto max-w-[460px]" style={{ fontSize: 18, lineHeight: 1.5, color: "#bdbdbd", fontWeight: 400 }}>
+          Join thousands of pet owners who never miss a vaccine, a symptom, or a vet note.
         </p>
 
-        <div data-reveal data-reveal-delay="0.35" className="mt-10 flex items-center justify-center gap-4">
-          <MagneticButton strength={0.3}>
-            <Link to="/login" className="dala-btn-primary glow-btn inline-flex items-center justify-center rounded-3xl" style={{ padding: "16px 28px", fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-              Create your pet profile
+        {/* CTA Buttons */}
+        <div data-reveal data-reveal-delay="0.3" className="mt-10 flex items-center justify-center gap-4 flex-wrap">
+          <MagneticButton strength={0.25}>
+            <Link
+              to="/auth"
+              search={{ mode: "signup" }}
+              style={{
+                padding: "16px 32px",
+                fontSize: 14,
+                fontWeight: 600,
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                backgroundColor: "#8052ff",
+                color: "#ffffff",
+                borderRadius: "24px",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              Get Started Free
             </Link>
           </MagneticButton>
+
           <MagneticButton strength={0.2}>
-            <Link to="/login" className="dala-btn-ghost rounded-3xl inline-flex items-center justify-center" style={{ padding: "16px 24px", fontSize: 12, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-              Sign in
+            <Link
+              to="/auth"
+              search={{ mode: "signin" }}
+              className="transition-colors duration-200 hover:border-plum-voltage hover:text-plum-voltage"
+              style={{
+                padding: "16px 32px",
+                fontSize: 14,
+                fontWeight: 600,
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                backgroundColor: "transparent",
+                color: "#ffffff",
+                border: "1px solid rgba(255,255,255,0.3)",
+                borderRadius: "24px",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              Sign In
             </Link>
           </MagneticButton>
         </div>
 
-        <div data-reveal data-reveal-delay="0.5" className="mt-14 flex items-center justify-center gap-8">
-          {["Privacy", "Terms", "Contact"].map((l) => (
-            <a key={l} href="#" className="dala-nav-link" style={{ fontSize: 12, letterSpacing: "0.02em" }}>{l}</a>
-          ))}
-        </div>
-        <p data-reveal data-reveal-delay="0.55" className="mt-4 text-smoke" style={{ fontSize: 11 }}>
-          © 2026 PawPal AI
+        {/* Trust line */}
+        <p data-reveal data-reveal-delay="0.4" className="mt-6" style={{ fontSize: 12, color: "#9a9a9a", textAlign: "center" }}>
+          No credit card required · Free forever plan available
         </p>
       </div>
     </div>

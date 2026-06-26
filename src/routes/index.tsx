@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ParticleMorph3D } from "@/components/ParticleMorph3D";
 import { CursorGlow } from "@/components/CursorGlow";
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 import { HorizontalScroll, HPanel } from "@/components/HorizontalScroll";
 import { HeroPanel } from "@/components/panels/HeroPanel";
 import { DogPanel } from "@/components/panels/DogPanel";
@@ -52,6 +53,7 @@ function Landing() {
           <CtaPanel />
         </HPanel>
       </HorizontalScroll>
+      <Footer />
     </main>
   );
 }
