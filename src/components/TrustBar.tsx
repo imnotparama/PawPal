@@ -25,7 +25,7 @@ export function TrustBar() {
             </span>
           </div>
           {i < stats.length - 1 && (
-            <div className="w-px h-6 bg-white/15" />
+            <div style={{ width: 1, height: 24, backgroundColor: "rgba(255,255,255,0.15)" }} />
           )}
         </div>
       ))}

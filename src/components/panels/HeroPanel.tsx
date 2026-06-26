@@ -9,7 +9,7 @@ const headlineWords = ["Your", "pet's", "health,", "reimagined."];
 const gradientWords = ["health,", "reimagined."];
 
 const gradientStyle: React.CSSProperties = {
-  background: "linear-gradient(90deg, #ffffff 0%, #8052ff 100%)",
+  background: "linear-gradient(90deg, #ffffff 30%, #8052ff 100%)",
   WebkitBackgroundClip: "text",
   WebkitTextFillColor: "transparent",
 };
@@ -84,7 +84,7 @@ export function HeroPanel() {
               className="dala-btn-primary glow-btn inline-flex items-center justify-center rounded-3xl"
               style={{ padding: "12px 22px", fontSize: 11, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}
             >
-              Request Access
+              Get Started
             </Link>
           </MagneticButton>
 
@@ -98,7 +98,7 @@ export function HeroPanel() {
               letterSpacing: "0.05em",
               textTransform: "uppercase",
               backgroundColor: "transparent",
-              border: "1px solid rgba(255,255,255,0.25)",
+              border: "1px solid rgba(255,255,255,0.4)",
               color: "#ffffff",
               borderRadius: "24px",
               cursor: "pointer",
@@ -109,7 +109,7 @@ export function HeroPanel() {
               e.currentTarget.style.color = "#8052ff";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)";
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.4)";
               e.currentTarget.style.color = "#ffffff";
             }}
           >
