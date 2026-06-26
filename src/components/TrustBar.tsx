@@ -1,0 +1,34 @@
+import { motion } from "framer-motion";
+
+const stats = [
+  { number: "10,000+", label: "pet owners" },
+  { number: "98%", label: "AI accuracy" },
+  { number: "200+", label: "trusted vets" },
+];
+
+export function TrustBar() {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 1.2, duration: 0.6 }}
+      className="flex items-center gap-8 mt-10"
+    >
+      {stats.map((stat, i) => (
+        <div key={stat.label} className="flex items-center gap-8">
+          <div className="flex flex-col items-center">
+            <span style={{ color: "#fff", fontWeight: 600, fontSize: 14 }}>
+              {stat.number}
+            </span>
+            <span style={{ color: "#9a9a9a", fontWeight: 400, fontSize: 13 }}>
+              {stat.label}
+            </span>
+          </div>
+          {i < stats.length - 1 && (
+            <div className="w-px h-6 bg-white/15" />
+          )}
+        </div>
+      ))}
+    </motion.div>
+  );
+}

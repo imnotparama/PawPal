@@ -37,6 +37,18 @@ function Landing() {
     <main className="min-h-screen bg-void text-bone font-acronym relative">
       <div className="absolute inset-0 z-0 hero-grid-bg pointer-events-none" />
       <CursorGlow />
+      <div
+        aria-hidden="true"
+        className="fixed pointer-events-none"
+        style={{
+          zIndex: 0,
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: "60%",
+          background: "radial-gradient(ellipse 60% 70% at 60% 50%, rgba(128,82,255,0.12) 0%, transparent 70%)",
+        }}
+      />
       <ParticleMorph3D />
       <Navigation />
       <HorizontalScroll>
