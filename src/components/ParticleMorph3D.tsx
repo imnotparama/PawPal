@@ -384,10 +384,10 @@ export function ParticleMorph3D() {
       mesh.position.x = xOff + m.x;
       mesh.position.y = m.y;
 
-      // Very slow rotation for life
+      // Gentle oscillation capped at ±45 degrees (π/4 ≈ 0.785 rad)
       if (!reduced) {
-        mesh.rotation.y = elapsed * 0.02;
-        mesh.rotation.x = Math.sin(elapsed * 0.06) * 0.02;
+        mesh.rotation.y = Math.sin(elapsed * 0.08) * 0.4; // oscillates ±23 degrees
+        mesh.rotation.x = Math.sin(elapsed * 0.05) * 0.1; // subtle tilt ±6 degrees
       }
 
       renderer.render(scene, camera);

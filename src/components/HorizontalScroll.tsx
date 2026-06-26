@@ -185,28 +185,35 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
             content.style.opacity = proximity > 0.3 ? "1" : "0";
             content.style.transform = "none";
           } else {
-            const translateX = direction * 80 * (1 - proximity);
-            const translateY = (1 - proximity) * 30;
-            const scale = 0.92 + proximity * 0.08;
-            content.style.opacity = `${Math.pow(proximity, 1.5)}`;
+            // Text fades out quickly and only appears when panel is nearly centered
+            // This creates "text out → morph → text in" sequencing
+            const textVisibility = proximity > 0.6
+              ? Math.pow((proximity - 0.6) / 0.4, 1.5) // only visible above 60% proximity
+              : 0;
+            const translateX = direction * 60 * (1 - textVisibility);
+            const translateY = (1 - textVisibility) * 20;
+            const scale = 0.95 + textVisibility * 0.05;
+            content.style.opacity = `${textVisibility}`;
             content.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
-            content.style.filter = proximity < 0.5 ? `blur(${(1 - proximity * 2) * 4}px)` : "none";
+            content.style.filter = textVisibility < 0.3 ? `blur(${(1 - textVisibility * 3.3) * 3}px)` : "none";
           }
         }
 
-        // Staggered child reveals
+        // Staggered child reveals — delayed so they cascade in after panel settles
         const reveals = panel.querySelectorAll<HTMLElement>("[data-reveal]");
         reveals.forEach((el, idx) => {
-          const delay = parseFloat(el.dataset.revealDelay || `${idx * 0.08}`);
-          const staggeredProximity = Math.max(0, Math.min(1, proximity * 1.5 - delay));
+          const delay = parseFloat(el.dataset.revealDelay || `${idx * 0.1}`);
+          // Only starts revealing once panel is 70%+ in view
+          const revealBase = proximity > 0.7 ? (proximity - 0.7) / 0.3 : 0;
+          const staggeredProximity = Math.max(0, Math.min(1, revealBase * 1.3 - delay));
 
           if (reduced) {
             el.style.opacity = staggeredProximity > 0.2 ? "1" : "0";
             el.style.transform = "none";
           } else {
-            const ty = (1 - staggeredProximity) * 40;
-            const tx = direction * 30 * (1 - staggeredProximity);
-            el.style.opacity = `${Math.pow(staggeredProximity, 2)}`;
+            const ty = (1 - staggeredProximity) * 30;
+            const tx = direction * 20 * (1 - staggeredProximity);
+            el.style.opacity = `${Math.pow(staggeredProximity, 1.5)}`;
             el.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
             el.style.transition = "none";
           }
