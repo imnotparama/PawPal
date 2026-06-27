@@ -11,12 +11,13 @@ export const Route = createFileRoute("/app/")({
   component: Dashboard,
 });
 
-function HealthArc() {
+function HealthArc({ score }: { score: string }) {
+  const numericScore = parseInt(score) || 0;
   const [progress, setProgress] = useState(0);
   useEffect(() => {
-    const timer = setTimeout(() => setProgress(92), 100);
+    const timer = setTimeout(() => setProgress(numericScore), 100);
     return () => clearTimeout(timer);
-  }, []);
+  }, [numericScore]);
   const radius = 26;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (progress / 100) * circumference;
@@ -26,7 +27,7 @@ function HealthArc() {
         <circle cx="30" cy="30" r={radius} fill="none" stroke="rgba(128,82,255,0.1)" strokeWidth="4" />
         <circle cx="30" cy="30" r={radius} fill="none" stroke="#8052ff" strokeWidth="4" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} style={{ transition: "stroke-dashoffset 1s ease-out", transform: "rotate(-90deg)", transformOrigin: "center" }} />
       </svg>
-      <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 600, color: "#8052ff" }}>92%</span>
+      <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 600, color: "#8052ff" }}>{score}</span>
     </div>
   );
 }
@@ -72,11 +73,14 @@ function Dashboard() {
   const upcomingVaccines = vaccinations.filter((v) => v.status === "Upcoming");
   const aiConversations = messages.filter((m) => m.role === "user").length;
 
+  const overdueCount = vaccinations.filter((v) => v.status === "Upcoming" && new Date(v.date) < new Date()).length;
+  const healthScore = pets.length === 0 ? "—" : `${Math.max(60, 100 - overdueCount * 10)}%`;
+
   const stats = [
     { label: "TOTAL PETS", value: String(pets.length), highlight: false },
     { label: "UPCOMING VACCINES", value: String(upcomingVaccines.length), highlight: false },
     { label: "AI CONVERSATIONS", value: String(aiConversations), highlight: false },
-    { label: "HEALTH SCORE", value: "92%", highlight: true },
+    { label: "HEALTH SCORE", value: healthScore, highlight: true },
   ];
 
   // Recent activity: last 4 records + vaccinations sorted by created_at
@@ -125,7 +129,7 @@ function Dashboard() {
             style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "20px 24px", borderBottom: s.highlight ? "2px solid #8052ff" : undefined, overflow: "hidden", position: "relative" }}
           >
             <p style={{ fontSize: 12, fontWeight: 400, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>{s.label}</p>
-            {s.highlight ? <HealthArc /> : <p style={{ fontSize: 36, fontWeight: 600, color: "#ffffff" }}>{s.value}</p>}
+            {s.highlight ? <HealthArc score={s.value} /> : <p style={{ fontSize: 36, fontWeight: 600, color: "#ffffff" }}>{s.value}</p>}
           </motion.div>
         ))}
       </div>
