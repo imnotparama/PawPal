@@ -26,7 +26,7 @@ export function Navigation() {
         outline: "none",
       }}
     >
-      <div className="mx-auto px-6 lg:px-10 h-[60px] flex items-center justify-between">
+      <div className="mx-auto px-6 lg:px-10 h-[60px] flex items-center justify-between" style={{ background: "transparent" }}>
         {/* Logo LEFT — PawPal + paw icon */}
         <Link to="/" className="flex items-center gap-1.5">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="#8052ff" aria-hidden="true">
