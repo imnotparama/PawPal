@@ -1,34 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { usePets } from "@/hooks/usePets";
+import { useVaccinations } from "@/hooks/useVaccinations";
 
 export const Route = createFileRoute("/app/vaccinations")({
   component: VaccinationsPage,
 });
 
-const vaccinations = [
-  { pet: "Max", petType: "dog", vaccine: "Rabies Booster", date: "Jul 15, 2025", status: "upcoming" },
-  { pet: "Luna", petType: "cat", vaccine: "FVRCP", date: "Jul 28, 2025", status: "upcoming" },
-  { pet: "Milo", petType: "dog", vaccine: "DHPP", date: "Jun 10, 2025", status: "completed" },
-  { pet: "Max", petType: "dog", vaccine: "Bordetella", date: "May 22, 2025", status: "completed" },
-  { pet: "Luna", petType: "cat", vaccine: "Rabies", date: "Apr 3, 2025", status: "completed" },
-];
-
-const summaryCards = [
-  { label: "Upcoming", value: "2", color: "#ffb829", icon: "⏰" },
-  { label: "Completed", value: "3", color: "#15846e", icon: "✓" },
-  { label: "Overdue", value: "0", color: "#ff6b6b", icon: "⚠" },
-];
-
-const filters = ["All Pets", "Max", "Luna", "Milo"];
-
 function StatusPill({ status }: { status: string }) {
+  const normalized = status?.toLowerCase() || "upcoming";
   const styles: Record<string, { bg: string; color: string; border: string }> = {
     upcoming: { bg: "rgba(255,184,41,0.12)", color: "#ffb829", border: "rgba(255,184,41,0.2)" },
     completed: { bg: "rgba(21,132,110,0.12)", color: "#15846e", border: "rgba(21,132,110,0.2)" },
     overdue: { bg: "rgba(255,107,107,0.12)", color: "#ff6b6b", border: "rgba(255,107,107,0.2)" },
   };
-  const s = styles[status] || styles.upcoming;
+  const s = styles[normalized] || styles.upcoming;
   return (
     <span style={{ background: s.bg, color: s.color, border: `1px solid ${s.border}`, borderRadius: 20, padding: "4px 12px", fontSize: 12, fontWeight: 500, textTransform: "capitalize" }}>
       {status}
@@ -36,12 +23,81 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
+function AddVaccinationModal({ pets, onClose, onSubmit }: { pets: any[]; onClose: () => void; onSubmit: (values: any) => void }) {
+  const [petId, setPetId] = useState(pets[0]?.id || "");
+  const [vaccineName, setVaccineName] = useState("");
+  const [date, setDate] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!petId || !vaccineName.trim() || !date) return;
+    onSubmit({ pet_id: petId, vaccine_name: vaccineName, date, notes });
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.8)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: 32, width: 380 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 600, color: "#ffffff", marginBottom: 24 }}>Add Vaccination</h2>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div>
+            <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Pet</label>
+            <select value={petId} onChange={(e) => setPetId(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }}>
+              {pets.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Vaccine Name</label>
+            <input value={vaccineName} onChange={(e) => setVaccineName(e.target.value)} placeholder="e.g. Rabies Booster" style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} />
+          </div>
+          <div>
+            <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Date</label>
+            <input value={date} onChange={(e) => setDate(e.target.value)} type="date" style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} />
+          </div>
+          <div>
+            <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Notes</label>
+            <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional notes" style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} />
+          </div>
+          <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+            <button type="button" onClick={onClose} style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#9a9a9a", borderRadius: 12, padding: "12px", fontSize: 14, cursor: "pointer" }}>Cancel</button>
+            <button type="submit" style={{ flex: 1, background: "#8052ff", border: "none", color: "#fff", borderRadius: 12, padding: "12px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Add Vaccination</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function VaccinationsPage() {
+  const { pets } = usePets();
+  const { vaccinations, loading, addVaccination, markComplete } = useVaccinations();
   const [activeFilter, setActiveFilter] = useState("All Pets");
+  const [showModal, setShowModal] = useState(false);
+
+  const filters = ["All Pets", ...pets.map((p) => p.name)];
 
   const filtered = activeFilter === "All Pets"
     ? vaccinations
-    : vaccinations.filter((v) => v.pet === activeFilter);
+    : vaccinations.filter((v) => v.pets?.name === activeFilter);
+
+  const upcomingCount = vaccinations.filter((v) => v.status === "Upcoming").length;
+  const completedCount = vaccinations.filter((v) => v.status === "Completed").length;
+  const overdueCount = vaccinations.filter((v) => v.status === "Overdue").length;
+
+  const summaryCards = [
+    { label: "Upcoming", value: String(upcomingCount), color: "#ffb829", icon: "⏰" },
+    { label: "Completed", value: String(completedCount), color: "#15846e", icon: "✓" },
+    { label: "Overdue", value: String(overdueCount), color: "#ff6b6b", icon: "⚠" },
+  ];
+
+  const handleAddVaccination = async (values: any) => {
+    await addVaccination(values);
+    setShowModal(false);
+  };
+
+  if (loading) {
+    return <p style={{ color: "#9a9a9a", fontSize: 15 }}>Loading...</p>;
+  }
 
   return (
     <div>
@@ -52,6 +108,7 @@ function VaccinationsPage() {
           <p style={{ fontSize: 15, color: "#9a9a9a" }}>Track upcoming and past vaccinations for all your pets.</p>
         </div>
         <motion.button
+          onClick={() => setShowModal(true)}
           animate={{ boxShadow: ["0 0 0px rgba(128,82,255,0)", "0 0 20px rgba(128,82,255,0.35)", "0 0 0px rgba(128,82,255,0)"] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
           style={{ background: "#8052ff", color: "#fff", borderRadius: 24, padding: "12px 24px", fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer" }}
@@ -109,55 +166,65 @@ function VaccinationsPage() {
         ))}
       </div>
 
-      {/* Table Header */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr", gap: 16, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        {["PET", "VACCINE", "DATE", "STATUS"].map((h) => (
-          <span key={h} style={{ fontSize: 11, fontWeight: 400, color: "#9a9a9a", letterSpacing: "0.07em", textTransform: "uppercase" }}>{h}</span>
-        ))}
-      </div>
-
-      {/* Table Rows */}
-      {filtered.map((v, i) => (
-        <motion.div
-          key={`${v.pet}-${v.vaccine}`}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 + i * 0.05, duration: 0.35, ease: "easeOut" }}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr",
-            gap: 16,
-            padding: "16px 0",
-            borderBottom: "1px solid rgba(255,255,255,0.04)",
-            alignItems: "center",
-            cursor: "pointer",
-            transition: "background 0.15s ease",
-          }}
-          whileHover={{ backgroundColor: "rgba(255,255,255,0.02)" }}
-        >
-          {/* Pet */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{
-              width: 28, height: 28, borderRadius: "50%",
-              background: v.petType === "dog" ? "#8052ff" : "#15846e",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 11, fontWeight: 600, color: "#fff"
-            }}>
-              {v.pet[0]}
-            </div>
-            <span style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>{v.pet}</span>
+      {filtered.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "60px 0" }}>
+          <p style={{ fontSize: 18, color: "#9a9a9a" }}>No vaccinations yet.</p>
+        </div>
+      ) : (
+        <>
+          {/* Table Header */}
+          <div style={{ display: "grid", gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr", gap: 16, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            {["PET", "VACCINE", "DATE", "STATUS"].map((h) => (
+              <span key={h} style={{ fontSize: 11, fontWeight: 400, color: "#9a9a9a", letterSpacing: "0.07em", textTransform: "uppercase" }}>{h}</span>
+            ))}
           </div>
 
-          {/* Vaccine */}
-          <span style={{ fontSize: 14, color: "#ffffff" }}>{v.vaccine}</span>
+          {/* Table Rows */}
+          {filtered.map((v, i) => (
+            <motion.div
+              key={v.id || `${v.pets?.name}-${v.vaccine_name}`}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 + i * 0.05, duration: 0.35, ease: "easeOut" }}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr",
+                gap: 16,
+                padding: "16px 0",
+                borderBottom: "1px solid rgba(255,255,255,0.04)",
+                alignItems: "center",
+                cursor: "pointer",
+                transition: "background 0.15s ease",
+              }}
+              whileHover={{ backgroundColor: "rgba(255,255,255,0.02)" }}
+            >
+              {/* Pet */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: "50%",
+                  background: v.pets?.species === "Cat" ? "#15846e" : "#8052ff",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 11, fontWeight: 600, color: "#fff"
+                }}>
+                  {(v.pets?.name || "?")[0]}
+                </div>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>{v.pets?.name || "Unknown"}</span>
+              </div>
 
-          {/* Date */}
-          <span style={{ fontSize: 14, color: "#9a9a9a" }}>{v.date}</span>
+              {/* Vaccine */}
+              <span style={{ fontSize: 14, color: "#ffffff" }}>{v.vaccine_name}</span>
 
-          {/* Status */}
-          <StatusPill status={v.status} />
-        </motion.div>
-      ))}
+              {/* Date */}
+              <span style={{ fontSize: 14, color: "#9a9a9a" }}>{v.date ? new Date(v.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}</span>
+
+              {/* Status */}
+              <StatusPill status={v.status} />
+            </motion.div>
+          ))}
+        </>
+      )}
+
+      {showModal && <AddVaccinationModal pets={pets} onClose={() => setShowModal(false)} onSubmit={handleAddVaccination} />}
     </div>
   );
 }
