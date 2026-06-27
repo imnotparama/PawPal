@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -19,6 +19,7 @@ function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, loading, signOut } = useAuth();
+  const [signOutHovered, setSignOutHovered] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -37,19 +38,22 @@ function AppLayout() {
   if (!user) return null;
 
   return (
-    <div className="flex min-h-screen bg-void text-bone font-sans">
+    <div className="flex min-h-screen font-sans" style={{ background: "#000000", color: "#ffffff" }}>
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-screen w-[220px] bg-void border-r border-white/10 flex flex-col py-8 px-4 z-50">
+      <aside
+        className="fixed left-0 top-0 h-screen w-[220px] flex flex-col py-8 px-4 z-50"
+        style={{ backgroundColor: "#000000", borderRight: "1px solid rgba(255,255,255,0.08)" }}
+      >
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 mb-10 px-2">
+        <Link to="/" className="flex items-center gap-2 mb-10 px-2" style={{ textDecoration: "none" }}>
           <div className="w-8 h-8 rounded-full bg-plum-voltage flex items-center justify-center text-bone font-bold text-sm">
             P
           </div>
-          <span className="text-lg font-semibold tracking-tight">PawPal</span>
+          <span style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.02em" }}>PawPal</span>
         </Link>
 
         {/* Nav */}
-        <nav className="flex flex-col gap-1">
+        <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {navItems.map((item) => {
             const isActive =
               item.to === "/app"
@@ -60,11 +64,23 @@ function AppLayout() {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                style={
                   isActive
-                    ? "bg-plum-voltage/10 text-plum-voltage"
-                    : "text-smoke hover:text-bone hover:bg-white/5"
-                }`}
+                    ? { padding: "10px 16px", borderRadius: 8, fontSize: 14, fontWeight: 400, backgroundColor: "rgba(128,82,255,0.15)", borderLeft: "2px solid #8052ff", color: "#ffffff", textDecoration: "none", display: "block" }
+                    : { padding: "10px 16px", borderRadius: 8, fontSize: 14, fontWeight: 400, color: "#9a9a9a", textDecoration: "none", display: "block" }
+                }
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLElement).style.color = "#ffffff";
+                    (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.05)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLElement).style.color = "#9a9a9a";
+                    (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
+                  }
+                }}
               >
                 {item.label}
               </Link>
@@ -73,11 +89,24 @@ function AppLayout() {
         </nav>
 
         {/* Sign out */}
-        <div className="mt-auto pt-8">
-          <p className="text-smoke text-xs px-3 mb-2 truncate">{user.email}</p>
+        <div style={{ marginTop: "auto", paddingTop: 32 }}>
+          <p style={{ color: "#9a9a9a", fontSize: 12, paddingLeft: 16, marginBottom: 8, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</p>
           <button
             onClick={() => signOut()}
-            className="w-full px-3 py-2.5 rounded-xl text-sm font-medium text-smoke hover:text-bone hover:bg-white/5 transition-colors text-left"
+            style={{
+              width: "100%",
+              padding: "10px 16px",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 400,
+              color: signOutHovered ? "#ff4444" : "#9a9a9a",
+              textAlign: "left",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+            }}
+            onMouseEnter={() => setSignOutHovered(true)}
+            onMouseLeave={() => setSignOutHovered(false)}
           >
             Sign out
           </button>
@@ -85,7 +114,7 @@ function AppLayout() {
       </aside>
 
       {/* Main content */}
-      <main className="ml-[220px] flex-1 p-8 min-h-screen">
+      <main className="ml-[220px] flex-1 min-h-screen" style={{ padding: "40px 48px", background: "#000000" }}>
         <Outlet />
       </main>
     </div>
