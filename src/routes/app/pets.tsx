@@ -96,49 +96,161 @@ function PetCard({ pet, index }: { pet: any; index: number }) {
   );
 }
 
-function AddPetModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (values: any) => void }) {
+function AddPetModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (values: any) => Promise<void> | void }) {
   const [name, setName] = useState("");
   const [species, setSpecies] = useState("Dog");
   const [breed, setBreed] = useState("");
   const [age, setAge] = useState("");
+  const [weight, setWeight] = useState("");
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [nameError, setNameError] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    onSubmit({ name, species, breed, age_years: Number(age) || 0 });
+  const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPhoto(file);
+      setPhotoPreview(URL.createObjectURL(file));
+    }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) { setNameError(true); return; }
+    setNameError(false);
+    setSubmitting(true);
+    await onSubmit({ name, species, breed, age_years: Number(age) || 0, weight_kg: Number(weight) || undefined, photo: photo || undefined });
+    setSubmitting(false);
+    setSuccess(true);
+    setTimeout(onClose, 1500);
+  };
+
+  if (success) {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }} style={{ background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 24, padding: 48, textAlign: "center", width: 380 }}>
+          <motion.svg initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.6 }} width="64" height="64" viewBox="0 0 64 64" fill="none" style={{ margin: "0 auto 16px" }}>
+            <circle cx="32" cy="32" r="28" stroke="rgba(128,82,255,0.2)" strokeWidth="3" />
+            <motion.path d="M20 32 L28 40 L44 24" stroke="#8052ff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4, delay: 0.3 }} />
+          </motion.svg>
+          <p style={{ fontSize: 20, fontWeight: 600, color: "#ffffff" }}>Welcome, {name}! 🐾</p>
+          <p style={{ fontSize: 14, color: "#9a9a9a", marginTop: 8 }}>Your pet profile has been created.</p>
+        </motion.div>
+      </motion.div>
+    );
+  }
+
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.8)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: 32, width: 380 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 600, color: "#ffffff", marginBottom: 24 }}>Add New Pet</h2>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        onClick={(e) => e.stopPropagation()}
+        style={{ background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 24, padding: 32, width: 440, boxShadow: "0 0 60px rgba(128,82,255,0.08)", position: "relative" }}
+      >
+        {/* Close button */}
+        <button onClick={onClose} style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", color: "#9a9a9a", fontSize: 18, cursor: "pointer" }}>✕</button>
+
+        {/* Header */}
+        <div style={{ marginBottom: 24 }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#8052ff" style={{ marginBottom: 8 }}>
+            <ellipse cx="7" cy="5" rx="2.5" ry="3" />
+            <ellipse cx="17" cy="5" rx="2.5" ry="3" />
+            <ellipse cx="4" cy="12" rx="2" ry="2.5" />
+            <ellipse cx="20" cy="12" rx="2" ry="2.5" />
+            <path d="M12 22c-4 0-6-3-6-6 0-2 2-4 6-4s6 2 6 4c0 3-2 6-6 6z" />
+          </svg>
+          <h2 style={{ fontSize: 22, fontWeight: 600, color: "#ffffff" }}>Add New Pet</h2>
+          <p style={{ fontSize: 13, color: "#9a9a9a", marginTop: 4 }}>Tell us about your furry companion</p>
+        </div>
+
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div>
-            <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Name</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Pet name" style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} />
+          {/* Photo upload */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 8 }}>
+            <motion.label whileHover={{ scale: 1.05 }} style={{ width: 96, height: 96, borderRadius: "50%", background: photoPreview ? "none" : "rgba(128,82,255,0.08)", border: photoPreview ? "2px solid #8052ff" : "2px dashed rgba(128,82,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", overflow: "hidden", transition: "all 0.2s" }}>
+              {photoPreview ? (
+                <img src={photoPreview} alt="Pet" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8052ff" strokeWidth="1.5"><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M3 8h2l1-2h12l1 2h2" /></svg>
+              )}
+              <input type="file" accept="image/*" onChange={handlePhoto} style={{ display: "none" }} />
+            </motion.label>
+            <span style={{ fontSize: 12, color: "#9a9a9a", marginTop: 6 }}>{photoPreview ? "Photo added ✓" : "Upload photo"}</span>
           </div>
+
+          {/* Name */}
           <div>
-            <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Species</label>
-            <select value={species} onChange={(e) => setSpecies(e.target.value)} style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }}>
-              <option value="Dog">Dog</option>
-              <option value="Cat">Cat</option>
-            </select>
+            <label style={{ fontSize: 12, fontWeight: 500, color: "#9a9a9a", letterSpacing: "0.04em", display: "block", marginBottom: 6 }}>PET NAME</label>
+            <motion.input
+              animate={nameError ? { x: [0, -8, 8, -6, 6, 0] } : {}}
+              transition={{ duration: 0.4 }}
+              value={name}
+              onChange={(e) => { setName(e.target.value); setNameError(false); }}
+              placeholder="What's their name?"
+              style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: `1px solid ${nameError ? "#ff6b6b" : "rgba(255,255,255,0.08)"}`, borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: 14, outline: "none", transition: "all 0.2s" }}
+              onFocus={(e) => { if (!nameError) e.currentTarget.style.borderColor = "#8052ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(128,82,255,0.12)"; }}
+              onBlur={(e) => { if (!nameError) e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.boxShadow = "none"; }}
+            />
+            {nameError && <p style={{ fontSize: 12, color: "#ff6b6b", marginTop: 4 }}>Pet name is required</p>}
           </div>
+
+          {/* Species toggle */}
           <div>
-            <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Breed</label>
-            <input value={breed} onChange={(e) => setBreed(e.target.value)} placeholder="Breed" style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} />
+            <label style={{ fontSize: 12, fontWeight: 500, color: "#9a9a9a", letterSpacing: "0.04em", display: "block", marginBottom: 6 }}>SPECIES</label>
+            <div style={{ display: "flex", gap: 8 }}>
+              {["Dog", "Cat"].map((s) => (
+                <motion.button
+                  key={s}
+                  type="button"
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setSpecies(s)}
+                  style={{ flex: 1, padding: 12, borderRadius: 12, fontSize: 14, fontWeight: 500, cursor: "pointer", background: species === s ? "rgba(128,82,255,0.2)" : "rgba(255,255,255,0.04)", border: species === s ? "1px solid #8052ff" : "1px solid rgba(255,255,255,0.08)", color: species === s ? "#ffffff" : "#9a9a9a", transition: "all 0.2s" }}
+                >
+                  {s === "Dog" ? "🐶" : "🐱"} {s}
+                </motion.button>
+              ))}
+            </div>
           </div>
+
+          {/* Breed */}
           <div>
-            <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Age (years)</label>
-            <input value={age} onChange={(e) => setAge(e.target.value)} type="number" placeholder="Age" style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} />
+            <label style={{ fontSize: 12, fontWeight: 500, color: "#9a9a9a", letterSpacing: "0.04em", display: "block", marginBottom: 6 }}>BREED</label>
+            <input value={breed} onChange={(e) => setBreed(e.target.value)} placeholder="e.g. Golden Retriever" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: 14, outline: "none", transition: "all 0.2s" }} onFocus={(e) => { e.currentTarget.style.borderColor = "#8052ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(128,82,255,0.12)"; }} onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.boxShadow = "none"; }} />
           </div>
+
+          {/* Age + Weight row */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 500, color: "#9a9a9a", letterSpacing: "0.04em", display: "block", marginBottom: 6 }}>AGE (YEARS)</label>
+              <input value={age} onChange={(e) => setAge(e.target.value)} type="number" placeholder="Age" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: 14, outline: "none", transition: "all 0.2s" }} onFocus={(e) => { e.currentTarget.style.borderColor = "#8052ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(128,82,255,0.12)"; }} onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.boxShadow = "none"; }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 500, color: "#9a9a9a", letterSpacing: "0.04em", display: "block", marginBottom: 6 }}>WEIGHT (KG)</label>
+              <input value={weight} onChange={(e) => setWeight(e.target.value)} type="number" placeholder="Weight" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: 14, outline: "none", transition: "all 0.2s" }} onFocus={(e) => { e.currentTarget.style.borderColor = "#8052ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(128,82,255,0.12)"; }} onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.boxShadow = "none"; }} />
+            </div>
+          </div>
+
+          {/* Buttons */}
           <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-            <button type="button" onClick={onClose} style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#9a9a9a", borderRadius: 12, padding: "12px", fontSize: 14, cursor: "pointer" }}>Cancel</button>
-            <button type="submit" style={{ flex: 1, background: "#8052ff", border: "none", color: "#fff", borderRadius: 12, padding: "12px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Add Pet</button>
+            <button type="button" onClick={onClose} style={{ flex: 1, background: "transparent", border: "1px solid rgba(255,255,255,0.12)", color: "#9a9a9a", borderRadius: 24, padding: 14, fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }}>Cancel</button>
+            <motion.button
+              type="submit"
+              disabled={submitting}
+              animate={submitting ? {} : { boxShadow: ["0 0 0px rgba(128,82,255,0)", "0 0 24px rgba(128,82,255,0.5)", "0 0 0px rgba(128,82,255,0)"] }}
+              transition={submitting ? {} : { duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              style={{ flex: 1, background: "#8052ff", border: "none", color: "#fff", borderRadius: 24, padding: 14, fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.7 : 1 }}
+            >
+              {submitting ? "..." : "Add Pet"}
+            </motion.button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
