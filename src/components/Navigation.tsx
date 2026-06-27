@@ -16,11 +16,13 @@ export function Navigation() {
     <header
       className="fixed top-0 inset-x-0 z-50"
       style={{
-        backgroundColor: scrolled ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0)",
+        backgroundColor: scrolled ? "rgba(0,0,0,0.7)" : "transparent",
         backdropFilter: scrolled ? "blur(16px)" : "none",
         transition: "all 0.3s ease",
         border: "none",
-        borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "none",
+        borderBottom: "none",
+        boxShadow: "none",
+        outline: "none",
       }}
     >
       <div className="mx-auto px-6 lg:px-10 h-[60px] flex items-center justify-between">

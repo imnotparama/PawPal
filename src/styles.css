@@ -73,6 +73,8 @@
     color: #ffffff;
     font-family: var(--font-acronym);
     -webkit-font-smoothing: antialiased;
+    margin: 0;
+    padding: 0;
   }
   ::selection {
     background: #8052ff;
