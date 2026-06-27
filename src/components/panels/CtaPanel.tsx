@@ -32,7 +32,15 @@ export function CtaPanel() {
           className="text-bone"
           style={{ fontSize: "clamp(40px, 6vw, 64px)", lineHeight: 1, letterSpacing: "-0.03em", fontWeight: 300 }}
         >
-          Ready to care smarter?
+          Ready to{" "}
+          <span style={{
+            background: "linear-gradient(95deg, #d4c5ff 0%, #8052ff 60%, #6038dd 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontWeight: 400
+          }}>
+            care smarter?
+          </span>
         </h2>
 
         <p data-reveal data-reveal-delay="0.15" className="mt-5 mx-auto max-w-[460px]" style={{ fontSize: 18, lineHeight: 1.5, color: "#bdbdbd", fontWeight: 400 }}>

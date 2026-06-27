@@ -7,7 +7,6 @@ import { HorizontalScroll, HPanel } from "@/components/HorizontalScroll";
 import { HeroPanel } from "@/components/panels/HeroPanel";
 import { DogPanel } from "@/components/panels/DogPanel";
 import { GirlCatPanel } from "@/components/panels/GirlCatPanel";
-import { AboutPanel } from "@/components/panels/AboutPanel";
 import { CtaPanel } from "@/components/panels/CtaPanel";
 
 export const Route = createFileRoute("/")({
@@ -48,9 +47,6 @@ function Landing() {
         </HPanel>
         <HPanel>
           <GirlCatPanel />
-        </HPanel>
-        <HPanel>
-          <AboutPanel />
         </HPanel>
         <HPanel>
           <CtaPanel />

@@ -106,7 +106,18 @@ function Dashboard() {
         transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
         style={{ fontSize: 32, fontWeight: 300, color: "#ffffff", marginBottom: 4 }}
       >
-        Welcome back, {firstName}.
+        Welcome back,{" "}
+        <span
+          style={{
+            background: "linear-gradient(95deg, #d4c5ff 0%, #8052ff 60%, #6038dd 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontWeight: 500,
+          }}
+        >
+          {firstName}
+        </span>
+        .
       </motion.h1>
       <motion.p
         initial={{ opacity: 0, y: 16 }}
@@ -188,16 +199,30 @@ function Dashboard() {
             <h2 style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", marginBottom: 16 }}>Quick Actions</h2>
             <div style={{ display: "flex", gap: 12 }}>
               <motion.div
-                animate={{ boxShadow: ["0 0 0px rgba(128,82,255,0)", "0 0 20px rgba(128,82,255,0.5)", "0 0 0px rgba(128,82,255,0)"] }}
+                animate={{ boxShadow: ["0 0 0px rgba(128,82,255,0)", "0 0 20px rgba(128,82,255,0.4)", "0 0 0px rgba(128,82,255,0)"] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                whileHover={{ scale: 1.03, boxShadow: "0 0 30px rgba(128,82,255,0.7)" }}
+                whileHover={{ scale: 1.03, boxShadow: "0 0 30px rgba(128,82,255,0.6)" }}
                 whileTap={{ scale: 0.97 }}
                 style={{ borderRadius: 24 }}
               >
                 <Link to="/app/chat" style={{ background: "#8052ff", color: "#fff", borderRadius: 24, padding: "12px 20px", fontSize: 13, fontWeight: 600, textDecoration: "none", display: "block" }}>Ask AI a Question</Link>
               </motion.div>
-              <Link to="/app/vaccinations" style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 24, padding: "12px 20px", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Add Vaccination</Link>
-              <Link to="/app/records" style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 24, padding: "12px 20px", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Upload Record</Link>
+
+              <motion.div
+                whileHover={{ scale: 1.03, borderColor: "#8052ff", boxShadow: "0 0 20px rgba(128,82,255,0.2)" }}
+                whileTap={{ scale: 0.97 }}
+                style={{ borderRadius: 24, border: "1px solid rgba(255,255,255,0.2)", background: "transparent", overflow: "hidden", transition: "border-color 0.2s" }}
+              >
+                <Link to="/app/vaccinations" style={{ color: "#fff", padding: "11px 20px", fontSize: 13, fontWeight: 600, textDecoration: "none", display: "block" }}>Add Vaccination</Link>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.03, borderColor: "#8052ff", boxShadow: "0 0 20px rgba(128,82,255,0.2)" }}
+                whileTap={{ scale: 0.97 }}
+                style={{ borderRadius: 24, border: "1px solid rgba(255,255,255,0.2)", background: "transparent", overflow: "hidden", transition: "border-color 0.2s" }}
+              >
+                <Link to="/app/records" style={{ color: "#fff", padding: "11px 20px", fontSize: 13, fontWeight: 600, textDecoration: "none", display: "block" }}>Upload Record</Link>
+              </motion.div>
             </div>
           </motion.div>
         </div>

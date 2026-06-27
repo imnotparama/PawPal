@@ -3,6 +3,13 @@ import { Link } from "@tanstack/react-router";
 import { AmbientShapes } from "@/components/AmbientShapes";
 
 const headlineWords = ["Hold", "them", "closer."];
+const gradientWords = ["closer."];
+const gradientStyle: React.CSSProperties = {
+  background: "linear-gradient(95deg, #d4c5ff 0%, #8052ff 60%, #6038dd 100%)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  fontWeight: 400
+};
 
 const stats = [
   { display: "12k+", label: "PETS ONBOARDED" },
@@ -104,7 +111,11 @@ export function GirlCatPanel() {
               transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.08 }}
               style={{ display: "inline-block", marginRight: "0.25em" }}
             >
-              {word}
+              {gradientWords.includes(word) ? (
+                <span style={gradientStyle}>{word}</span>
+              ) : (
+                word
+              )}
             </motion.span>
           ))}
         </h2>

@@ -9,6 +9,13 @@ const bullets = [
 ];
 
 const headlineWords = ["A", "vet", "in", "your", "pocket."];
+const gradientWords = ["your", "pocket."];
+const gradientStyle: React.CSSProperties = {
+  background: "linear-gradient(95deg, #d4c5ff 0%, #8052ff 60%, #6038dd 100%)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  fontWeight: 400
+};
 
 export function DogPanel() {
   return (
@@ -119,7 +126,11 @@ export function DogPanel() {
               transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.08 }}
               style={{ display: "inline-block", marginRight: "0.25em" }}
             >
-              {word}
+              {gradientWords.includes(word) ? (
+                <span style={gradientStyle}>{word}</span>
+              ) : (
+                word
+              )}
             </motion.span>
           ))}
         </h2>
