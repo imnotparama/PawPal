@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
 import { useEffect, useState } from "react";
+import { CursorGlow } from "@/components/CursorGlow";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -66,7 +67,7 @@ function AppLayout() {
                 to={item.to}
                 style={
                   isActive
-                    ? { padding: "10px 16px", borderRadius: 8, fontSize: 14, fontWeight: 400, backgroundColor: "rgba(128,82,255,0.15)", borderLeft: "2px solid #8052ff", color: "#ffffff", textDecoration: "none", display: "block" }
+                    ? { padding: "10px 16px", borderRadius: 8, fontSize: 14, fontWeight: 400, backgroundColor: "rgba(128,82,255,0.15)", borderLeft: "2px solid #8052ff", color: "#ffffff", textDecoration: "none", display: "block", boxShadow: "0 0 20px rgba(128,82,255,0.2)" }
                     : { padding: "10px 16px", borderRadius: 8, fontSize: 14, fontWeight: 400, color: "#9a9a9a", textDecoration: "none", display: "block" }
                 }
                 onMouseEnter={(e) => {
@@ -115,6 +116,7 @@ function AppLayout() {
 
       {/* Main content */}
       <main className="ml-[220px] flex-1 min-h-screen" style={{ padding: "40px 48px", background: "#000000" }}>
+        <CursorGlow />
         <Outlet />
       </main>
     </div>
