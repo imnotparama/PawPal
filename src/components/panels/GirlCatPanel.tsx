@@ -12,7 +12,7 @@ const stats = [
 
 export function GirlCatPanel() {
   return (
-    <div style={{ position: 'relative', overflow: 'hidden', width: '100%', height: '100%', backgroundColor: '#000000', display: 'flex', justifyContent: 'flex-start' }}>
+    <div style={{ position: 'relative', overflow: 'hidden', width: '100%', height: '100%', backgroundColor: '#000000' }}>
       <AmbientShapes seed={33} count={45} />
       {/* Background depth layers */}
       <div
@@ -56,12 +56,13 @@ export function GirlCatPanel() {
       {/* Text block — left half, vertically centered */}
       <div
         data-panel-content
-        className="pl-10 lg:pl-16 xl:pl-20 max-w-[90%] md:max-w-[45%] lg:max-w-[42%] w-full"
         style={{
+          marginLeft: "6vw",
+          width: "40vw",
+          minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          minHeight: "100vh",
           position: "relative",
           zIndex: 2,
         }}

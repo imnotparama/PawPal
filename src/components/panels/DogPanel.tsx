@@ -12,7 +12,7 @@ const headlineWords = ["A", "vet", "in", "your", "pocket."];
 
 export function DogPanel() {
   return (
-    <div style={{ position: 'relative', overflow: 'hidden', width: '100%', height: '100%', backgroundColor: '#000000', display: 'flex', justifyContent: 'flex-end' }}>
+    <div style={{ position: 'relative', overflow: 'hidden', width: '100%', height: '100%', backgroundColor: '#000000' }}>
       <AmbientShapes seed={22} count={45} />
       {/* Background depth layers */}
       <div
@@ -71,12 +71,13 @@ export function DogPanel() {
       {/* Text block — right half only */}
       <div
         data-panel-content
-        className="pr-10 lg:pr-16 xl:pr-20 max-w-[90%] md:max-w-[45%] lg:max-w-[42%] w-full"
         style={{
+          marginLeft: "55vw",
+          width: "40vw",
+          minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          minHeight: "100vh",
           position: "relative",
           zIndex: 2,
         }}
