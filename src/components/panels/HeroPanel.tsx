@@ -9,7 +9,7 @@ const headlineWords = ["Your", "pet's", "health,", "reimagined."];
 const gradientWords = ["health,", "reimagined."];
 
 const gradientStyle: React.CSSProperties = {
-  background: "linear-gradient(90deg, #ffffff 20%, #8052ff 100%)",
+  background: "linear-gradient(95deg, #d4c5ff 0%, #8052ff 60%, #6038dd 100%)",
   WebkitBackgroundClip: "text",
   WebkitTextFillColor: "transparent",
 };
@@ -20,6 +20,24 @@ export function HeroPanel() {
   return (
     <div className="relative w-full h-full flex items-center">
       <AmbientShapes seed={11} count={55} />
+      {/* Background depth layers */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 0,
+        pointerEvents: 'none'
+      }}>
+        {/* Left text area glow */}
+        <div style={{
+          position: 'absolute',
+          left: '-5%',
+          top: '20%',
+          width: '50%',
+          height: '60%',
+          background: 'radial-gradient(ellipse, rgba(128,82,255,0.06) 0%, transparent 70%)',
+          filter: 'blur(50px)'
+        }} />
+      </div>
       {/* Text overlaps with the particles — Dala style */}
       <div data-panel-content className="relative z-10 pl-10 lg:pl-16 xl:pl-20 max-w-[42%]">
         <h1

@@ -35,6 +35,11 @@ function TimelinePage() {
 
   const filtered = filter === "All Pets" ? timeline : timeline.filter((e) => e.pet === filter);
 
+  // Get current year from data
+  const currentYear = filtered.length > 0 
+    ? new Date(filtered[0].date).getFullYear().toString() 
+    : new Date().getFullYear().toString();
+
   // Simple pet color map
   const petColors: Record<string, string> = {};
   const colorPalette = ["rgba(128,82,255,0.8)", "rgba(255,184,41,0.8)", "rgba(21,132,110,0.8)", "rgba(74,158,255,0.8)", "rgba(255,107,107,0.8)"];
@@ -62,7 +67,7 @@ function TimelinePage() {
       ) : (
         <>
           {/* Year label */}
-          <div style={{ fontSize: 11, color: "#9a9a9a", letterSpacing: "0.08em", textTransform: "uppercase", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 6, marginBottom: 16, marginTop: 8 }}>2025</div>
+          <div style={{ fontSize: 11, color: "#9a9a9a", letterSpacing: "0.08em", textTransform: "uppercase", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 6, marginBottom: 16, marginTop: 8 }}>{currentYear}</div>
 
           {/* Timeline */}
           <div style={{ position: "relative", paddingLeft: 64 }}>

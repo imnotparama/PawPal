@@ -105,6 +105,8 @@ function AddPetModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (va
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [nameError, setNameError] = useState(false);
+  const [ageError, setAgeError] = useState(false);
+  const [weightError, setWeightError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -118,10 +120,21 @@ function AddPetModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (va
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) { setNameError(true); return; }
-    setNameError(false);
+    
+    // Validation
+    let hasError = false;
+    if (!name.trim()) { setNameError(true); hasError = true; } else { setNameError(false); }
+    
+    const ageNum = Number(age);
+    if (!age || ageNum < 0 || ageNum > 30) { setAgeError(true); hasError = true; } else { setAgeError(false); }
+    
+    const weightNum = Number(weight);
+    if (weight && (weightNum < 0 || weightNum > 200)) { setWeightError(true); hasError = true; } else { setWeightError(false); }
+    
+    if (hasError) return;
+    
     setSubmitting(true);
-    await onSubmit({ name, species, breed, age_years: Number(age) || 0, weight_kg: Number(weight) || undefined, photo: photo || undefined });
+    await onSubmit({ name, species, breed, age_years: ageNum, weight_kg: weight ? weightNum : undefined, photo: photo || undefined });
     setSubmitting(false);
     setSuccess(true);
     setTimeout(onClose, 1500);
@@ -225,11 +238,37 @@ function AddPetModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (va
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
               <label style={{ fontSize: 12, fontWeight: 500, color: "#9a9a9a", letterSpacing: "0.04em", display: "block", marginBottom: 6 }}>AGE (YEARS)</label>
-              <input value={age} onChange={(e) => setAge(e.target.value)} type="number" placeholder="Age" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: 14, outline: "none", transition: "all 0.2s" }} onFocus={(e) => { e.currentTarget.style.borderColor = "#8052ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(128,82,255,0.12)"; }} onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.boxShadow = "none"; }} />
+              <motion.input
+                animate={ageError ? { x: [0, -8, 8, -6, 6, 0] } : {}}
+                transition={{ duration: 0.4 }}
+                value={age}
+                onChange={(e) => { setAge(e.target.value); setAgeError(false); }}
+                type="number"
+                placeholder="Age"
+                min="0"
+                max="30"
+                style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: `1px solid ${ageError ? "#ff6b6b" : "rgba(255,255,255,0.08)"}`, borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: 14, outline: "none", transition: "all 0.2s" }}
+                onFocus={(e) => { if (!ageError) e.currentTarget.style.borderColor = "#8052ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(128,82,255,0.12)"; }}
+                onBlur={(e) => { if (!ageError) e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.boxShadow = "none"; }}
+              />
+              {ageError && <p style={{ fontSize: 12, color: "#ff6b6b", marginTop: 4 }}>Please enter a valid age (0-30 years)</p>}
             </div>
             <div>
               <label style={{ fontSize: 12, fontWeight: 500, color: "#9a9a9a", letterSpacing: "0.04em", display: "block", marginBottom: 6 }}>WEIGHT (KG)</label>
-              <input value={weight} onChange={(e) => setWeight(e.target.value)} type="number" placeholder="Weight" style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: 14, outline: "none", transition: "all 0.2s" }} onFocus={(e) => { e.currentTarget.style.borderColor = "#8052ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(128,82,255,0.12)"; }} onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.boxShadow = "none"; }} />
+              <motion.input
+                animate={weightError ? { x: [0, -8, 8, -6, 6, 0] } : {}}
+                transition={{ duration: 0.4 }}
+                value={weight}
+                onChange={(e) => { setWeight(e.target.value); setWeightError(false); }}
+                type="number"
+                placeholder="Weight"
+                min="0"
+                max="200"
+                style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: `1px solid ${weightError ? "#ff6b6b" : "rgba(255,255,255,0.08)"}`, borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: 14, outline: "none", transition: "all 0.2s" }}
+                onFocus={(e) => { if (!weightError) e.currentTarget.style.borderColor = "#8052ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(128,82,255,0.12)"; }}
+                onBlur={(e) => { if (!weightError) e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.boxShadow = "none"; }}
+              />
+              {weightError && <p style={{ fontSize: 12, color: "#ff6b6b", marginTop: 4 }}>Please enter a valid weight (0-200 kg)</p>}
             </div>
           </div>
 

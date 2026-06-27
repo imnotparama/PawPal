@@ -483,3 +483,6 @@
   mask-image: radial-gradient(ellipse 80% 80% at center, black 30%, transparent 70%);
   -webkit-mask-image: radial-gradient(ellipse 80% 80% at center, black 30%, transparent 70%);
 }
+
+.bg-void { background-color: #000000 !important; }
+html, body, main { background-color: #000000 !important; }

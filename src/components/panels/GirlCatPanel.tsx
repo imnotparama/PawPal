@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
+import { AmbientShapes } from "@/components/AmbientShapes";
 
 const headlineWords = ["Hold", "them", "closer."];
 
@@ -11,32 +12,58 @@ const stats = [
 
 export function GirlCatPanel() {
   return (
-    <div className="relative w-full h-full" style={{ overflow: "hidden" }}>
-      {/* Radial glow behind text — left side */}
+    <div style={{ position: 'relative', overflow: 'hidden', width: '100%', height: '100%', backgroundColor: '#000000', display: 'flex', justifyContent: 'flex-start' }}>
+      <AmbientShapes seed={33} count={45} />
+      {/* Background depth layers */}
       <div
         aria-hidden="true"
-        className="absolute pointer-events-none"
         style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
           zIndex: 0,
-          top: 0,
-          left: 0,
-          bottom: 0,
-          width: "50%",
-          background: "radial-gradient(ellipse 50% 60% at 20% 50%, rgba(128,82,255,0.07) 0%, transparent 70%)",
         }}
-      />
+      >
+        {/* Main violet atmosphere behind the figure */}
+        <div style={{
+          position: 'absolute',
+          right: '-10%',
+          top: '0%',
+          width: '80%',
+          height: '100%',
+          background: 'radial-gradient(ellipse 70% 80% at 70% 50%, rgba(128,82,255,0.18) 0%, rgba(80,48,180,0.08) 40%, transparent 70%)',
+        }} />
+        {/* Amber warmth at the top of the figure */}
+        <div style={{
+          position: 'absolute',
+          right: '10%',
+          top: '-20%',
+          width: '50%',
+          height: '60%',
+          background: 'radial-gradient(ellipse 60% 60% at 60% 40%, rgba(255,184,41,0.08) 0%, transparent 70%)',
+        }} />
+        {/* Deep bottom shadow for grounding */}
+        <div style={{
+          position: 'absolute',
+          right: '0%',
+          bottom: '-10%',
+          width: '70%',
+          height: '50%',
+          background: 'radial-gradient(ellipse 70% 50% at 60% 80%, rgba(60,20,120,0.15) 0%, transparent 70%)',
+        }} />
+      </div>
 
       {/* Text block — left half, vertically centered */}
       <div
         data-panel-content
-        className="relative z-10"
+        className="pl-10 lg:pl-16 xl:pl-20 max-w-[90%] md:max-w-[45%] lg:max-w-[42%] w-full"
         style={{
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           minHeight: "100vh",
-          padding: "0 0 0 64px",
-          maxWidth: 480,
+          position: "relative",
+          zIndex: 2,
         }}
       >
         {/* Eyebrow */}

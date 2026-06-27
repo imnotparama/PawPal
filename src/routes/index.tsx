@@ -34,7 +34,7 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   return (
-    <main className="min-h-screen bg-void text-bone font-acronym relative" style={{ margin: 0, padding: 0 }}>
+    <main className="min-h-screen text-bone font-acronym relative" style={{ margin: 0, padding: 0, backgroundColor: '#000000' }}>
       <CursorGlow />
       <ParticleMorph3D />
       <Navigation />

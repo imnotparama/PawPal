@@ -24,10 +24,19 @@ function AddRecordModal({ pets, onClose, onSubmit }: { pets: any[]; onClose: () 
   const [clinic, setClinic] = useState("");
   const [date, setDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [titleError, setTitleError] = useState(false);
+  const [dateError, setDateError] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!petId || !title.trim() || !date) return;
+    
+    // Validation
+    let hasError = false;
+    if (!title.trim()) { setTitleError(true); hasError = true; } else { setTitleError(false); }
+    if (!date) { setDateError(true); hasError = true; } else { setDateError(false); }
+    
+    if (hasError) return;
+    
     onSubmit({ pet_id: petId, title, record_type: recordType, doctor_name: doctor, clinic_name: clinic, date, notes });
   };
 
@@ -44,7 +53,13 @@ function AddRecordModal({ pets, onClose, onSubmit }: { pets: any[]; onClose: () 
           </div>
           <div>
             <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Title</label>
-            <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Annual Checkup" style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} />
+            <input 
+              value={title} 
+              onChange={(e) => { setTitle(e.target.value); setTitleError(false); }} 
+              placeholder="e.g. Annual Checkup" 
+              style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: `1px solid ${titleError ? "#ff6b6b" : "rgba(255,255,255,0.1)"}`, borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} 
+            />
+            {titleError && <p style={{ fontSize: 12, color: "#ff6b6b", marginTop: 4 }}>Title is required</p>}
           </div>
           <div>
             <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Record Type</label>
@@ -66,7 +81,13 @@ function AddRecordModal({ pets, onClose, onSubmit }: { pets: any[]; onClose: () 
           </div>
           <div>
             <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Date</label>
-            <input value={date} onChange={(e) => setDate(e.target.value)} type="date" style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} />
+            <input 
+              value={date} 
+              onChange={(e) => { setDate(e.target.value); setDateError(false); }} 
+              type="date" 
+              style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: `1px solid ${dateError ? "#ff6b6b" : "rgba(255,255,255,0.1)"}`, borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} 
+            />
+            {dateError && <p style={{ fontSize: 12, color: "#ff6b6b", marginTop: 4 }}>Date is required</p>}
           </div>
           <div>
             <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Notes</label>
@@ -99,6 +120,11 @@ function RecordsPage() {
     if (search && !r.title?.toLowerCase().includes(search.toLowerCase()) && !(r.notes || "").toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
+
+  // Get current year from data
+  const currentYear = filtered.length > 0 
+    ? new Date(filtered[0].date).getFullYear().toString() 
+    : new Date().getFullYear().toString();
 
   const handleAddRecord = async (values: any) => {
     await addRecord(values);
@@ -162,7 +188,7 @@ function RecordsPage() {
       ) : (
         <>
           {/* Year label */}
-          <div style={{ fontSize: 12, color: "#9a9a9a", letterSpacing: "0.07em", textTransform: "uppercase", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 8, marginBottom: 16 }}>2025</div>
+          <div style={{ fontSize: 12, color: "#9a9a9a", letterSpacing: "0.07em", textTransform: "uppercase", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 8, marginBottom: 16 }}>{currentYear}</div>
 
           {/* Timeline */}
           <div style={{ position: "relative", paddingLeft: 32 }}>

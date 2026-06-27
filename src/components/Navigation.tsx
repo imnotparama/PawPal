@@ -16,9 +16,9 @@ export function Navigation() {
     <header
       className="fixed top-0 inset-x-0 z-50"
       style={{
-        backgroundColor: scrolled ? "rgba(0,0,0,0.85)" : "transparent",
-        backdropFilter: scrolled ? "blur(16px)" : "none",
-        WebkitBackdropFilter: scrolled ? "blur(16px)" : "none",
+        backgroundColor: "transparent",
+        backdropFilter: "none",
+        WebkitBackdropFilter: "none",
         transition: "background-color 0.3s ease",
         border: "none",
         borderBottom: "none",

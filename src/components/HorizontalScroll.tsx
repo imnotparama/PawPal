@@ -22,7 +22,6 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const panels = track.children.length;
-    console.log("[HorizontalScroll Debug] panels count detected:", panels);
 
     // Height needed for MorphingConstellation to read scroll progress
     container.style.height = `${panels * 100}vh`;
@@ -131,14 +130,6 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
         scrollChanged = true;
         const maxTranslate = (panels - 1) * window.innerWidth;
         const targetX = -progress * maxTranslate;
-        console.log("[HorizontalScroll Debug] " + JSON.stringify({
-          scrollY: window.scrollY,
-          viewportHeight,
-          maxScroll,
-          progress,
-          targetX,
-          panels
-        }));
         lastScrollY = window.scrollY;
       } else {
         scrollChanged = false;
@@ -162,9 +153,6 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
         const proximity = Math.max(0, 1 - Math.abs(clamped));
 
         const content = panel.querySelector<HTMLElement>("[data-panel-content]");
-        if (scrollChanged) {
-          console.log(`[HorizontalScroll Loop] Panel ${i}: progress=${panelProgress.toFixed(3)}, clamped=${clamped.toFixed(3)}, proximity=${proximity.toFixed(3)}, content=${content ? 'yes' : 'no'}`);
-        }
 
         // Ambient shapes parallax
         const shapes = panel.querySelectorAll<HTMLElement>(".ambient-float");
@@ -276,6 +264,7 @@ export function HPanel({
     <div
       data-h-panel
       className={`relative w-screen h-screen flex-shrink-0 overflow-hidden ${className}`}
+      style={{ backgroundColor: '#000000' }}
     >
       {children}
     </div>

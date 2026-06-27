@@ -28,10 +28,19 @@ function AddVaccinationModal({ pets, onClose, onSubmit }: { pets: any[]; onClose
   const [vaccineName, setVaccineName] = useState("");
   const [date, setDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [vaccineError, setVaccineError] = useState(false);
+  const [dateError, setDateError] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!petId || !vaccineName.trim() || !date) return;
+    
+    // Validation
+    let hasError = false;
+    if (!vaccineName.trim()) { setVaccineError(true); hasError = true; } else { setVaccineError(false); }
+    if (!date) { setDateError(true); hasError = true; } else { setDateError(false); }
+    
+    if (hasError) return;
+    
     onSubmit({ pet_id: petId, vaccine_name: vaccineName, date, notes });
   };
 
@@ -48,11 +57,23 @@ function AddVaccinationModal({ pets, onClose, onSubmit }: { pets: any[]; onClose
           </div>
           <div>
             <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Vaccine Name</label>
-            <input value={vaccineName} onChange={(e) => setVaccineName(e.target.value)} placeholder="e.g. Rabies Booster" style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} />
+            <input 
+              value={vaccineName} 
+              onChange={(e) => { setVaccineName(e.target.value); setVaccineError(false); }} 
+              placeholder="e.g. Rabies Booster" 
+              style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: `1px solid ${vaccineError ? "#ff6b6b" : "rgba(255,255,255,0.1)"}`, borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} 
+            />
+            {vaccineError && <p style={{ fontSize: 12, color: "#ff6b6b", marginTop: 4 }}>Vaccine name is required</p>}
           </div>
           <div>
             <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Date</label>
-            <input value={date} onChange={(e) => setDate(e.target.value)} type="date" style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} />
+            <input 
+              value={date} 
+              onChange={(e) => { setDate(e.target.value); setDateError(false); }} 
+              type="date" 
+              style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: `1px solid ${dateError ? "#ff6b6b" : "rgba(255,255,255,0.1)"}`, borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} 
+            />
+            {dateError && <p style={{ fontSize: 12, color: "#ff6b6b", marginTop: 4 }}>Date is required</p>}
           </div>
           <div>
             <label style={{ fontSize: 13, color: "#9a9a9a", display: "block", marginBottom: 6 }}>Notes</label>

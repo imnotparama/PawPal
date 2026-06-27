@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
+import { AmbientShapes } from "@/components/AmbientShapes";
 
 const bullets = [
   "Vaccination schedules — auto-tracked.",
@@ -11,20 +12,46 @@ const headlineWords = ["A", "vet", "in", "your", "pocket."];
 
 export function DogPanel() {
   return (
-    <div className="relative w-full h-full">
-      {/* Radial glow behind text */}
+    <div style={{ position: 'relative', overflow: 'hidden', width: '100%', height: '100%', backgroundColor: '#000000', display: 'flex', justifyContent: 'flex-end' }}>
+      <AmbientShapes seed={22} count={45} />
+      {/* Background depth layers */}
       <div
         aria-hidden="true"
-        className="absolute pointer-events-none"
         style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
           zIndex: 0,
-          top: 0,
-          right: 0,
-          bottom: 0,
-          width: "55%",
-          background: "radial-gradient(ellipse 50% 60% at 80% 50%, rgba(128,82,255,0.08) 0%, transparent 70%)",
         }}
-      />
+      >
+        {/* Main violet atmosphere left/center where dog stands */}
+        <div style={{
+          position: 'absolute',
+          left: '-10%',
+          top: '0%',
+          width: '85%',
+          height: '100%',
+          background: 'radial-gradient(ellipse 75% 80% at 40% 50%, rgba(128,82,255,0.16) 0%, rgba(80,48,180,0.07) 45%, transparent 70%)',
+        }} />
+        {/* Amber crown glow at top of dog */}
+        <div style={{
+          position: 'absolute',
+          left: '25%',
+          top: '-20%',
+          width: '45%',
+          height: '55%',
+          background: 'radial-gradient(ellipse 55% 55% at 50% 30%, rgba(255,184,41,0.09) 0%, transparent 70%)',
+        }} />
+        {/* Purple ground shadow at bottom */}
+        <div style={{
+          position: 'absolute',
+          left: '5%',
+          bottom: '-10%',
+          width: '65%',
+          height: '45%',
+          background: 'radial-gradient(ellipse 65% 50% at 40% 80%, rgba(60,20,120,0.12) 0%, transparent 70%)',
+        }} />
+      </div>
 
       {/* Dark scrim overlay */}
       <div
@@ -44,14 +71,13 @@ export function DogPanel() {
       {/* Text block — right half only */}
       <div
         data-panel-content
-        className="relative"
+        className="pr-10 lg:pr-16 xl:pr-20 max-w-[90%] md:max-w-[45%] lg:max-w-[42%] w-full"
         style={{
-          marginLeft: "50vw",
-          padding: "0 64px 0 0",
-          minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
+          minHeight: "100vh",
+          position: "relative",
           zIndex: 2,
         }}
       >

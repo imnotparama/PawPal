@@ -7,25 +7,24 @@ export function CtaPanel() {
     <div className="relative w-full h-full flex items-center justify-center">
       <AmbientShapes seed={77} count={50} exclusionRadius={0.12} />
 
-      <div
-        aria-hidden="true"
-        className="absolute pointer-events-none"
-        style={{
-          inset: 0,
-          zIndex: 1,
-          background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,0,0,0.5) 0%, transparent 100%)",
-        }}
-      />
-
-      <div
-        aria-hidden="true"
-        className="absolute pointer-events-none cta-glow-core"
-        style={{
-          width: "60vw", height: "60vh", left: "20vw", top: "20vh",
-          borderRadius: "50%",
-          background: "radial-gradient(ellipse at center, rgba(128,82,255,0.12) 0%, transparent 65%)",
-        }}
-      />
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 0,
+        pointerEvents: 'none'
+      }}>
+        {/* Central violet convergence */}
+        <div style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '70%',
+          height: '70%',
+          background: 'radial-gradient(ellipse, rgba(128,82,255,0.1) 0%, transparent 65%)',
+          filter: 'blur(60px)'
+        }} />
+      </div>
 
       <div data-panel-content className="relative text-center max-w-[600px] px-8" style={{ position: "relative", zIndex: 2 }}>
         <h2
