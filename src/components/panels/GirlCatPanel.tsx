@@ -161,10 +161,11 @@ export function GirlCatPanel() {
           transition={{ duration: 0.4, delay: 1.0 }}
           style={{ marginTop: 32 }}
         >
-          <Link
-            to="/auth"
-            search={{ mode: "signup" }}
-            className="inline-flex items-center justify-center transition-all duration-200"
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent("scrollToPanel", { detail: { panel: 3 } }));
+            }}
+            className="inline-flex items-center justify-center transition-all duration-200 cursor-pointer"
             style={{
               padding: "14px 24px",
               fontSize: 12,
@@ -185,8 +186,8 @@ export function GirlCatPanel() {
               e.currentTarget.style.color = "#ffffff";
             }}
           >
-            Read The Science
-          </Link>
+            Next Page
+          </button>
         </motion.div>
       </div>
     </div>

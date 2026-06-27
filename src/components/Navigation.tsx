@@ -65,23 +65,17 @@ export function Navigation() {
             PET TIPS
           </a>
 
-          <Link
-            to="/auth"
-            search={{ mode: "signup" }}
-            className="inline-flex items-center justify-center rounded-full"
-            style={{
-              padding: "8px 16px",
-              fontSize: 11,
-              fontWeight: 500,
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
-              backgroundColor: "#8052ff",
-              color: "#ffffff",
-              borderRadius: "24px",
+          <a
+            href="#about"
+            onClick={(e) => {
+              e.preventDefault();
+              window.dispatchEvent(new CustomEvent("scrollToPanel", { detail: { panel: 3 } }));
             }}
+            className="hidden md:inline text-smoke hover:text-bone transition-colors duration-200"
+            style={{ fontSize: 12, letterSpacing: "0.03em", fontWeight: 400 }}
           >
-            Get Started
-          </Link>
+            ABOUT
+          </a>
         </div>
       </div>
     </header>

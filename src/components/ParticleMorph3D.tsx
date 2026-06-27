@@ -141,16 +141,20 @@ const vertexShader = `
   }
 
   void main() {
-    // Morph between 3 shapes with smoothstep
+    // Morph between 4 shapes with smoothstep (A -> B -> C -> A)
     vec3 targetPos;
-    if (uProgress <= 0.5) {
-      float t = uProgress * 2.0;
+    if (uProgress <= 0.333) {
+      float t = uProgress * 3.0;
       t = t * t * (3.0 - 2.0 * t);
       targetPos = mix(posA, posB, t);
-    } else {
-      float t = (uProgress - 0.5) * 2.0;
+    } else if (uProgress <= 0.666) {
+      float t = (uProgress - 0.333) * 3.0;
       t = t * t * (3.0 - 2.0 * t);
       targetPos = mix(posB, posC, t);
+    } else {
+      float t = (uProgress - 0.666) * 3.0;
+      t = t * t * (3.0 - 2.0 * t);
+      targetPos = mix(posC, posA, t);
     }
 
     // Explosion scatter OR intro scatter (intro takes priority on load)
@@ -373,8 +377,8 @@ export function ParticleMorph3D() {
     window.addEventListener("resize", onResize);
 
     const clock = new THREE.Clock();
-    const NUM_PANELS = 4;
-    const EXPLODE_START = 0.74;
+    const NUM_PANELS = 5;
+    const EXPLODE_START = 0.79;
 
     const animate = () => {
       const elapsed = clock.getElapsedTime();
@@ -389,8 +393,8 @@ export function ParticleMorph3D() {
       const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
       const scrollProgress = scrollMax > 0 ? Math.min(Math.max(window.scrollY / scrollMax, 0), 1) : 0;
 
-      // Morph (maps to 3 shapes across first 3 panels)
-      const morphProgress = Math.min(scrollProgress * (NUM_PANELS - 1) / 2, 1);
+      // Morph (maps to 4 shapes across first 4 panels)
+      const morphProgress = Math.min(scrollProgress * (NUM_PANELS - 1) / 3, 1);
       material.uniforms.uProgress.value = morphProgress;
 
       // Explosion on last panel
@@ -406,7 +410,7 @@ export function ParticleMorph3D() {
 
       // Per-panel X offset for the shape (mesh.position.x) to alternate sides:
       // Positive mesh X = shape appears on RIGHT, Negative mesh X = shape appears on LEFT
-      const panelOffsets = [1.3, -1.3, 1.3, 0.0];
+      const panelOffsets = [1.3, -1.3, 1.3, -1.3, 0.0];
       const panelIndex = scrollProgress * (NUM_PANELS - 1);
       const pIdx = Math.min(Math.floor(panelIndex), NUM_PANELS - 2);
       const pLocal = panelIndex - pIdx;

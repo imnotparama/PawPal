@@ -1,19 +1,11 @@
 import { motion } from "framer-motion";
-import { Link } from "@tanstack/react-router";
 import { AmbientShapes } from "@/components/AmbientShapes";
 
-const bullets = [
-  "Vaccination schedules — auto-tracked.",
-  "Symptom triage without the panic.",
-  "Weight, mood, appetite — quietly observed.",
-];
-
-const headlineWords = ["A", "vet", "in", "your", "pocket."];
-
-export function DogPanel() {
+export function AboutPanel() {
   return (
     <div style={{ position: 'relative', overflow: 'hidden', width: '100%', height: '100%', backgroundColor: '#000000' }}>
-      <AmbientShapes seed={22} count={45} />
+      <AmbientShapes seed={44} count={45} />
+      
       {/* Background depth layers */}
       <div
         aria-hidden="true"
@@ -24,23 +16,23 @@ export function DogPanel() {
           zIndex: 0,
         }}
       >
-        {/* Main violet atmosphere left/center where dog stands */}
+        {/* Main violet atmosphere left/center where shape stands */}
         <div style={{
           position: 'absolute',
           left: '-10%',
           top: '0%',
           width: '85%',
           height: '100%',
-          background: 'radial-gradient(ellipse 75% 80% at 40% 50%, rgba(128,82,255,0.16) 0%, rgba(80,48,180,0.07) 45%, transparent 70%)',
+          background: 'radial-gradient(ellipse 75% 80% at 40% 50%, rgba(128,82,255,0.14) 0%, rgba(80,48,180,0.06) 45%, transparent 70%)',
         }} />
-        {/* Amber crown glow at top of dog */}
+        {/* Amber crown glow */}
         <div style={{
           position: 'absolute',
-          left: '25%',
+          left: '20%',
           top: '-20%',
-          width: '45%',
-          height: '55%',
-          background: 'radial-gradient(ellipse 55% 55% at 50% 30%, rgba(255,184,41,0.09) 0%, transparent 70%)',
+          width: '50%',
+          height: '60%',
+          background: 'radial-gradient(ellipse 60% 60% at 50% 30%, rgba(255,184,41,0.07) 0%, transparent 70%)',
         }} />
         {/* Purple ground shadow at bottom */}
         <div style={{
@@ -49,7 +41,7 @@ export function DogPanel() {
           bottom: '-10%',
           width: '65%',
           height: '45%',
-          background: 'radial-gradient(ellipse 65% 50% at 40% 80%, rgba(60,20,120,0.12) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse 65% 50% at 40% 80%, rgba(60,20,120,0.1) 0%, transparent 70%)',
         }} />
       </div>
 
@@ -97,31 +89,29 @@ export function DogPanel() {
             marginBottom: 16,
           }}
         >
-          For every species. Every breed. Every quirk.
+          About Us
         </motion.p>
 
-        {/* Headline — staggered words */}
+        {/* Headline */}
         <h2
           style={{
-            fontSize: "clamp(48px, 7vw, 96px)",
-            lineHeight: 0.95,
+            fontSize: "clamp(32px, 4vw, 52px)",
+            lineHeight: 1.0,
             letterSpacing: "-0.03em",
             fontWeight: 300,
             color: "#ffffff",
           }}
         >
-          {headlineWords.map((word, i) => (
-            <motion.span
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.08 }}
-              style={{ display: "inline-block", marginRight: "0.25em" }}
-            >
-              {word}
-            </motion.span>
-          ))}
+          Built by pet lovers,
+          <br />
+          <span style={{
+            background: "linear-gradient(95deg, #d4c5ff 0%, #8052ff 60%, #6038dd 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontWeight: 400
+          }}>
+            backed by science.
+          </span>
         </h2>
 
         {/* Body text */}
@@ -129,59 +119,32 @@ export function DogPanel() {
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.5 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
           style={{
-            marginTop: 24,
-            marginBottom: 16,
+            marginTop: 20,
             fontSize: 15,
             lineHeight: 1.6,
             color: "#bdbdbd",
-            maxWidth: 380,
+            maxWidth: 420,
           }}
         >
-          Upload a photo of a rash, paste a vet&apos;s report, ask why your
-          dog won&apos;t eat. PawPal threads it all into a single, growing
-          portrait of your animal.
+          PawPal was born out of a simple question: why is pet care so reactive?
+          We are a team of veterinary researchers, data scientists, and designers
+          obsessed with giving pets longer, healthier lives by transforming raw medical
+          notes, vaccinations, and symptoms into proactive, life-saving insights.
         </motion.p>
-
-        {/* Bullets — 6px plum squares */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {bullets.map((line, i) => (
-            <motion.div
-              key={line}
-              initial={{ opacity: 0, x: -16 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.6 + i * 0.08 }}
-              style={{ display: "flex", alignItems: "flex-start", gap: 12 }}
-            >
-              <span
-                style={{
-                  width: 6,
-                  height: 6,
-                  backgroundColor: "#8052ff",
-                  flexShrink: 0,
-                  marginTop: 7,
-                }}
-              />
-              <span style={{ fontSize: 16, color: "#ffffff", fontWeight: 400 }}>
-                {line}
-              </span>
-            </motion.div>
-          ))}
-        </div>
 
         {/* CTA Button */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.9 }}
+          transition={{ duration: 0.4, delay: 0.4 }}
           style={{ marginTop: 32 }}
         >
           <button
             onClick={() => {
-              window.dispatchEvent(new CustomEvent("scrollToPanel", { detail: { panel: 2 } }));
+              window.dispatchEvent(new CustomEvent("scrollToPanel", { detail: { panel: 4 } }));
             }}
             className="inline-flex items-center justify-center transition-all duration-200 cursor-pointer"
             style={{

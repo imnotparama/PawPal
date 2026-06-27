@@ -96,13 +96,15 @@ export function HeroPanel() {
 
         <div data-reveal data-reveal-delay="0.4" className="mt-8 flex items-center gap-4">
           <MagneticButton strength={0.2}>
-            <Link
-              to="/login"
-              className="dala-btn-primary glow-btn inline-flex items-center justify-center rounded-3xl"
-              style={{ padding: "12px 22px", fontSize: 11, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}
+            <button
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("scrollToPanel", { detail: { panel: 1 } }));
+              }}
+              className="dala-btn-primary glow-btn inline-flex items-center justify-center rounded-3xl cursor-pointer"
+              style={{ padding: "12px 22px", fontSize: 11, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", border: "none" }}
             >
-              Get Started
-            </Link>
+              Next Page
+            </button>
           </MagneticButton>
 
           <button
