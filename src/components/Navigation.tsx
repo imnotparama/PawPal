@@ -43,6 +43,10 @@ export function Navigation() {
         <div className="flex items-center gap-7">
           <a
             href="#how-it-works"
+            onClick={(e) => {
+              e.preventDefault();
+              window.dispatchEvent(new CustomEvent("scrollToPanel", { detail: { panel: 1 } }));
+            }}
             className="hidden md:inline text-smoke hover:text-bone transition-colors duration-200"
             style={{ fontSize: 12, letterSpacing: "0.03em", fontWeight: 400 }}
           >
@@ -51,6 +55,10 @@ export function Navigation() {
 
           <a
             href="#pet-tips"
+            onClick={(e) => {
+              e.preventDefault();
+              window.dispatchEvent(new CustomEvent("scrollToPanel", { detail: { panel: 2 } }));
+            }}
             className="hidden md:inline text-smoke hover:text-bone transition-colors duration-200"
             style={{ fontSize: 12, letterSpacing: "0.03em", fontWeight: 400 }}
           >

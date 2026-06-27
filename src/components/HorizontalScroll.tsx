@@ -145,6 +145,12 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
 
       track.style.transform = `translate3d(${targetX}px, 0, 0)`;
 
+      // Update progress bar
+      const progressBar = container.querySelector<HTMLElement>("[data-progress-bar]");
+      if (progressBar) {
+        progressBar.style.transform = `scaleX(${progress})`;
+      }
+
       // Panel content animations
       const panelElements = track.querySelectorAll<HTMLElement>("[data-h-panel]");
       panelElements.forEach((panel, i) => {
@@ -211,6 +217,14 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
       raf = requestAnimationFrame(loop);
     };
 
+    const handleScrollToPanelEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<{ panel: number }>;
+      if (customEvent && customEvent.detail && typeof customEvent.detail.panel === "number") {
+        animateToPanel(customEvent.detail.panel);
+      }
+    };
+    window.addEventListener("scrollToPanel", handleScrollToPanelEvent);
+
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchend", onTouchEnd, { passive: true });
@@ -221,6 +235,7 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
     raf = requestAnimationFrame(loop);
 
     return () => {
+      window.removeEventListener("scrollToPanel", handleScrollToPanelEvent);
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
