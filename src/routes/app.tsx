@@ -47,9 +47,7 @@ function AppLayout() {
       >
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 mb-10 px-2" style={{ textDecoration: "none" }}>
-          <div className="w-8 h-8 rounded-full bg-plum-voltage flex items-center justify-center text-bone font-bold text-sm">
-            P
-          </div>
+          <img src="/pawpal-logo.png" alt="PawPal" style={{ width: 32, height: 32, borderRadius: 8 }} />
           <span style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.02em" }}>PawPal</span>
         </Link>
 

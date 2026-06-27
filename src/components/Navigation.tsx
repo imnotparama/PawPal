@@ -24,16 +24,10 @@ export function Navigation() {
       <div className="mx-auto px-6 lg:px-10 h-[60px] flex items-center justify-between">
         {/* Logo LEFT — PawPal + paw icon */}
         <Link to="/" className="flex items-center gap-1.5">
+          <img src="/pawpal-logo.png" alt="PawPal" style={{ width: 28, height: 28, borderRadius: 6 }} />
           <span className="text-bone" style={{ fontWeight: 600, fontSize: 18 }}>
             PawPal
           </span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="#8052ff" aria-hidden="true">
-            <ellipse cx="7" cy="5" rx="2.5" ry="3" />
-            <ellipse cx="17" cy="5" rx="2.5" ry="3" />
-            <ellipse cx="4" cy="12" rx="2" ry="2.5" />
-            <ellipse cx="20" cy="12" rx="2" ry="2.5" />
-            <path d="M12 22c-4 0-6-3-6-6 0-2 2-4 6-4s6 2 6 4c0 3-2 6-6 6z" />
-          </svg>
         </Link>
 
         {/* Links + CTA RIGHT */}
