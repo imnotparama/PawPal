@@ -243,7 +243,7 @@ export function HorizontalScroll({ children }: HorizontalScrollProps) {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative" style={{ margin: 0, padding: 0 }}>
+    <div ref={containerRef} className="relative">
       <div className="sticky top-0 h-screen overflow-hidden">
         <div
           ref={trackRef}

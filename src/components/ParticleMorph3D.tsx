@@ -422,7 +422,7 @@ export function ParticleMorph3D() {
     <div
       ref={containerRef}
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 1, margin: 0, padding: 0, width: "100vw", height: "100vh", top: 0, left: 0 }}
+      style={{ zIndex: 1 }}
       aria-hidden="true"
     />
   );

@@ -66,9 +66,6 @@
 @layer base {
   * {
     border-color: var(--color-border);
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
   }
   html,
   body {
@@ -78,7 +75,6 @@
     -webkit-font-smoothing: antialiased;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
   }
   ::selection {
     background: #8052ff;
