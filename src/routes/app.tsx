@@ -47,7 +47,9 @@ function AppLayout() {
       >
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 mb-10 px-2" style={{ textDecoration: "none" }}>
-          <img src="/pawpal-logo.png" alt="PawPal" style={{ width: 32, height: 32, borderRadius: 8 }} />
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#8052ff">
+            <path d="M12 2C8 2 4 6 4 10c0 2 1 4 2 5l6 7 6-7c1-1 2-3 2-5 0-4-4-8-8-8zm-4 5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm8 0a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm-4 2a2 2 0 110 4 2 2 0 010-4z"/>
+          </svg>
           <span style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.02em" }}>PawPal</span>
         </Link>
 
@@ -65,8 +67,26 @@ function AppLayout() {
                 to={item.to}
                 style={
                   isActive
-                    ? { padding: "10px 16px", borderRadius: 8, fontSize: 14, fontWeight: 400, backgroundColor: "rgba(128,82,255,0.15)", borderLeft: "2px solid #8052ff", color: "#ffffff", textDecoration: "none", display: "block", boxShadow: "0 0 20px rgba(128,82,255,0.2)" }
-                    : { padding: "10px 16px", borderRadius: 8, fontSize: 14, fontWeight: 400, color: "#9a9a9a", textDecoration: "none", display: "block" }
+                    ? {
+                        padding: "10px 16px",
+                        borderRadius: "8px",
+                        fontSize: 14,
+                        fontWeight: 400,
+                        background: "rgba(128,82,255,0.15)",
+                        borderLeft: "2px solid #8052ff",
+                        color: "#ffffff",
+                        textDecoration: "none",
+                        display: "block"
+                      }
+                    : {
+                        padding: "10px 16px",
+                        borderRadius: "8px",
+                        fontSize: 14,
+                        fontWeight: 400,
+                        color: "#9a9a9a",
+                        textDecoration: "none",
+                        display: "block"
+                      }
                 }
                 onMouseEnter={(e) => {
                   if (!isActive) {
