@@ -12,9 +12,9 @@ const gradientStyle: React.CSSProperties = {
 };
 
 const stats = [
-  { display: "12k+", label: "PETS ONBOARDED" },
-  { display: "98%", label: "OWNERS CALMER" },
-  { display: "24/7", label: "AI STANDBY" },
+  { display: "SCIENCE", label: "Peer-reviewed literature" },
+  { display: "EMPATHY", label: "Designed for pet parents" },
+  { display: "24/7", label: "Real-time triage assistance" },
 ];
 
 export function GirlCatPanel() {

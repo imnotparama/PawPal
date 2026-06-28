@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 
 const stats = [
-  { number: "10,000+", label: "pet owners" },
-  { number: "98%", label: "AI accuracy" },
-  { number: "200+", label: "trusted vets" },
+  { number: "VET-BACKED", label: "Clinical Science" },
+  { number: "GEMINI AI", label: "Real-Time Triage" },
+  { number: "SECURE", label: "Encrypted Records" },
 ];
 
 export function TrustBar() {
