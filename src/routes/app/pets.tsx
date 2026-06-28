@@ -8,7 +8,7 @@ export const Route = createFileRoute("/app/pets")({
   component: PetsPage,
 });
 
-function PetCard({ pet, index }: { pet: any; index: number }) {
+function PetCard({ pet, index, onDelete }: { pet: any; index: number; onDelete: (id: string) => Promise<void> }) {
   const [hovered, setHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: "50%", y: "50%" });
@@ -77,6 +77,44 @@ function PetCard({ pet, index }: { pet: any; index: number }) {
                 borderRadius: "inherit",
               }}
             />
+            {/* Delete button overlay on hover */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (confirm(`Are you sure you want to delete ${pet.name}?`)) {
+                  onDelete(pet.id);
+                }
+              }}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                background: "rgba(0, 0, 0, 0.6)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                color: "#ff6b6b",
+                display: hovered ? "flex" : "none",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                fontWeight: "bold",
+                fontSize: 12,
+                zIndex: 10,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#ff6b6b";
+                e.currentTarget.style.color = "#ffffff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(0, 0, 0, 0.6)";
+                e.currentTarget.style.color = "#ff6b6b";
+              }}
+            >
+              ✕
+            </button>
           </div>
 
           {/* Info */}
@@ -294,7 +332,7 @@ function AddPetModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (va
 }
 
 function PetsPage() {
-  const { pets, loading, addPet } = usePets();
+  const { pets, loading, addPet, deletePet } = usePets();
   const [showModal, setShowModal] = useState(false);
 
   const handleAddPet = async (values: any) => {
@@ -332,7 +370,7 @@ function PetsPage() {
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 280px)", gap: 24 }}>
           {pets.map((pet, i) => (
-            <PetCard key={pet.id || pet.name} pet={pet} index={i} />
+            <PetCard key={pet.id || pet.name} pet={pet} index={i} onDelete={deletePet} />
           ))}
         </div>
       )}
