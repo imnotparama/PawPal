@@ -11,11 +11,21 @@ This document outlines the security architecture, threat modeling, and data prot
 * **Implementation**: We refactored all chat communication to use **TanStack Start Server Functions** (`src/utils/chat.ts`). 
 * **Mechanism**: The browser client makes a request to the serverless backend via a secure RPC bridge. The serverless function privately queries the Gemini API using the server-side environment variable `GEMINI_API_KEY`, returning only the formatted text candidates to the client. The key itself is never exposed to the public.
 
+### 2. Path Traversal Sanitation
+* **Vulnerability Mitigated**: Arbitrary file uploads in `usePets.ts` and `useMedicalRecords.ts` using unsanitized file extensions retrieved directly from `file.name` can lead to path traversal vulnerabilities.
+* **Implementation**: Sanitized all uploaded file extensions using regex replacement to strictly isolate alphanumeric characters:
+  ```typescript
+  const rawExt = file.name.split(".").pop() || "";
+  const cleanExt = rawExt.replace(/[^a-zA-Z0-9]/g, "");
+  const ext = cleanExt || "pdf";
+  ```
+  This strips out any directory traversal characters (e.g. `.` or `/`), neutralizing path traversal attempts.
+
 ---
 
 ## 📂 Data Isolation & Access Controls
 
-### 2. Supabase Row-Level Security (RLS)
+### 3. Supabase Row-Level Security (RLS)
 Every database table (including `pets`, `vaccinations`, `medical_records`, and `chat_messages`) is protected by strict Postgres RLS policies:
 * **Authentication**: Users must authenticate via Supabase Auth (using secure JWT tokens) before reading or writing data.
 * **Isolation Rule**: Row-level policies restrict access based on the authenticated user's ID:
@@ -32,7 +42,7 @@ Every database table (including `pets`, `vaccinations`, `medical_records`, and `
 
 ## 🧪 Input Validation & Safety
 
-### 3. Zod Schema Verification
+### 4. Zod Schema Verification
 * All forms (e.g., Add Pet, Add Vaccination, Upload Record) use typed **Zod schemas** to validate and sanitize inputs on both the frontend and backend layers.
 * Prevents common injection vectors, buffer overflows, or unexpected schema corruption by validating:
   * Name lengths and alphanumeric spacing.
@@ -43,6 +53,6 @@ Every database table (including `pets`, `vaccinations`, `medical_records`, and `
 
 ## 🧹 Deployment & Environment Hygiene
 
-### 4. Git & Asset Protection
+### 5. Git & Asset Protection
 * **`.gitignore` Rules**: Clean hygiene rules prevent local configuration assets (such as `.env` and `.env.local` containing secrets) from ever being tracked or pushed to remote repositories.
 * **Build Targets**: Build compilers ignore temporary server files and cache folders (`.output/`, `.vinxi/`, `.vercel/`), preventing compiled API key assets from leaking to public spaces.
