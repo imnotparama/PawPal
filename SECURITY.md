@@ -28,11 +28,15 @@ This document outlines the security architecture, threat modeling, and data prot
   * `X-Frame-Options: DENY` (neutralizes frame-injection clickjacking).
   * `X-Content-Type-Options: nosniff` (forces correct mime-types).
 
+### 4. Dependency CVE Mitigation
+* **`undici` CVEs (CVE-2026-12151 & CVE-2026-9679)**: Mitigated by overriding the version mapping to **`7.28.0`** in `package.json` resolutions/overrides and updating `bun.lock`.
+* **`enhanced-resolve` CVE (CVE-2026-11084)**: Mitigated by overriding the version mapping to **`5.22.1`** in `package.json` resolutions/overrides and updating `bun.lock` / `package-lock.json`.
+
 ---
 
 ## 📂 Data Isolation & Access Controls
 
-### 4. Supabase Row-Level Security (RLS)
+### 5. Supabase Row-Level Security (RLS)
 Every database table (including `pets`, `vaccinations`, `medical_records`, and `chat_messages`) is protected by strict Postgres RLS policies:
 * **Authentication**: Users must authenticate via Supabase Auth (using secure JWT tokens) before reading or writing data.
 * **Isolation Rule**: Row-level policies restrict access based on the authenticated user's ID:
@@ -49,7 +53,7 @@ Every database table (including `pets`, `vaccinations`, `medical_records`, and `
 
 ## 🧪 Input Validation & Safety
 
-### 5. Zod Schema Verification
+### 6. Zod Schema Verification
 * All forms (e.g., Add Pet, Add Vaccination, Upload Record) use typed **Zod schemas** to validate and sanitize inputs on both the frontend and backend layers.
 * Prevents common injection vectors, buffer overflows, or unexpected schema corruption by validating:
   * Name lengths and alphanumeric spacing.
@@ -60,6 +64,6 @@ Every database table (including `pets`, `vaccinations`, `medical_records`, and `
 
 ## 🧹 Deployment & Environment Hygiene
 
-### 6. Git & Asset Protection
+### 7. Git & Asset Protection
 * **`.gitignore` Rules**: Clean hygiene rules prevent local configuration assets (such as `.env` and `.env.local` containing secrets) from ever being tracked or pushed to remote repositories.
 * **Build Targets**: Build compilers ignore temporary server files and cache folders (`.output/`, `.vinxi/`, `.vercel/`), preventing compiled API key assets from leaking to public spaces.
