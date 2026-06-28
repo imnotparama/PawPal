@@ -31,6 +31,7 @@ This document outlines the security architecture, threat modeling, and data prot
 ### 4. Dependency CVE Mitigation
 * **`undici` CVEs (CVE-2026-12151 & CVE-2026-9679)**: Mitigated by overriding the version mapping to **`7.28.0`** in `package.json` resolutions/overrides and updating `bun.lock`.
 * **`enhanced-resolve` CVE (CVE-2026-11084)**: Mitigated by overriding the version mapping to **`5.22.1`** in `package.json` resolutions/overrides and updating `bun.lock` / `package-lock.json`.
+* **`@tanstack/start-server-core` CVE (GHSA-9m65-766c-r333)**: Mitigated by overriding the transitive dependency to the secure **`1.169.15`** release version in `package.json` and updating `bun.lock`.
 
 ---
 
