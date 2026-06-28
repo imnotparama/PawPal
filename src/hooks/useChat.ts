@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { ChatMessage } from "@/types";
+import { getGeminiResponse } from "@/utils/chat";
+
 
 export function useChat(petId?: string) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -40,25 +42,7 @@ export function useChat(petId?: string) {
       if (insertError) throw insertError;
       setMessages((prev) => [...prev, { ...userMsg, id: crypto.randomUUID(), created_at: new Date().toISOString() }]);
 
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) throw new Error("No Gemini API key configured");
-
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: `You are PawPal AI, a knowledgeable and caring pet health assistant. Help pet owners understand their pet's health, symptoms, and care needs. Always recommend consulting a real vet for serious concerns. Be warm, clear, and concise.\n\nUser: ${content}` }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 512 },
-          }),
-        }
-      );
-      
-      if (!response.ok) throw new Error(`AI request failed: ${response.status}`);
-      
-      const data = await response.json();
-      const aiContent = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "I'm sorry, I couldn't process that. Please try again.";
+      const aiContent = await getGeminiResponse({ data: content });
 
       const aiMsg = { user_id: user.id, pet_id: activePetId ?? null, role: "assistant" as const, content: aiContent };
       const { error: aiInsertError } = await supabase.from("chat_messages").insert(aiMsg);
