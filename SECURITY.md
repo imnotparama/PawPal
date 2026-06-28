@@ -21,11 +21,18 @@ This document outlines the security architecture, threat modeling, and data prot
   ```
   This strips out any directory traversal characters (e.g. `.` or `/`), neutralizing path traversal attempts.
 
+### 3. HTTP Strict Transport Security (HSTS) & Headers
+* **Vulnerability Mitigated**: Missing security headers (like HSTS and Clickjacking blocks) can leave users vulnerable to downgrade attacks (SSL stripping) or clickjacking.
+* **Implementation**: Added a `vercel.json` deployment configuration to enforce the following HTTP headers on all routes:
+  * `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` (enforces secure HTTPS execution).
+  * `X-Frame-Options: DENY` (neutralizes frame-injection clickjacking).
+  * `X-Content-Type-Options: nosniff` (forces correct mime-types).
+
 ---
 
 ## 📂 Data Isolation & Access Controls
 
-### 3. Supabase Row-Level Security (RLS)
+### 4. Supabase Row-Level Security (RLS)
 Every database table (including `pets`, `vaccinations`, `medical_records`, and `chat_messages`) is protected by strict Postgres RLS policies:
 * **Authentication**: Users must authenticate via Supabase Auth (using secure JWT tokens) before reading or writing data.
 * **Isolation Rule**: Row-level policies restrict access based on the authenticated user's ID:
@@ -42,7 +49,7 @@ Every database table (including `pets`, `vaccinations`, `medical_records`, and `
 
 ## 🧪 Input Validation & Safety
 
-### 4. Zod Schema Verification
+### 5. Zod Schema Verification
 * All forms (e.g., Add Pet, Add Vaccination, Upload Record) use typed **Zod schemas** to validate and sanitize inputs on both the frontend and backend layers.
 * Prevents common injection vectors, buffer overflows, or unexpected schema corruption by validating:
   * Name lengths and alphanumeric spacing.
@@ -53,6 +60,6 @@ Every database table (including `pets`, `vaccinations`, `medical_records`, and `
 
 ## 🧹 Deployment & Environment Hygiene
 
-### 5. Git & Asset Protection
+### 6. Git & Asset Protection
 * **`.gitignore` Rules**: Clean hygiene rules prevent local configuration assets (such as `.env` and `.env.local` containing secrets) from ever being tracked or pushed to remote repositories.
 * **Build Targets**: Build compilers ignore temporary server files and cache folders (`.output/`, `.vinxi/`, `.vercel/`), preventing compiled API key assets from leaking to public spaces.
