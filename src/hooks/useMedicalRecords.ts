@@ -37,7 +37,9 @@ export function useMedicalRecords(petId?: string) {
       
       let file_url = null;
       if (values.file) {
-        const ext = values.file.name.split(".").pop();
+        const rawExt = values.file.name.split(".").pop() || "";
+        const cleanExt = rawExt.replace(/[^a-zA-Z0-9]/g, "");
+        const ext = cleanExt || "pdf";
         const path = `records/${user.id}/${Date.now()}.${ext}`;
         const { error: uploadError } = await supabase.storage.from("pawpal-uploads").upload(path, values.file);
         if (uploadError) throw uploadError;

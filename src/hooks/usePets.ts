@@ -35,7 +35,9 @@ export function usePets() {
       
       let photo_url = null;
       if (values.photo) {
-        const ext = values.photo.name.split(".").pop();
+        const rawExt = values.photo.name.split(".").pop() || "";
+        const cleanExt = rawExt.replace(/[^a-zA-Z0-9]/g, "");
+        const ext = cleanExt || "jpg";
         const path = `pets/${user.id}/${Date.now()}.${ext}`;
         const { error: uploadError } = await supabase.storage.from("pawpal-uploads").upload(path, values.photo);
         if (uploadError) throw uploadError;
