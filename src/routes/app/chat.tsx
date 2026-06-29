@@ -15,6 +15,94 @@ const suggestions = [
   "How do I check for ticks on my cat?",
 ];
 
+function renderMessageContent(content: string) {
+  if (!content) return "";
+  
+  const lines = content.split("\n");
+  let inList = false;
+  const elements: React.ReactNode[] = [];
+  let listItems: React.ReactNode[] = [];
+  
+  const parseFormatting = (text: string) => {
+    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+    return parts.map((part, idx) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return <strong key={idx} style={{ fontWeight: 600, color: "#ffffff" }}>{part.slice(2, -2)}</strong>;
+      } else if (part.startsWith("*") && part.endsWith("*")) {
+        return <em key={idx} style={{ fontStyle: "italic", color: "#bdbdbd" }}>{part.slice(1, -1)}</em>;
+      } else if (part.startsWith("`") && part.endsWith("`")) {
+        return <code key={idx} style={{ background: "rgba(255,255,255,0.1)", padding: "2px 6px", borderRadius: 4, fontFamily: "monospace", fontSize: 13, color: "#e0d5ff" }}>{part.slice(1, -1)}</code>;
+      }
+      return part;
+    });
+  };
+  
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+    
+    // Check if header
+    if (trimmed.startsWith("### ")) {
+      if (inList) {
+        elements.push(<ul key={`list-${index}`} style={{ margin: "8px 0" }}>{listItems}</ul>);
+        inList = false;
+      }
+      elements.push(<h3 key={index} style={{ fontSize: 16, fontWeight: 600, color: "#ffffff", marginTop: 12, marginBottom: 6 }}>{parseFormatting(trimmed.substring(4))}</h3>);
+    } else if (trimmed.startsWith("## ")) {
+      if (inList) {
+        elements.push(<ul key={`list-${index}`} style={{ margin: "8px 0" }}>{listItems}</ul>);
+        inList = false;
+      }
+      elements.push(<h2 key={index} style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", marginTop: 16, marginBottom: 8 }}>{parseFormatting(trimmed.substring(3))}</h2>);
+    } else if (trimmed.startsWith("# ")) {
+      if (inList) {
+        elements.push(<ul key={`list-${index}`} style={{ margin: "8px 0" }}>{listItems}</ul>);
+        inList = false;
+      }
+      elements.push(<h1 key={index} style={{ fontSize: 20, fontWeight: 600, color: "#ffffff", marginTop: 20, marginBottom: 10 }}>{parseFormatting(trimmed.substring(2))}</h1>);
+    }
+    // Check if list item
+    else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      if (!inList) {
+        inList = true;
+        listItems = [];
+      }
+      listItems.push(
+        <li key={index} style={{ marginBottom: 4, listStyleType: "none", display: "flex", alignItems: "flex-start", gap: 8 }}>
+          <span style={{ color: "#8052ff", flexShrink: 0 }}>•</span>
+          <div>{parseFormatting(trimmed.substring(2))}</div>
+        </li>
+      );
+    } else {
+      if (inList) {
+        elements.push(
+          <ul key={`list-${index}`} style={{ margin: "8px 0" }}>
+            {listItems}
+          </ul>
+        );
+        inList = false;
+      }
+      
+      if (trimmed) {
+        elements.push(
+          <p key={index} style={{ marginBottom: 8 }}>
+            {parseFormatting(trimmed)}
+          </p>
+        );
+      }
+    }
+  });
+  
+  if (inList) {
+    elements.push(
+      <ul key="list-final" style={{ margin: "8px 0" }}>
+        {listItems}
+      </ul>
+    );
+  }
+  
+  return elements;
+}
+
 function ChatPage() {
   const { pets } = usePets();
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>(undefined);
@@ -22,6 +110,54 @@ function ChatPage() {
   const [input, setInput] = useState("");
   const [showPetMenu, setShowPetMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [recognition, setRecognition] = useState<any>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const rec = new SpeechRecognition();
+        rec.continuous = false;
+        rec.interimResults = false;
+        rec.lang = "en-US";
+
+        rec.onstart = () => {
+          setIsListening(true);
+        };
+
+        rec.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript;
+          if (transcript) {
+            setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
+          }
+        };
+
+        rec.onerror = (event: any) => {
+          console.error("Speech recognition error:", event.error);
+          setIsListening(false);
+        };
+
+        rec.onend = () => {
+          setIsListening(false);
+        };
+
+        setRecognition(rec);
+      }
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognition) {
+      alert("Speech recognition is not supported in this browser. Please try Google Chrome or Safari.");
+      return;
+    }
+    if (isListening) {
+      recognition.stop();
+    } else {
+      recognition.start();
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -116,7 +252,7 @@ function ChatPage() {
                     color: msg.role === "user" ? "#ffffff" : "#e0e0e0",
                     lineHeight: 1.6,
                   }}>
-                    {msg.content}
+                    {msg.role === "user" ? msg.content : renderMessageContent(msg.content)}
                   </div>
                 </div>
                 <span style={{ fontSize: 11, color: msg.role === "user" ? "rgba(255,255,255,0.5)" : "#9a9a9a", marginTop: 4, marginLeft: msg.role === "assistant" ? 44 : 0, textAlign: msg.role === "user" ? "right" : "left" }}>
@@ -153,6 +289,41 @@ function ChatPage() {
       {/* Input Bar */}
       <div style={{ height: 80, borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.9)", backdropFilter: "blur(12px)", padding: "16px 24px", display: "flex", gap: 12, alignItems: "center", flexShrink: 0 }}>
         <button style={{ background: "none", border: "none", color: "#9a9a9a", cursor: "pointer", fontSize: 18 }} title="Attach">📎</button>
+        <button
+          onClick={toggleListening}
+          style={{
+            background: isListening ? "rgba(255,80,80,0.15)" : "none",
+            border: isListening ? "1px solid rgba(255,80,80,0.4)" : "none",
+            color: isListening ? "#ff6b6b" : "#9a9a9a",
+            cursor: "pointer",
+            fontSize: 18,
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative"
+          }}
+          title={isListening ? "Stop listening" : "Ask by voice"}
+        >
+          {isListening ? (
+            <>
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ff6b6b] animate-ping absolute" />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <rect x="9" y="9" width="6" height="6" />
+              </svg>
+            </>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          )}
+        </button>
         <input
           type="text"
           value={input}

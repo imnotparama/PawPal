@@ -364,9 +364,43 @@ function PetsPage() {
 
       {/* Pet Cards Grid */}
       {pets.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px 0" }}>
-          <p style={{ fontSize: 18, color: "#9a9a9a" }}>No pets yet. Add your first pet!</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            textAlign: "center",
+            padding: "48px 24px",
+            background: "rgba(255,255,255,0.01)",
+            border: "1px dashed rgba(255,255,255,0.15)",
+            borderRadius: 24,
+            maxWidth: 480,
+            margin: "40px auto",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 16
+          }}
+        >
+          <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(128,82,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="#8052ff" style={{ opacity: 0.8 }}>
+              <ellipse cx="7" cy="5" rx="2.5" ry="3" />
+              <ellipse cx="17" cy="5" rx="2.5" ry="3" />
+              <path d="M12 22c-4 0-6-3-6-6 0-2 2-4 6-4s6 2 6 4c0 3-2 6-6 6z" />
+            </svg>
+          </div>
+          <div>
+            <h3 style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", marginBottom: 6 }}>No Pets Profiled</h3>
+            <p style={{ fontSize: 14, color: "#9a9a9a", maxWidth: 320, margin: "0 auto", lineHeight: 1.5 }}>
+              Add your pet's name, age, and breed to start monitoring their health score and vaccine due dates.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            style={{ background: "#8052ff", color: "#fff", border: "none", borderRadius: 20, padding: "10px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer", marginTop: 8 }}
+          >
+            Add Your First Pet +
+          </button>
+        </motion.div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
           {pets.map((pet, i) => (

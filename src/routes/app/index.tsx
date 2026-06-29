@@ -141,6 +141,53 @@ function Dashboard() {
         Here's what's happening with your pets today.
       </motion.p>
 
+      {/* Alert Banner */}
+      {overdueCount > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          style={{
+            background: "rgba(255,107,107,0.06)",
+            border: "1px solid rgba(255,107,107,0.2)",
+            borderRadius: 16,
+            padding: "16px 20px",
+            marginBottom: 28,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 16
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 20 }}>⚠️</span>
+            <div>
+              <h4 style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", margin: 0 }}>Urgent Health Alert</h4>
+              <p style={{ fontSize: 13, color: "#ff6b6b", margin: "2px 0 0" }}>
+                You have {overdueCount} overdue vaccination{overdueCount > 1 ? "s" : ""} requiring attention.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/app/vaccinations"
+            style={{
+              color: "#ffffff",
+              background: "#ff6b6b",
+              borderRadius: 20,
+              padding: "8px 16px",
+              fontSize: 12,
+              fontWeight: 600,
+              textDecoration: "none",
+              cursor: "pointer",
+              boxShadow: "0 0 10px rgba(255,107,107,0.3)"
+            }}
+          >
+            Resolve Now
+          </Link>
+        </motion.div>
+      )}
+
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((s, i) => (

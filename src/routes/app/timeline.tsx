@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { usePets } from "@/hooks/usePets";
@@ -71,9 +71,42 @@ function TimelinePage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px 0" }}>
-          <p style={{ fontSize: 18, color: "#9a9a9a" }}>No health events yet.</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            textAlign: "center",
+            padding: "48px 24px",
+            background: "rgba(255,255,255,0.01)",
+            border: "1px dashed rgba(255,255,255,0.15)",
+            borderRadius: 24,
+            maxWidth: 480,
+            margin: "40px auto",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 16
+          }}
+        >
+          <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(128,82,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8052ff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div>
+            <h3 style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", marginBottom: 6 }}>No Health Timeline Events</h3>
+            <p style={{ fontSize: 14, color: "#9a9a9a", maxWidth: 320, margin: "0 auto", lineHeight: 1.5 }}>
+              Your unified chronological timeline compiles vaccinations and medical records logs automatically.
+            </p>
+          </div>
+          <Link
+            to="/app/records"
+            style={{ background: "#8052ff", color: "#fff", border: "none", borderRadius: 20, padding: "10px 20px", fontSize: 13, fontWeight: 600, textDecoration: "none", cursor: "pointer", marginTop: 8 }}
+          >
+            Log First Health Event +
+          </Link>
+        </motion.div>
       ) : (
         <>
           {/* Year label */}

@@ -3,21 +3,43 @@ import { supabase } from "@/lib/supabase";
 import type { Pet } from "@/types";
 
 export function usePets() {
-  const [pets, setPets] = useState<Pet[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [pets, setPets] = useState<Pet[]>(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const cached = localStorage.getItem("pawpal_cache_pets");
+        return cached ? JSON.parse(cached) : [];
+      }
+    } catch (e) {
+      console.error("Error loading pets cache:", e);
+    }
+    return [];
+  });
+  const [loading, setLoading] = useState(() => {
+    try {
+      if (typeof window !== "undefined") {
+        return !localStorage.getItem("pawpal_cache_pets");
+      }
+    } catch (e) {}
+    return true;
+  });
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const fetchPets = async () => {
-    setLoading(true);
     setError(null);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
       const { data, error } = await supabase.from("pets").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
       if (error) throw error;
-      setPets(data ?? []);
+      const freshData = data ?? [];
+      setPets(freshData);
+      try {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("pawpal_cache_pets", JSON.stringify(freshData));
+        }
+      } catch (e) {}
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch pets");
       console.error("Error fetching pets:", err);

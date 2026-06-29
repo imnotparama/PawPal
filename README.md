@@ -26,7 +26,14 @@ PawPal AI is a premium, high-fidelity web application designed to help pet owner
 ### 4. UX / UI & Polish (15%)
 * **Visual Theme**: A pure black cosmos (`#000000`) styled with rich neon violet glows, glassmorphic panels (`backdropFilter`), and Outfit / Space Grotesk typography.
 * **Micro-Interactions**: Hoverable element spring scales, interactive magnetic buttons, dynamic border shadows on dashboard timeline items matching their categories (checkups, vaccinations, illnesses), and onboarding checklists.
+* **Voice-to-Text Triage**: Integrates the native browser **Web Speech Recognition API** inside the AI Chat. Pet parents can dictate symptoms hands-free, complete with a pulsing recording status indicator.
+* **Gemini Markdown Formatting**: Renders Gemini AI's triage advice with clear structured headers, bold formatting, lists, and inline code blocks, powered by a custom dependency-free parser.
+* **Dashboard Health Alerts**: Real-time conditional warnings prompt the user immediately when a pet has an overdue vaccination requiring focus.
+* **Onboarding Empty States**: Replaced flat text indicators with premium dashed glassmorphic cards and inline shortcut actions to guide new users to profile their first pet, log records, or start vaccine timelines.
 * **Developer Modal**: Includes a glassmorphic floating developer details modal triggered from a neon-pulsing "About" header button.
+
+### 5. Stale-While-Revalidate Caching Layer
+* **Offline-First Instant Loading**: Stale-While-Revalidate logic caches collections privately in browser local storage. States for pets, medical records, and vaccinations load instantly during navigation, updates resolve in the background, and new edits seamlessly rewrite cache files.
 
 ---
 

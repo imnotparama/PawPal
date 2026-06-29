@@ -183,9 +183,45 @@ function RecordsPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px 0" }}>
-          <p style={{ fontSize: 18, color: "#9a9a9a" }}>No medical records yet.</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            textAlign: "center",
+            padding: "48px 24px",
+            background: "rgba(255,255,255,0.01)",
+            border: "1px dashed rgba(255,255,255,0.15)",
+            borderRadius: 24,
+            maxWidth: 480,
+            margin: "40px auto",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 16
+          }}
+        >
+          <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(74,158,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4a9eff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </div>
+          <div>
+            <h3 style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", marginBottom: 6 }}>No Medical Records</h3>
+            <p style={{ fontSize: 14, color: "#9a9a9a", maxWidth: 320, margin: "0 auto", lineHeight: 1.5 }}>
+              Store clinic checkups, prescriptions, and surgery history to keep an organized timeline.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            style={{ background: "#8052ff", color: "#fff", border: "none", borderRadius: 20, padding: "10px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer", marginTop: 8 }}
+          >
+            Add Medical Record +
+          </button>
+        </motion.div>
       ) : (
         <>
           {/* Year label */}

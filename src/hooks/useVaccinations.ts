@@ -3,14 +3,31 @@ import { supabase } from "@/lib/supabase";
 import type { Vaccination } from "@/types";
 
 export function useVaccinations(petId?: string) {
-  const [vaccinations, setVaccinations] = useState<Vaccination[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cacheKey = `pawpal_cache_vaccinations_${petId || "all"}`;
+  const [vaccinations, setVaccinations] = useState<Vaccination[]>(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const cached = localStorage.getItem(cacheKey);
+        return cached ? JSON.parse(cached) : [];
+      }
+    } catch (e) {
+      console.error("Error loading vaccinations cache:", e);
+    }
+    return [];
+  });
+  const [loading, setLoading] = useState(() => {
+    try {
+      if (typeof window !== "undefined") {
+        return !localStorage.getItem(cacheKey);
+      }
+    } catch (e) {}
+    return true;
+  });
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [updating, setUpdating] = useState(false);
 
   const fetchVaccinations = async () => {
-    setLoading(true);
     setError(null);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -19,7 +36,13 @@ export function useVaccinations(petId?: string) {
       if (petId) query = query.eq("pet_id", petId);
       const { data, error } = await query;
       if (error) throw error;
-      setVaccinations(data ?? []);
+      const freshData = data ?? [];
+      setVaccinations(freshData);
+      try {
+        if (typeof window !== "undefined") {
+          localStorage.setItem(cacheKey, JSON.stringify(freshData));
+        }
+      } catch (e) {}
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch vaccinations");
       console.error("Error fetching vaccinations:", err);
