@@ -181,7 +181,7 @@ function AddPetModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (va
   if (success) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }} style={{ background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 24, padding: 48, textAlign: "center", width: 380 }}>
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }} style={{ background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 24, padding: 32, textAlign: "center", width: "calc(100% - 32px)", maxWidth: 380 }}>
           <motion.svg initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.6 }} width="64" height="64" viewBox="0 0 64 64" fill="none" style={{ margin: "0 auto 16px" }}>
             <circle cx="32" cy="32" r="28" stroke="rgba(128,82,255,0.2)" strokeWidth="3" />
             <motion.path d="M20 32 L28 40 L44 24" stroke="#8052ff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4, delay: 0.3 }} />
@@ -200,7 +200,7 @@ function AddPetModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (va
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
         onClick={(e) => e.stopPropagation()}
-        style={{ background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 24, padding: 32, width: 440, boxShadow: "0 0 60px rgba(128,82,255,0.08)", position: "relative" }}
+        style={{ background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 24, padding: 24, width: "calc(100% - 32px)", maxWidth: 440, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 0 60px rgba(128,82,255,0.08)", position: "relative" }}
       >
         {/* Close button */}
         <button onClick={onClose} style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", color: "#9a9a9a", fontSize: 18, cursor: "pointer" }}>✕</button>
@@ -347,7 +347,7 @@ function PetsPage() {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
+      <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-start mb-8">
         <div>
           <h1 style={{ fontSize: 36, fontWeight: 300, color: "#ffffff", marginBottom: 4 }}>My Pets</h1>
           <p style={{ fontSize: 15, color: "#9a9a9a" }}>Manage profiles for all your furry companions.</p>
@@ -356,7 +356,7 @@ function PetsPage() {
           onClick={() => setShowModal(true)}
           animate={{ boxShadow: ["0 0 0px rgba(128,82,255,0)", "0 0 20px rgba(128,82,255,0.4)", "0 0 0px rgba(128,82,255,0)"] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-          style={{ background: "#8052ff", color: "#fff", borderRadius: 24, padding: "12px 24px", fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer" }}
+          style={{ background: "#8052ff", color: "#fff", borderRadius: 24, padding: "12px 24px", fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer", alignSelf: "flex-start" }}
         >
           Add Pet +
         </motion.button>
@@ -368,7 +368,7 @@ function PetsPage() {
           <p style={{ fontSize: 18, color: "#9a9a9a" }}>No pets yet. Add your first pet!</p>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 280px)", gap: 24 }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
           {pets.map((pet, i) => (
             <PetCard key={pet.id || pet.name} pet={pet} index={i} onDelete={deletePet} />
           ))}

@@ -123,7 +123,7 @@ function VaccinationsPage() {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
+      <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-start mb-8">
         <div>
           <h1 style={{ fontSize: 36, fontWeight: 300, color: "#ffffff", marginBottom: 4 }}>Vaccinations</h1>
           <p style={{ fontSize: 15, color: "#9a9a9a" }}>Track upcoming and past vaccinations for all your pets.</p>
@@ -132,14 +132,14 @@ function VaccinationsPage() {
           onClick={() => setShowModal(true)}
           animate={{ boxShadow: ["0 0 0px rgba(128,82,255,0)", "0 0 20px rgba(128,82,255,0.35)", "0 0 0px rgba(128,82,255,0)"] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-          style={{ background: "#8052ff", color: "#fff", borderRadius: 24, padding: "12px 24px", fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer" }}
+          style={{ background: "#8052ff", color: "#fff", borderRadius: 24, padding: "12px 24px", fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer", alignSelf: "flex-start" }}
         >
           Add Vaccination +
         </motion.button>
       </div>
 
       {/* Summary Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 32 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {summaryCards.map((card, i) => (
           <motion.div
             key={card.label}
@@ -192,57 +192,59 @@ function VaccinationsPage() {
           <p style={{ fontSize: 18, color: "#9a9a9a" }}>No vaccinations yet.</p>
         </div>
       ) : (
-        <>
-          {/* Table Header */}
-          <div style={{ display: "grid", gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr", gap: 16, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-            {["PET", "VACCINE", "DATE", "STATUS"].map((h) => (
-              <span key={h} style={{ fontSize: 11, fontWeight: 400, color: "#9a9a9a", letterSpacing: "0.07em", textTransform: "uppercase" }}>{h}</span>
+        <div style={{ overflowX: "auto" }} className="w-full">
+          <div style={{ minWidth: 600 }}>
+            {/* Table Header */}
+            <div style={{ display: "grid", gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr", gap: 16, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              {["PET", "VACCINE", "DATE", "STATUS"].map((h) => (
+                <span key={h} style={{ fontSize: 11, fontWeight: 400, color: "#9a9a9a", letterSpacing: "0.07em", textTransform: "uppercase" }}>{h}</span>
+              ))}
+            </div>
+
+            {/* Table Rows */}
+            {filtered.map((v, i) => (
+              <motion.div
+                key={v.id || `${v.pets?.name}-${v.vaccine_name}`}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + i * 0.05, duration: 0.35, ease: "easeOut" }}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr",
+                  gap: 16,
+                  padding: "16px 0",
+                  borderBottom: "1px solid rgba(255,255,255,0.04)",
+                  alignItems: "center",
+                  cursor: "pointer",
+                  transition: "background 0.15s ease",
+                }}
+                whileHover={{ backgroundColor: "rgba(255,255,255,0.02)" }}
+              >
+                {/* Pet */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{
+                    width: 28, height: 28, borderRadius: "50%",
+                    background: v.pets?.species === "Cat" ? "#15846e" : "#8052ff",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 11, fontWeight: 600, color: "#fff"
+                  }}>
+                    {(v.pets?.name || "?")[0]}
+                  </div>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>{v.pets?.name || "Unknown"}</span>
+                </div>
+
+                {/* Vaccine */}
+                <span style={{ fontSize: 14, color: "#ffffff" }}>{v.vaccine_name}</span>
+
+                {/* Date */}
+                <span style={{ fontSize: 14, color: "#9a9a9a" }}>{v.date ? new Date(v.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}</span>
+
+                {/* Status */}
+                <StatusPill status={v.status} />
+              </motion.div>
             ))}
           </div>
-
-          {/* Table Rows */}
-          {filtered.map((v, i) => (
-            <motion.div
-              key={v.id || `${v.pets?.name}-${v.vaccine_name}`}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + i * 0.05, duration: 0.35, ease: "easeOut" }}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr",
-                gap: 16,
-                padding: "16px 0",
-                borderBottom: "1px solid rgba(255,255,255,0.04)",
-                alignItems: "center",
-                cursor: "pointer",
-                transition: "background 0.15s ease",
-              }}
-              whileHover={{ backgroundColor: "rgba(255,255,255,0.02)" }}
-            >
-              {/* Pet */}
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{
-                  width: 28, height: 28, borderRadius: "50%",
-                  background: v.pets?.species === "Cat" ? "#15846e" : "#8052ff",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 11, fontWeight: 600, color: "#fff"
-                }}>
-                  {(v.pets?.name || "?")[0]}
-                </div>
-                <span style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>{v.pets?.name || "Unknown"}</span>
-              </div>
-
-              {/* Vaccine */}
-              <span style={{ fontSize: 14, color: "#ffffff" }}>{v.vaccine_name}</span>
-
-              {/* Date */}
-              <span style={{ fontSize: 14, color: "#9a9a9a" }}>{v.date ? new Date(v.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}</span>
-
-              {/* Status */}
-              <StatusPill status={v.status} />
-            </motion.div>
-          ))}
-        </>
+        </div>
       )}
 
       {showModal && <AddVaccinationModal pets={pets} onClose={() => setShowModal(false)} onSubmit={handleAddVaccination} />}

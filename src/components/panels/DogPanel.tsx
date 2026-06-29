@@ -75,18 +75,12 @@ export function DogPanel() {
         }}
       />
 
-      {/* Text block — right half only */}
+      {/* Text block */}
       <div
         data-panel-content
+        className="ml-[6vw] w-[88vw] md:ml-[55vw] md:w-[40vw] flex flex-col justify-center relative z-10"
         style={{
-          marginLeft: "55vw",
-          width: "40vw",
           minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          position: "relative",
-          zIndex: 2,
         }}
       >
         {/* Eyebrow */}
@@ -110,7 +104,7 @@ export function DogPanel() {
         {/* Headline — staggered words */}
         <h2
           style={{
-            fontSize: "clamp(48px, 7vw, 96px)",
+            fontSize: "clamp(36px, 7vw, 96px)",
             lineHeight: 0.95,
             letterSpacing: "-0.03em",
             fontWeight: 300,

@@ -142,7 +142,7 @@ function Dashboard() {
       </motion.p>
 
       {/* Stat Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 32 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((s, i) => (
           <motion.div
             key={s.label}
@@ -170,10 +170,10 @@ function Dashboard() {
         ))}
       </div>
 
-      {/* Main Grid — 12 col */}
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24 }}>
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <div className="lg:col-span-2 flex flex-col gap-6">
           {/* Pet Cards */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -236,7 +236,7 @@ function Dashboard() {
                 </div>
               </div>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(pets.length, 3)}, 1fr)`, gap: 16 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {pets.slice(0, 3).map((pet, i) => (
                   <motion.div
                     key={pet.id || pet.name}
@@ -268,7 +268,7 @@ function Dashboard() {
             style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "16px", padding: 24 }}
           >
             <h2 style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", marginBottom: 16 }}>Quick Actions</h2>
-            <div style={{ display: "flex", gap: 12 }}>
+            <div className="flex flex-col sm:flex-row gap-3">
               <motion.div
                 animate={{ boxShadow: ["0 0 0px rgba(128,82,255,0)", "0 0 20px rgba(128,82,255,0.4)", "0 0 0px rgba(128,82,255,0)"] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
@@ -392,7 +392,7 @@ function Dashboard() {
         </div>
 
         {/* Right Column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <div className="flex flex-col gap-6">
           {/* Upcoming Vaccinations */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}

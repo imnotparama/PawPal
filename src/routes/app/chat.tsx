@@ -36,7 +36,7 @@ function ChatPage() {
   const selectedPet = pets.find((p) => p.id === selectedPetId);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 80px)", margin: "-40px -48px", background: "#000000" }}>
+    <div className="flex flex-col h-[calc(100vh-64px)] md:h-[calc(100vh-96px)] -m-6 md:-m-12 bg-black">
       {/* Chat Header */}
       <div style={{ height: 60, borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.8)", backdropFilter: "blur(12px)", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

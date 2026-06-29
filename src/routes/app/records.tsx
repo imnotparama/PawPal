@@ -42,7 +42,7 @@ function AddRecordModal({ pets, onClose, onSubmit }: { pets: any[]; onClose: () 
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.8)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: 32, width: 420, maxHeight: "80vh", overflowY: "auto" }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: 24, width: "calc(100% - 32px)", maxWidth: 420, maxHeight: "90vh", overflowY: "auto" }}>
         <h2 style={{ fontSize: 22, fontWeight: 600, color: "#ffffff", marginBottom: 24 }}>Add Medical Record</h2>
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div>
@@ -138,12 +138,12 @@ function RecordsPage() {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+      <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-start mb-6">
         <div>
           <h1 style={{ fontSize: 36, fontWeight: 300, color: "#ffffff", marginBottom: 4 }}>Medical Records</h1>
           <p style={{ fontSize: 15, color: "#9a9a9a" }}>Complete history of vet visits, treatments, and procedures.</p>
         </div>
-        <div style={{ display: "flex", gap: 12 }}>
+        <div className="flex flex-wrap gap-3">
           <button style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 24, padding: "10px 20px", fontSize: 13, cursor: "pointer", transition: "all 0.2s" }}>Upload Record</button>
           <motion.button
             onClick={() => setShowModal(true)}
@@ -157,27 +157,28 @@ function RecordsPage() {
       </div>
 
       {/* Search + Filters */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+      <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center mb-4">
         <input
           type="text"
           placeholder="Search records..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ width: 280, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "10px 16px", color: "#ffffff", fontSize: 14, outline: "none" }}
+          className="w-full md:w-[280px]"
+          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "10px 16px", color: "#ffffff", fontSize: 14, outline: "none" }}
           onFocus={(e) => { e.currentTarget.style.borderColor = "#8052ff"; }}
           onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
         />
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className="flex gap-2 overflow-x-auto pb-1 max-w-full -mx-6 px-6 md:mx-0 md:px-0 scrollbar-none">
           {petFilters.map((f) => (
-            <button key={f} onClick={() => setPetFilter(f)} style={{ background: petFilter === f ? "rgba(128,82,255,0.2)" : "rgba(255,255,255,0.05)", border: petFilter === f ? "1px solid #8052ff" : "1px solid rgba(255,255,255,0.08)", color: petFilter === f ? "#ffffff" : "#9a9a9a", borderRadius: 20, padding: "6px 14px", fontSize: 12, cursor: "pointer", transition: "all 0.15s" }}>{f}</button>
+            <button key={f} onClick={() => setPetFilter(f)} style={{ background: petFilter === f ? "rgba(128,82,255,0.2)" : "rgba(255,255,255,0.05)", border: petFilter === f ? "1px solid #8052ff" : "1px solid rgba(255,255,255,0.08)", color: petFilter === f ? "#ffffff" : "#9a9a9a", borderRadius: 20, padding: "6px 14px", fontSize: 12, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap" }}>{f}</button>
           ))}
         </div>
       </div>
 
       {/* Type filter */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 32 }}>
+      <div className="flex gap-2 overflow-x-auto pb-1 max-w-full -mx-6 px-6 md:mx-0 md:px-0 scrollbar-none mb-8">
         {typeFilters.map((f) => (
-          <button key={f} onClick={() => setTypeFilter(f)} style={{ background: typeFilter === f ? "rgba(128,82,255,0.2)" : "rgba(255,255,255,0.05)", border: typeFilter === f ? "1px solid #8052ff" : "1px solid rgba(255,255,255,0.08)", color: typeFilter === f ? "#ffffff" : "#9a9a9a", borderRadius: 20, padding: "5px 12px", fontSize: 11, cursor: "pointer", transition: "all 0.15s" }}>{f}</button>
+          <button key={f} onClick={() => setTypeFilter(f)} style={{ background: typeFilter === f ? "rgba(128,82,255,0.2)" : "rgba(255,255,255,0.05)", border: typeFilter === f ? "1px solid #8052ff" : "1px solid rgba(255,255,255,0.08)", color: typeFilter === f ? "#ffffff" : "#9a9a9a", borderRadius: 20, padding: "5px 12px", fontSize: 11, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap" }}>{f}</button>
         ))}
       </div>
 

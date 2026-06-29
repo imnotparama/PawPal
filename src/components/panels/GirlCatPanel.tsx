@@ -60,18 +60,12 @@ export function GirlCatPanel() {
         }} />
       </div>
 
-      {/* Text block — left half, vertically centered */}
+      {/* Text block */}
       <div
         data-panel-content
+        className="ml-[6vw] w-[88vw] md:w-[40vw] flex flex-col justify-center relative z-10"
         style={{
-          marginLeft: "6vw",
-          width: "40vw",
           minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          position: "relative",
-          zIndex: 2,
         }}
       >
         {/* Eyebrow */}
@@ -95,7 +89,7 @@ export function GirlCatPanel() {
         {/* Headline — staggered */}
         <h2
           style={{
-            fontSize: "clamp(40px, 5vw, 64px)",
+            fontSize: "clamp(32px, 5vw, 64px)",
             lineHeight: 0.95,
             letterSpacing: "-0.03em",
             fontWeight: 300,
@@ -145,7 +139,7 @@ export function GirlCatPanel() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.6 }}
-          style={{ display: "flex", alignItems: "flex-start", gap: 32, marginTop: 40 }}
+          className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mt-10"
         >
           {stats.map((stat, i) => (
             <div key={stat.label} style={{ display: "flex", alignItems: "flex-start", gap: 32 }}>
@@ -158,7 +152,7 @@ export function GirlCatPanel() {
                 </span>
               </div>
               {i < stats.length - 1 && (
-                <div style={{ width: 1, height: 48, backgroundColor: "rgba(255,255,255,0.12)", alignSelf: "center" }} />
+                <div className="hidden sm:block w-[1px] h-12 bg-white/10 self-center" />
               )}
             </div>
           ))}

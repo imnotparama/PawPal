@@ -39,13 +39,13 @@ export function HeroPanel() {
         }} />
       </div>
       {/* Text overlaps with the particles — Dala style */}
-      <div data-panel-content className="relative z-10 pl-10 lg:pl-16 xl:pl-20 max-w-[42%]">
+      <div data-panel-content className="relative z-10 px-6 md:pl-10 lg:pl-16 xl:pl-20 max-w-full md:max-w-[42%]">
         <h1
           data-reveal
           data-reveal-delay="0.05"
           className="text-bone"
           style={{
-            fontSize: "clamp(60px, 9vw, 130px)",
+            fontSize: "clamp(38px, 8vw, 130px)",
             lineHeight: 0.92,
             letterSpacing: "-0.03em",
             fontWeight: 300,
