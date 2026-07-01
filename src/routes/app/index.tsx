@@ -344,6 +344,21 @@ function PurrTherapyWidget() {
   );
 }
 
+const getLifePhase = (age: number, species: string) => {
+  if (species.toLowerCase() !== "cat") {
+    if (age <= 1) return { phase: "Puppy", advice: "Ensure standard core puppy vaccinations (DHPP, Rabies) are up to date. Focus on early training and growth diet." };
+    if (age <= 7) return { phase: "Adult", advice: "Maintain annual checkups and heartworm prevention. Ensure active exercise." };
+    return { phase: "Senior", advice: "Schedule bi-annual senior blood screenings. Focus on joint health and weight management." };
+  }
+  
+  if (age < 0.5) return { phase: "Kitten (Infancy)", advice: "Critical immunization window! Feed high-protein kitten formulation. Focus on socialization." };
+  if (age <= 2) return { phase: "Junior (Adolescence)", advice: "Ensure spay/neuter is complete. Monitor behavior changes and transition to adult food." };
+  if (age <= 6) return { phase: "Prime (Adult)", advice: "Focus on weight maintenance and active play to prevent obesity. Annual dental checks recommended." };
+  if (age <= 10) return { phase: "Mature", advice: "Schedule senior diagnostic baselines. Monitor mobility and check joints for early arthritis signs." };
+  if (age <= 14) return { phase: "Senior", advice: "Bi-annual geriatric vet visits are key. Keep resource access paths level. Monitor thyroid and kidneys." };
+  return { phase: "Geriatric", advice: "Tailor comfortable environments. Check for cognitive dysfunction, kidney function, and pain management." };
+};
+
 function Dashboard() {
   const { user } = useAuth();
   const { pets } = usePets();
@@ -492,6 +507,42 @@ function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column */}
         <div className="lg:col-span-2 flex flex-col gap-6">
+          {/* Life Phase Care Advisor Card */}
+          {pets.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut", delay: 0.3 }}
+              style={{
+                background: "linear-gradient(135deg, rgba(128,82,255,0.08), rgba(0,0,0,0))",
+                border: "1px solid rgba(128,82,255,0.15)",
+                borderRadius: "16px",
+                padding: "20px 24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 12
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 20 }}>🌟</span>
+                  <div>
+                    <h3 style={{ fontSize: 16, fontWeight: 600, color: "#ffffff", margin: 0 }}>
+                      Life Phase Advisor: <span style={{ color: "#d4c5ff" }}>{pets[0].name}</span>
+                    </h3>
+                    <span style={{ fontSize: 12, color: "#8052ff", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                      {getLifePhase(pets[0].age_years, pets[0].species).phase} Phase
+                    </span>
+                  </div>
+                </div>
+                <span style={{ fontSize: 12, color: "#9a9a9a" }}>{pets[0].species} • {pets[0].age_years} yrs old</span>
+              </div>
+              <p style={{ fontSize: 13, color: "#bdbdbd", lineHeight: 1.5, margin: 0 }}>
+                {getLifePhase(pets[0].age_years, pets[0].species).advice}
+              </p>
+            </motion.div>
+          )}
+
           {/* Pet Cards */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}

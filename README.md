@@ -51,6 +51,8 @@ Pet owners face three universal problems:
 ### 📊 Complete Health Management
 - **Pet Profiles** — Photo uploads to Supabase Storage, 
   breed, age, weight tracking
+- **Life Phase Advisor** — Dynamic care assessment that calculates your cat's exact growth/maturity stage (from Kitten infancy to Geriatric) to suggest target nutrition and medical focus.
+- **Printable Health Passport** — Clean print layouts with specialized document IDs, profile pictures, and mock QR verification stamps to easily print/export records for boarding facilities or vets.
 - **Vaccination Tracker** — Upcoming/Completed/Overdue status, 
   urgency indicators with pulsing alerts for near-due dates
 - **Medical Records** — File upload (PDF/images), 

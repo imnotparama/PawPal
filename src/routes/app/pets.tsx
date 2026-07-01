@@ -8,7 +8,107 @@ export const Route = createFileRoute("/app/pets")({
   component: PetsPage,
 });
 
-function PetCard({ pet, index, onDelete }: { pet: any; index: number; onDelete: (id: string) => Promise<void> }) {
+function PassportModal({ pet, onClose }: { pet: any; onClose: () => void }) {
+  const passportId = `PP-${pet.species.toUpperCase().slice(0, 3)}-${(pet.id || crypto.randomUUID()).slice(0, 8).toUpperCase()}`;
+
+  const handlePrint = () => {
+    if (typeof window !== "undefined") {
+      window.print();
+    }
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        style={{ background: "#0a0a0a", border: "1px solid rgba(128,82,255,0.25)", borderRadius: 24, padding: 32, width: "calc(100% - 32px)", maxWidth: 480, boxShadow: "0 0 40px rgba(128,82,255,0.15)", position: "relative" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button onClick={onClose} style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", color: "#9a9a9a", fontSize: 20, cursor: "pointer" }}>✕</button>
+
+        <div id="printable-passport" style={{ background: "linear-gradient(145deg, #121212, #080808)", border: "2px solid #8052ff", borderRadius: 16, padding: 24, color: "#fff", position: "relative", overflow: "hidden", marginBottom: 20 }}>
+          <div style={{ position: "absolute", bottom: -20, right: -20, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(128,82,255,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
+          
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 16, marginBottom: 16 }}>
+            <div>
+              <h2 style={{ fontSize: 16, fontWeight: 700, color: "#8052ff", textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>PawPal Health Passport</h2>
+              <span style={{ fontSize: 11, color: "#9a9a9a" }}>OFFICIAL PET COMPLIANCE CO.</span>
+            </div>
+            <span style={{ fontSize: 24 }}>🐾</span>
+          </div>
+
+          <div style={{ display: "flex", gap: 20 }}>
+            <div style={{ width: 100, height: 130, borderRadius: 8, overflow: "hidden", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0, background: "#222" }}>
+              {pet.photo_url ? (
+                <img src={pet.photo_url} alt={pet.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, color: "rgba(255,255,255,0.15)", background: "linear-gradient(135deg, #8052ff, #5030cc)" }}>{pet.name?.[0] || "?"}</div>
+              )}
+            </div>
+
+            <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 8px" }}>
+              <div>
+                <span style={{ display: "block", fontSize: 9, color: "#9a9a9a", textTransform: "uppercase" }}>Name of Pet</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>{pet.name}</span>
+              </div>
+              <div>
+                <span style={{ display: "block", fontSize: 9, color: "#9a9a9a", textTransform: "uppercase" }}>Species</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>{pet.species}</span>
+              </div>
+              <div>
+                <span style={{ display: "block", fontSize: 9, color: "#9a9a9a", textTransform: "uppercase" }}>Breed / Type</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#ffffff" }}>{pet.breed || "Mixed breed"}</span>
+              </div>
+              <div>
+                <span style={{ display: "block", fontSize: 9, color: "#9a9a9a", textTransform: "uppercase" }}>Age</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>{pet.age_years} yrs</span>
+              </div>
+              <div>
+                <span style={{ display: "block", fontSize: 9, color: "#9a9a9a", textTransform: "uppercase" }}>Weight</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>{pet.weight_kg ? `${pet.weight_kg} kg` : "—"}</span>
+              </div>
+              <div>
+                <span style={{ display: "block", fontSize: 9, color: "#9a9a9a", textTransform: "uppercase" }}>Document ID</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#8052ff", fontFamily: "monospace" }}>{passportId}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.1)", marginTop: 16, paddingTop: 16 }}>
+            <div>
+              <span style={{ display: "block", fontSize: 9, color: "#9a9a9a", textTransform: "uppercase" }}>Authorized Health Score</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: "#15846e" }}>90% COMPLIANT</span>
+            </div>
+            <div style={{ background: "#ffffff", padding: 4, borderRadius: 4, width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="#000">
+                <path d="M0 0h6v6H0zm2 2v2h2V2zm0 6h4v4H2zm8-8h6v6h-6zm2 2v2h2V2zm0 6h4v4h-4zm-10 8h6v6H0zm2 2v2h2V2zm16-8h4v4h-4zm-8 8h4v4h-4zm8 4h4v4h-4z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 12 }}>
+          <button
+            onClick={onClose}
+            style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#ffffff", borderRadius: 20, padding: "10px 0", fontSize: 13, fontWeight: 600, cursor: "pointer" }}
+          >
+            Close
+          </button>
+          <button
+            onClick={handlePrint}
+            style={{ flex: 1, background: "#8052ff", border: "none", color: "#ffffff", borderRadius: 20, padding: "10px 0", fontSize: 13, fontWeight: 600, cursor: "pointer", boxShadow: "0 0 15px rgba(128,82,255,0.4)" }}
+          >
+            Print Passport 🖨️
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function PetCard({ pet, index, onDelete, onOpenPassport }: { pet: any; index: number; onDelete: (id: string) => Promise<void>; onOpenPassport: (pet: any) => void }) {
   const [hovered, setHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: "50%", y: "50%" });
@@ -125,7 +225,17 @@ function PetCard({ pet, index, onDelete }: { pet: any; index: number; onDelete: 
               <span style={{ background: "rgba(128,82,255,0.15)", color: "#8052ff", borderRadius: 20, padding: "4px 10px", fontSize: 11 }}>
                 Healthy
               </span>
-              <span style={{ color: "#9a9a9a", fontSize: 14, opacity: hovered ? 1 : 0, transition: "opacity 0.2s" }}>→</span>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenPassport(pet);
+                }}
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#ffffff", borderRadius: 20, padding: "4px 10px", fontSize: 11, cursor: "pointer", transition: "all 0.15s" }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#8052ff"; e.currentTarget.style.background = "rgba(128,82,255,0.1)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+              >
+                Passport 📖
+              </button>
             </div>
           </div>
         </div>
@@ -334,6 +444,7 @@ function AddPetModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (va
 function PetsPage() {
   const { pets, loading, addPet, deletePet } = usePets();
   const [showModal, setShowModal] = useState(false);
+  const [selectedPassportPet, setSelectedPassportPet] = useState<any | null>(null);
 
   const handleAddPet = async (values: any) => {
     await addPet(values);
@@ -404,12 +515,13 @@ function PetsPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
           {pets.map((pet, i) => (
-            <PetCard key={pet.id || pet.name} pet={pet} index={i} onDelete={deletePet} />
+            <PetCard key={pet.id || pet.name} pet={pet} index={i} onDelete={deletePet} onOpenPassport={(p) => setSelectedPassportPet(p)} />
           ))}
         </div>
       )}
 
       {showModal && <AddPetModal onClose={() => setShowModal(false)} onSubmit={handleAddPet} />}
+      {selectedPassportPet && <PassportModal pet={selectedPassportPet} onClose={() => setSelectedPassportPet(null)} />}
     </div>
   );
 }
