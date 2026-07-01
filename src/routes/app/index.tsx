@@ -73,6 +73,277 @@ function MagneticCard({ children }: { children: React.ReactNode }) {
   );
 }
 
+function PurrTherapyWidget() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(0.5);
+  const [frequency, setFrequency] = useState(25); // base pitch (Hz)
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const baseGainNodeRef = useRef<GainNode | null>(null);
+  const osc1Ref = useRef<OscillatorNode | null>(null);
+  const osc2Ref = useRef<OscillatorNode | null>(null);
+  const modRef = useRef<OscillatorNode | null>(null);
+  const breathRef = useRef<OscillatorNode | null>(null);
+  
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number | null>(null);
+
+  const startPurring = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      audioCtxRef.current = ctx;
+
+      // 1. Base carriers (purr vibrations)
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      osc1.type = "sine";
+      osc2.type = "triangle";
+      
+      osc1.frequency.setValueAtTime(frequency, ctx.currentTime);
+      osc2.frequency.setValueAtTime(frequency * 1.5, ctx.currentTime);
+      
+      osc1Ref.current = osc1;
+      osc2Ref.current = osc2;
+
+      // 2. Modulators
+      const mod = ctx.createOscillator();
+      mod.type = "sine";
+      mod.frequency.setValueAtTime(23, ctx.currentTime);
+      modRef.current = mod;
+
+      const modGain = ctx.createGain();
+      modGain.gain.setValueAtTime(frequency * 0.35, ctx.currentTime); // sweep range
+
+      mod.connect(modGain);
+      modGain.connect(osc1.frequency);
+
+      // 3. Breathing cycle modulator (slow swell)
+      const breath = ctx.createOscillator();
+      breath.type = "sine";
+      breath.frequency.setValueAtTime(0.18, ctx.currentTime); // ~5 seconds cycle
+      breathRef.current = breath;
+
+      const breathGain = ctx.createGain();
+      breathGain.gain.setValueAtTime(0.3, ctx.currentTime); // mod range
+
+      const carrier1Gain = ctx.createGain();
+      carrier1Gain.gain.setValueAtTime(0.4, ctx.currentTime);
+      const carrier2Gain = ctx.createGain();
+      carrier2Gain.gain.setValueAtTime(0.2, ctx.currentTime);
+
+      const baseGain = ctx.createGain();
+      baseGain.gain.setValueAtTime(volume * 0.8, ctx.currentTime);
+      baseGainRef.current = baseGain;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(80, ctx.currentTime);
+
+      osc1.connect(carrier1Gain);
+      osc2.connect(carrier2Gain);
+      
+      carrier1Gain.connect(baseGain);
+      carrier2Gain.connect(baseGain);
+
+      breath.connect(breathGain);
+      breathGain.connect(baseGain.gain);
+
+      baseGain.connect(filter);
+      filter.connect(ctx.destination);
+
+      osc1.start();
+      osc2.start();
+      mod.start();
+      breath.start();
+
+      setIsPlaying(true);
+    } catch (e) {
+      console.error("Web Audio API not supported", e);
+    }
+  };
+
+  const stopPurring = () => {
+    try {
+      osc1Ref.current?.stop();
+      osc2Ref.current?.stop();
+      modRef.current?.stop();
+      breathRef.current?.stop();
+      audioCtxRef.current?.close();
+    } catch (e) {}
+    setIsPlaying(false);
+  };
+
+  const togglePurr = () => {
+    if (isPlaying) {
+      stopPurring();
+    } else {
+      startPurring();
+    }
+  };
+
+  useEffect(() => {
+    if (baseGainNodeRef.current && audioCtxRef.current) {
+      baseGainNodeRef.current.gain.setValueAtTime(volume * 0.8, audioCtxRef.current.currentTime);
+    }
+  }, [volume]);
+
+  useEffect(() => {
+    if (osc1Ref.current && osc2Ref.current && audioCtxRef.current) {
+      osc1Ref.current.frequency.setValueAtTime(frequency, audioCtxRef.current.currentTime);
+      osc2Ref.current.frequency.setValueAtTime(frequency * 1.5, audioCtxRef.current.currentTime);
+    }
+  }, [frequency]);
+
+  useEffect(() => {
+    return () => {
+      try {
+        osc1Ref.current?.stop();
+        osc2Ref.current?.stop();
+        modRef.current?.stop();
+        breathRef.current?.stop();
+        audioCtxRef.current?.close();
+      } catch (e) {}
+    };
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const canvasCtx = canvas.getContext("2d");
+    if (!canvasCtx) return;
+
+    let phrase = 0;
+    const draw = () => {
+      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      canvasCtx.beginPath();
+      canvasCtx.lineWidth = 2;
+      canvasCtx.strokeStyle = isPlaying ? "#8052ff" : "rgba(255,255,255,0.15)";
+      
+      const sliceWidth = canvas.width / 100;
+      let x = 0;
+      
+      for (let i = 0; i < 100; i++) {
+        const amplitudeMod = isPlaying ? (Math.sin(phrase * 0.05) * 0.4 + 0.6) : 0.1;
+        const vibration = isPlaying ? Math.sin(x * 0.15 - phrase) * 12 : 0;
+        const wave = vibration * amplitudeMod;
+        
+        const y = canvas.height / 2 + wave;
+        
+        if (i === 0) {
+          canvasCtx.moveTo(x, y);
+        } else {
+          canvasCtx.lineTo(x, y);
+        }
+        x += sliceWidth;
+      }
+      
+      canvasCtx.stroke();
+      phrase += isPlaying ? (frequency * 0.4) : 0.1;
+      animationRef.current = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [isPlaying, frequency]);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 20 }}>🐈‍⬛</span>
+          <div>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", margin: 0 }}>Cat Purr Therapy</h3>
+            <p style={{ fontSize: 11, color: "#9a9a9a", margin: "2px 0 0" }}>Vibrational stress relief synthesizer</p>
+          </div>
+        </div>
+        <button
+          onClick={togglePurr}
+          style={{
+            background: isPlaying ? "rgba(255,107,107,0.15)" : "#8052ff",
+            border: "none",
+            borderRadius: "50%",
+            width: 32,
+            height: 32,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            fontSize: 12,
+            color: "#fff",
+            boxShadow: isPlaying ? "0 0 10px rgba(255,107,107,0.3)" : "0 0 10px rgba(128,82,255,0.4)",
+            transition: "all 0.2s"
+          }}
+          title={isPlaying ? "Stop Purr" : "Play Purr"}
+        >
+          {isPlaying ? "⏸" : "▶"}
+        </button>
+      </div>
+
+      <canvas
+        ref={canvasRef}
+        width={300}
+        height={40}
+        style={{
+          width: "100%",
+          height: 40,
+          background: "rgba(0,0,0,0.2)",
+          borderRadius: 8,
+          border: "1px solid rgba(255,255,255,0.05)"
+        }}
+      />
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#9a9a9a" }}>
+          <span>Volume</span>
+          <span>{Math.round(volume * 100)}%</span>
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          value={volume}
+          onChange={(e) => setVolume(parseFloat(e.target.value))}
+          style={{
+            width: "100%",
+            accentColor: "#8052ff",
+            background: "rgba(255,255,255,0.1)",
+            height: 4,
+            borderRadius: 2
+          }}
+        />
+        
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#9a9a9a", marginTop: 4 }}>
+          <span>Vibration Pitch</span>
+          <span>{Math.round(frequency)} Hz</span>
+        </div>
+        <input
+          type="range"
+          min="20"
+          max="40"
+          step="1"
+          value={frequency}
+          onChange={(e) => setFrequency(parseInt(e.target.value))}
+          style={{
+            width: "100%",
+            accentColor: "#8052ff",
+            background: "rgba(255,255,255,0.1)",
+            height: 4,
+            borderRadius: 2
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function Dashboard() {
   const { user } = useAuth();
   const { pets } = usePets();
@@ -513,6 +784,16 @@ function Dashboard() {
               )}
               <Link to="/app/timeline" style={{ display: "block", marginTop: 12, fontSize: 13, color: "#8052ff", cursor: "pointer", textDecoration: "none" }}>View all →</Link>
             </div>
+          </motion.div>
+
+          {/* Purr Therapy Stress Relief */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut", delay: 0.7 }}
+            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "16px", padding: 24 }}
+          >
+            <PurrTherapyWidget />
           </motion.div>
         </div>
       </div>

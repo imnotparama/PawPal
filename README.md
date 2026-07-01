@@ -3,8 +3,8 @@
 > A premium AI-powered pet health platform with a 3D particle-morph 
 > landing experience, real-time vet triage, and full health record management.
 
-**Reference ID**: [Your Reference ID Here]  
-**Live Demo**: [your-vercel-url.vercel.app]  
+
+**Live Demo**: [https://pawpal-wheat.vercel.app]  
 **Demo Video**: [YouTube/Loom link]  
 **Built by**: Parameshwaran S
 
@@ -61,6 +61,7 @@ Pet owners face three universal problems:
   compliance and recent activity
 
 ### 💎 Premium UX Details
+- **Cat Purr Sound Therapy Widget**: Calming synthesizer using Web Audio API low-frequency oscillators (sine + triangle waves) modulated by breathing cycle gains (~0.18 Hz frequency) to simulate standard cat purring, complete with a custom neon canvas vibration visualizer.
 - Magnetic buttons with spring-physics hover effect
 - CometCard 3D tilt on pet profile cards (Framer Motion)
 - Staggered page-load animations across all dashboard widgets
