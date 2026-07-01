@@ -29,20 +29,21 @@ export function useChat(petId?: string) {
     }
   };
 
-  const sendMessage = async (content: string, activePetId?: string) => {
+  const sendMessage = async (content: string, activePetId?: string, image?: { mimeType: string; data: string }) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     setSending(true);
     setError(null);
 
-    const userMsg = { user_id: user.id, pet_id: activePetId ?? null, role: "user" as const, content };
+    const fullContent = image ? `||IMAGE:${image.mimeType};base64,${image.data}||${content}` : content;
+    const userMsg = { user_id: user.id, pet_id: activePetId ?? null, role: "user" as const, content: fullContent };
     
     try {
       const { error: insertError } = await supabase.from("chat_messages").insert(userMsg);
       if (insertError) throw insertError;
       setMessages((prev) => [...prev, { ...userMsg, id: crypto.randomUUID(), created_at: new Date().toISOString() }]);
 
-      const aiContent = await getGeminiResponse({ data: content });
+      const aiContent = await getGeminiResponse({ data: { content, image } });
 
       const aiMsg = { user_id: user.id, pet_id: activePetId ?? null, role: "assistant" as const, content: aiContent };
       const { error: aiInsertError } = await supabase.from("chat_messages").insert(aiMsg);

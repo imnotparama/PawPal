@@ -103,6 +103,21 @@ function renderMessageContent(content: string) {
   return elements;
 }
 
+function renderUserMessage(content: string) {
+  if (content.startsWith("||IMAGE:")) {
+    const parts = content.split("||");
+    const imageData = parts[1].replace("IMAGE:", "");
+    const textContent = parts.slice(2).join("||");
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <img src={imageData} alt="Attached symptom" style={{ maxWidth: "100%", maxHeight: 200, borderRadius: 12, display: "block" }} />
+        {textContent && <p style={{ margin: 0 }}>{textContent}</p>}
+      </div>
+    );
+  }
+  return content;
+}
+
 function ChatPage() {
   const { pets } = usePets();
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>(undefined);
@@ -112,6 +127,26 @@ function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [attachedImage, setAttachedImage] = useState<{ mimeType: string; data: string; previewUrl: string } | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const resultStr = reader.result as string;
+      const base64Data = resultStr.split(",")[1];
+      setAttachedImage({
+        mimeType: file.type,
+        data: base64Data,
+        previewUrl: resultStr
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -164,9 +199,14 @@ function ChatPage() {
   }, [messages, sending]);
 
   const handleSend = () => {
-    if (!input.trim() || sending) return;
-    sendMessage(input, selectedPetId);
+    if ((!input.trim() && !attachedImage) || sending) return;
+    sendMessage(
+      input,
+      selectedPetId,
+      attachedImage ? { mimeType: attachedImage.mimeType, data: attachedImage.data } : undefined
+    );
     setInput("");
+    setAttachedImage(null);
   };
 
   const selectedPet = pets.find((p) => p.id === selectedPetId);
@@ -252,7 +292,7 @@ function ChatPage() {
                     color: msg.role === "user" ? "#ffffff" : "#e0e0e0",
                     lineHeight: 1.6,
                   }}>
-                    {msg.role === "user" ? msg.content : renderMessageContent(msg.content)}
+                    {msg.role === "user" ? renderUserMessage(msg.content) : renderMessageContent(msg.content)}
                   </div>
                 </div>
                 <span style={{ fontSize: 11, color: msg.role === "user" ? "rgba(255,255,255,0.5)" : "#9a9a9a", marginTop: 4, marginLeft: msg.role === "assistant" ? 44 : 0, textAlign: msg.role === "user" ? "right" : "left" }}>
@@ -286,9 +326,25 @@ function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Attached Image Preview */}
+      {attachedImage && (
+        <div style={{ padding: "12px 24px", background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", gap: 12, borderTop: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
+          <div style={{ position: "relative", width: 60, height: 60 }}>
+            <img src={attachedImage.previewUrl} alt="Preview" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 8, border: "1px solid rgba(128,82,255,0.5)" }} />
+            <button
+              onClick={() => setAttachedImage(null)}
+              style={{ position: "absolute", top: -6, right: -6, background: "#ff6b6b", border: "none", color: "#ffffff", width: 18, height: 18, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, cursor: "pointer", fontWeight: "bold" }}
+            >
+              ✕
+            </button>
+          </div>
+          <span style={{ fontSize: 12, color: "#9a9a9a" }}>Image attached. Submit query to analyze symptoms.</span>
+        </div>
+      )}
+
       {/* Input Bar */}
       <div style={{ height: 80, borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.9)", backdropFilter: "blur(12px)", padding: "16px 24px", display: "flex", gap: 12, alignItems: "center", flexShrink: 0 }}>
-        <button style={{ background: "none", border: "none", color: "#9a9a9a", cursor: "pointer", fontSize: 18 }} title="Attach">📎</button>
+        <button onClick={() => fileInputRef.current?.click()} style={{ background: "none", border: "none", color: "#9a9a9a", cursor: "pointer", fontSize: 18 }} title="Attach Image">📎</button>
         <button
           onClick={toggleListening}
           style={{
@@ -338,11 +394,12 @@ function ChatPage() {
           onClick={handleSend}
           whileHover={{ boxShadow: "0 0 16px rgba(128,82,255,0.5)" }}
           whileTap={{ scale: 0.9 }}
-          disabled={!input.trim() || sending}
-          style={{ width: 44, height: 44, borderRadius: "50%", background: input.trim() && !sending ? "#8052ff" : "rgba(128,82,255,0.3)", border: "none", color: "#fff", cursor: input.trim() && !sending ? "pointer" : "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, transition: "background 0.2s" }}
+          disabled={(!input.trim() && !attachedImage) || sending}
+          style={{ width: 44, height: 44, borderRadius: "50%", background: (input.trim() || attachedImage) && !sending ? "#8052ff" : "rgba(128,82,255,0.3)", border: "none", color: "#fff", cursor: (input.trim() || attachedImage) && !sending ? "pointer" : "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, transition: "background 0.2s" }}
         >
           ↑
         </motion.button>
+        <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: "none" }} accept="image/*" />
       </div>
       <p style={{ textAlign: "center", fontSize: 11, color: "#9a9a9a", opacity: 0.6, padding: "6px 0 12px" }}>PawPal AI can make mistakes. Always consult a vet for medical decisions.</p>
     </div>

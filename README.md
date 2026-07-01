@@ -39,6 +39,7 @@ Pet owners face three universal problems:
 
 ### 🤖 AI Pet Health Triage (Google Gemini)
 - Real-time symptom triage powered by Gemini 2.5 Flash
+- **Multimodal Image Analysis**: Attach a photo of rashes, wounds, eye concerns, or food labels via the attachment clip button for direct visual symptom diagnosis.
 - **Voice-to-text input** via Web Speech Recognition API — 
   describe symptoms hands-free
 - Structured Markdown responses with headers, bold formatting, 
@@ -337,10 +338,10 @@ Inspired by the Dala design language:
 ## 👨‍💻 Built By
 
 **Parameshwaran S**  
-GitHub: [@imnotparama](https://github.com/imnotparama)  
-LinkedIn: [linkedin.com/in/parameshwaran](https://linkedin.com/in/parameshwaran)
+GitHub:[@imnotparama](https://github.com/imnotparama)  
+LinkedIn:[@Parameshwaran S](https://www.linkedin.com/in/parameshwaran-s-datascientist/)
 
-*Built for Hack the Kitty Hackathon 2025*
+*Built for Hack the Kitty Hackathon 2026*
 
 ---
 

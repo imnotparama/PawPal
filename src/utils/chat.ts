@@ -1,12 +1,25 @@
 import { createServerFn } from "@tanstack/react-start";
 
 export const getGeminiResponse = createServerFn({ method: "POST" })
-  .validator((content: string) => content)
-  .handler(async ({ data: content }) => {
+  .validator((data: { content: string; image?: { mimeType: string; data: string } }) => data)
+  .handler(async ({ data: { content, image } }) => {
     // Read the secret strictly from server-side environment variables
     const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
     if (!apiKey) {
       throw new Error("No Gemini API key configured on server");
+    }
+
+    const parts: any[] = [
+      { text: `You are PawPal AI, a knowledgeable and caring pet health assistant. Help pet owners understand their pet's health, symptoms, and care needs based on their question and any attached photo of symptoms, rashes, wounds, eye concerns, or food labels. Always recommend consulting a real vet for serious concerns. Be warm, clear, and concise.\n\nUser: ${content}` }
+    ];
+
+    if (image) {
+      parts.push({
+        inlineData: {
+          mimeType: image.mimeType,
+          data: image.data
+        }
+      });
     }
 
     const response = await fetch(
@@ -15,7 +28,7 @@ export const getGeminiResponse = createServerFn({ method: "POST" })
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: `You are PawPal AI, a knowledgeable and caring pet health assistant. Help pet owners understand their pet's health, symptoms, and care needs. Always recommend consulting a real vet for serious concerns. Be warm, clear, and concise.\n\nUser: ${content}` }] }],
+          contents: [{ parts }],
           generationConfig: { temperature: 0.7, maxOutputTokens: 512 },
         }),
       }
