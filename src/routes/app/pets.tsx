@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { useState, useRef } from "react";
 import { CometCard } from "@/components/ui/comet-card";
 import { usePets } from "@/hooks/usePets";
+import { z } from "zod";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/pets")({
   component: PetsPage,
@@ -269,23 +271,57 @@ function AddPetModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (va
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
-    let hasError = false;
-    if (!name.trim()) { setNameError(true); hasError = true; } else { setNameError(false); }
-    
-    const ageNum = Number(age);
-    if (!age || ageNum < 0 || ageNum > 30) { setAgeError(true); hasError = true; } else { setAgeError(false); }
-    
-    const weightNum = Number(weight);
-    if (weight && (weightNum < 0 || weightNum > 200)) { setWeightError(true); hasError = true; } else { setWeightError(false); }
-    
-    if (hasError) return;
+    // Zod Validation Schema
+    const petSchema = z.object({
+      name: z.string().min(1, "Pet name is required").max(30, "Name is too long"),
+      species: z.enum(["Dog", "Cat"]),
+      breed: z.string().max(50, "Breed is too long").optional().or(z.literal("")),
+      age_years: z.coerce.number().min(0, "Age cannot be negative").max(30, "Age must be less than 30"),
+      weight_kg: z.coerce.number().min(0, "Weight cannot be negative").max(200, "Weight must be less than 200").optional().nullable()
+    });
+
+    const parsedAge = age === "" ? undefined : Number(age);
+    const parsedWeight = weight === "" ? undefined : Number(weight);
+
+    const validationResult = petSchema.safeParse({
+      name,
+      species,
+      breed,
+      age_years: parsedAge,
+      weight_kg: parsedWeight
+    });
+
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.format();
+      if (formattedErrors.name) setNameError(true);
+      if (formattedErrors.age_years) setAgeError(true);
+      if (formattedErrors.weight_kg) setWeightError(true);
+      toast.error("Please fix the validation errors before submitting.");
+      return;
+    }
+
+    setNameError(false);
+    setAgeError(false);
+    setWeightError(false);
     
     setSubmitting(true);
-    await onSubmit({ name, species, breed, age_years: ageNum, weight_kg: weight ? weightNum : undefined, photo: photo || undefined });
-    setSubmitting(false);
-    setSuccess(true);
-    setTimeout(onClose, 1500);
+    try {
+      await onSubmit({
+        name,
+        species,
+        breed,
+        age_years: Number(age),
+        weight_kg: weight ? Number(weight) : undefined,
+        photo: photo || undefined
+      });
+      toast.success(`${name} has been added successfully!`);
+      setSuccess(true);
+      setTimeout(onClose, 1500);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to add pet");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (success) {

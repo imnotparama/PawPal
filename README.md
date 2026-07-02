@@ -42,15 +42,14 @@ Pet owners face three universal problems:
 - **Multimodal Image Analysis**: Attach a photo of rashes, wounds, eye concerns, or food labels via the attachment clip button for direct visual symptom diagnosis.
 - **Voice-to-text input** via Web Speech Recognition API — 
   describe symptoms hands-free
-- Structured Markdown responses with headers, bold formatting, 
-  and actionable advice
+- **Selected Pet History Filter**: Dropdown above the chat history window allowing instant message-history filtering dynamically synced to specific pet IDs.
+- Structured Markdown responses with code blocks, headers, bold formatting, and actionable advice
 - Full chat history persisted per pet in Supabase
 - Gemini API key never exposed to client — 
   routed through TanStack Start Server Action on Vercel serverless
 
 ### 📊 Complete Health Management
-- **Pet Profiles** — Photo uploads to Supabase Storage, 
-  breed, age, weight tracking
+- **Pet Profiles** — Client-side canvas image compression, sequential DB insertion + file storage upserts matching `{user_id}/pets/{pet_id}/photo` pathing, strict Zod form validation schema parsing, and Sonner success/error toast alerts.
 - **Life Phase Advisor** — Dynamic care assessment that calculates your cat's exact growth/maturity stage (from Kitten infancy to Geriatric) to suggest target nutrition and medical focus.
 - **Printable Health Passport** — Clean print layouts with specialized document IDs, profile pictures, and mock QR verification stamps to easily print/export records for boarding facilities or vets.
 - **Vaccination Tracker** — Upcoming/Completed/Overdue status, 
@@ -60,7 +59,7 @@ Pet owners face three universal problems:
 - **Health Timeline** — Auto-generated chronological view 
   merging all health events across all pets
 - **Health Score** — Dynamic calculation based on vaccination 
-  compliance and recent activity
+  compliance (vaccines_completed / expected_vaccinations * 100) and recent activity with a prominent 78px typography arc display on the main dashboard.
 
 ### 💎 Premium UX Details
 - **Cat Purr Sound Therapy Widget**: Calming synthesizer using Web Audio API low-frequency oscillators (sine + triangle waves) modulated by breathing cycle gains (~0.18 Hz frequency) to simulate standard cat purring, complete with a custom neon canvas vibration visualizer.

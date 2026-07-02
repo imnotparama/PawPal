@@ -2,6 +2,58 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Pet } from "@/types";
 
+async function compressImage(file: File): Promise<Blob | File> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") {
+      resolve(file);
+      return;
+    }
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              resolve(file);
+            }
+          },
+          "image/jpeg",
+          0.8
+        );
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.onerror = () => resolve(file);
+  });
+}
+
 export function usePets() {
   const [pets, setPets] = useState<Pet[]>(() => {
     try {
@@ -55,28 +107,34 @@ export function usePets() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User not authenticated");
       
-      let photo_url = null;
-      if (values.photo) {
-        const rawExt = values.photo.name.split(".").pop() || "";
-        const cleanExt = rawExt.replace(/[^a-zA-Z0-9]/g, "");
-        const ext = cleanExt || "jpg";
-        const path = `pets/${user.id}/${Date.now()}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("pawpal-uploads").upload(path, values.photo);
-        if (uploadError) throw uploadError;
-        const { data: urlData } = supabase.storage.from("pawpal-uploads").getPublicUrl(path);
-        photo_url = urlData.publicUrl;
-      }
-      
-      const { error } = await supabase.from("pets").insert({ 
+      const { data: petData, error: insertError } = await supabase.from("pets").insert({ 
         user_id: user.id, 
         name: values.name, 
         species: values.species, 
         breed: values.breed, 
         age_years: values.age_years, 
         weight_kg: values.weight_kg, 
-        photo_url 
-      });
-      if (error) throw error;
+        photo_url: null 
+      }).select().single();
+      if (insertError) throw insertError;
+
+      const petId = petData.id;
+      let photo_url = null;
+
+      if (values.photo) {
+        const compressedBlob = await compressImage(values.photo);
+        const path = `${user.id}/pets/${petId}/photo`;
+        const { error: uploadError } = await supabase.storage.from("pawpal-uploads").upload(path, compressedBlob, {
+          upsert: true,
+          contentType: "image/jpeg"
+        });
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage.from("pawpal-uploads").getPublicUrl(path);
+        photo_url = urlData.publicUrl;
+
+        const { error: updateError } = await supabase.from("pets").update({ photo_url }).eq("id", petId);
+        if (updateError) throw updateError;
+      }
       
       await fetchPets();
     } catch (err) {

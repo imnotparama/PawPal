@@ -18,13 +18,37 @@ const suggestions = [
 function renderMessageContent(content: string) {
   if (!content) return "";
   
-  const lines = content.split("\n");
+  // Check if content contains triple backtick code blocks
+  if (content.includes("```")) {
+    const segments = content.split("```");
+    return segments.map((segment, idx) => {
+      if (idx % 2 === 1) {
+        // It's a code block
+        const lines = segment.split("\n");
+        const language = lines[0].trim();
+        const code = lines.slice(1).join("\n");
+        return (
+          <pre key={idx} style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: 16, overflowX: "auto", fontFamily: "monospace", fontSize: 13, color: "#d4c5ff", margin: "12px 0" }}>
+            {language && <div style={{ fontSize: 10, color: "#9a9a9a", textTransform: "uppercase", marginBottom: 8, borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 4 }}>{language}</div>}
+            <code>{code}</code>
+          </pre>
+        );
+      }
+      return renderMarkdownText(segment);
+    });
+  }
+
+  return renderMarkdownText(content);
+}
+
+function renderMarkdownText(text: string) {
+  const lines = text.split("\n");
   let inList = false;
   const elements: React.ReactNode[] = [];
   let listItems: React.ReactNode[] = [];
   
-  const parseFormatting = (text: string) => {
-    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+  const parseFormatting = (t: string) => {
+    const parts = t.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
     return parts.map((part, idx) => {
       if (part.startsWith("**") && part.endsWith("**")) {
         return <strong key={idx} style={{ fontWeight: 600, color: "#ffffff" }}>{part.slice(2, -2)}</strong>;
@@ -39,8 +63,6 @@ function renderMessageContent(content: string) {
   
   lines.forEach((line, index) => {
     const trimmed = line.trim();
-    
-    // Check if header
     if (trimmed.startsWith("### ")) {
       if (inList) {
         elements.push(<ul key={`list-${index}`} style={{ margin: "8px 0" }}>{listItems}</ul>);
@@ -59,9 +81,7 @@ function renderMessageContent(content: string) {
         inList = false;
       }
       elements.push(<h1 key={index} style={{ fontSize: 20, fontWeight: 600, color: "#ffffff", marginTop: 20, marginBottom: 10 }}>{parseFormatting(trimmed.substring(2))}</h1>);
-    }
-    // Check if list item
-    else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+    } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
       if (!inList) {
         inList = true;
         listItems = [];
@@ -74,32 +94,18 @@ function renderMessageContent(content: string) {
       );
     } else {
       if (inList) {
-        elements.push(
-          <ul key={`list-${index}`} style={{ margin: "8px 0" }}>
-            {listItems}
-          </ul>
-        );
+        elements.push(<ul key={`list-${index}`} style={{ margin: "8px 0" }}>{listItems}</ul>);
         inList = false;
       }
-      
       if (trimmed) {
-        elements.push(
-          <p key={index} style={{ marginBottom: 8 }}>
-            {parseFormatting(trimmed)}
-          </p>
-        );
+        elements.push(<p key={index} style={{ marginBottom: 8 }}>{parseFormatting(trimmed)}</p>);
       }
     }
   });
   
   if (inList) {
-    elements.push(
-      <ul key="list-final" style={{ margin: "8px 0" }}>
-        {listItems}
-      </ul>
-    );
+    elements.push(<ul key="list-final" style={{ margin: "8px 0" }}>{listItems}</ul>);
   }
-  
   return elements;
 }
 
@@ -121,7 +127,7 @@ function renderUserMessage(content: string) {
 function ChatPage() {
   const { pets } = usePets();
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>(undefined);
-  const { messages, sending, sendMessage, clearHistory } = useChat();
+  const { messages, sending, error, sendMessage, clearHistory } = useChat(selectedPetId);
   const [input, setInput] = useState("");
   const [showPetMenu, setShowPetMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -212,54 +218,87 @@ function ChatPage() {
   const selectedPet = pets.find((p) => p.id === selectedPetId);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] md:h-[calc(100vh-96px)] -m-6 md:-m-12 bg-black">
-      {/* Chat Header */}
-      <div style={{ height: 60, borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.8)", backdropFilter: "blur(12px)", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <motion.div
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#8052ff">
-              <ellipse cx="7" cy="5" rx="2.5" ry="3" />
-              <ellipse cx="17" cy="5" rx="2.5" ry="3" />
-              <ellipse cx="4" cy="12" rx="2" ry="2.5" />
-              <ellipse cx="20" cy="12" rx="2" ry="2.5" />
-              <path d="M12 22c-4 0-6-3-6-6 0-2 2-4 6-4s6 2 6 4c0 3-2 6-6 6z" />
-            </svg>
-          </motion.div>
-          <span style={{ fontSize: 15, fontWeight: 600, color: "#ffffff" }}>PawPal AI</span>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: 8 }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#15846e" }} />
-            <span style={{ fontSize: 12, color: "#9a9a9a" }}>Online</span>
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={clearHistory} style={{ background: "rgba(255,107,107,0.1)", border: "1px solid rgba(255,107,107,0.3)", color: "#ff6b6b", borderRadius: 20, padding: "6px 14px", fontSize: 12, cursor: "pointer" }}>Clear</button>
+    <div style={{ background: "#000000", height: "calc(100vh - 100px)", display: "flex", flexDirection: "column", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "24px", overflow: "hidden" }}>
+      {/* Pet Selection Header Bar */}
+      <div style={{ background: "rgba(255,255,255,0.02)", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "12px 24px", display: "flex", alignItems: "center", gap: 12, justifyContent: "space-between", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 13, color: "#9a9a9a" }}>Chatting about:</span>
           <div style={{ position: "relative" }}>
-            <button onClick={() => setShowPetMenu(!showPetMenu)} style={{ background: "rgba(128,82,255,0.1)", border: "1px solid rgba(128,82,255,0.3)", color: "#ffffff", borderRadius: 20, padding: "6px 14px", fontSize: 13, cursor: "pointer" }}>
-              Asking about: {selectedPet?.name || "All Pets"} ▾
+            <button
+              onClick={() => setShowPetMenu(!showPetMenu)}
+              style={{
+                background: "rgba(128,82,255,0.1)",
+                border: "1px solid rgba(128,82,255,0.3)",
+                color: "#ffffff",
+                borderRadius: "20px",
+                padding: "6px 14px",
+                fontSize: 13,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontWeight: 600
+              }}
+            >
+              {selectedPet ? (
+                <>
+                  {selectedPet.photo_url ? (
+                    <img src={selectedPet.photo_url} alt={selectedPet.name} style={{ width: 18, height: 18, borderRadius: "50%", objectFit: "cover" }} />
+                  ) : (
+                    <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#8052ff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>{selectedPet.name[0]}</span>
+                  )}
+                  {selectedPet.name}
+                </>
+              ) : (
+                "All Pets"
+              )}
+              <span>▾</span>
             </button>
             {showPetMenu && (
-              <div style={{ position: "absolute", top: "100%", right: 0, marginTop: 4, background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: 4, zIndex: 10, minWidth: 140 }}>
-                <button onClick={() => { setSelectedPetId(undefined); setShowPetMenu(false); }} style={{ display: "block", width: "100%", textAlign: "left", background: !selectedPetId ? "rgba(128,82,255,0.2)" : "transparent", border: "none", color: "#fff", padding: "8px 12px", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>All Pets</button>
+              <div style={{ position: "absolute", top: "100%", left: 0, marginTop: 4, background: "#111111", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: 4, zIndex: 30, minWidth: 160 }}>
+                <button
+                  onClick={() => { setSelectedPetId(undefined); setShowPetMenu(false); }}
+                  style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left", background: !selectedPetId ? "rgba(128,82,255,0.2)" : "transparent", border: "none", color: "#fff", padding: "8px 12px", borderRadius: 8, fontSize: 13, cursor: "pointer" }}
+                >
+                  All Pets
+                </button>
                 {pets.map((p) => (
-                  <button key={p.id} onClick={() => { setSelectedPetId(p.id); setShowPetMenu(false); }} style={{ display: "block", width: "100%", textAlign: "left", background: selectedPetId === p.id ? "rgba(128,82,255,0.2)" : "transparent", border: "none", color: "#fff", padding: "8px 12px", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>{p.name}</button>
+                  <button
+                    key={p.id}
+                    onClick={() => { setSelectedPetId(p.id); setShowPetMenu(false); }}
+                    style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left", background: selectedPetId === p.id ? "rgba(128,82,255,0.2)" : "transparent", border: "none", color: "#fff", padding: "8px 12px", borderRadius: 8, fontSize: 13, cursor: "pointer" }}
+                  >
+                    {p.photo_url ? (
+                      <img src={p.photo_url} alt={p.name} style={{ width: 16, height: 16, borderRadius: "50%", objectFit: "cover" }} />
+                    ) : (
+                      <span style={{ width: 16, height: 16, borderRadius: "50%", background: "#8052ff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 9 }}>{p.name[0]}</span>
+                    )}
+                    {p.name}
+                  </button>
                 ))}
               </div>
             )}
           </div>
         </div>
+        <button onClick={clearHistory} style={{ background: "rgba(255,107,107,0.1)", border: "1px solid rgba(255,107,107,0.3)", color: "#ff6b6b", borderRadius: 20, padding: "6px 14px", fontSize: 12, cursor: "pointer" }}>Clear Chat</button>
       </div>
 
       {/* Messages Area */}
       <div style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+        {error && (
+          <div style={{ background: "rgba(255,107,107,0.1)", border: "1px solid rgba(255,107,107,0.2)", borderRadius: 12, padding: "12px 16px", color: "#ff6b6b", fontSize: 13, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>Error loading messages: {error}</span>
+            <button onClick={() => window.location.reload()} style={{ background: "#ff6b6b", border: "none", color: "#fff", padding: "4px 8px", borderRadius: 8, fontSize: 11, cursor: "pointer" }}>Retry</button>
+          </div>
+        )}
+
         {messages.length === 0 && !sending ? (
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24 }}>
-            <p style={{ fontSize: 18, color: "#9a9a9a" }}>Ask PawPal AI anything about your pet's health.</p>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, padding: "48px 0" }}>
+            <div style={{ fontSize: 48 }}>🤖</div>
+            <p style={{ fontSize: 18, color: "#9a9a9a", textAlign: "center", margin: 0 }}>Ask PawPal AI anything about your pet's health.</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", maxWidth: 500 }}>
               {suggestions.map((s) => (
-                <button key={s} onClick={() => { setInput(s); }} style={{ background: "rgba(128,82,255,0.1)", border: "1px solid rgba(128,82,255,0.3)", color: "#ffffff", borderRadius: 20, padding: "8px 16px", fontSize: 13, cursor: "pointer" }}>{s}</button>
+                <button key={s} onClick={() => { setInput(s); }} style={{ background: "rgba(128,82,255,0.1)", border: "1px solid rgba(128,82,255,0.3)", color: "#ffffff", borderRadius: 20, padding: "8px 16px", fontSize: 13, cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.borderColor = "#8052ff" } onMouseLeave={(e) => e.currentTarget.style.borderColor = "rgba(128,82,255,0.3)" }>{s}</button>
               ))}
             </div>
           </div>
@@ -273,16 +312,10 @@ function ChatPage() {
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start" }}
               >
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 10, maxWidth: msg.role === "user" ? "60%" : "65%", flexDirection: msg.role === "user" ? "row-reverse" : "row" }}>
-                  {msg.role === "assistant" && (
-                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(128,82,255,0.2)", border: "1px solid rgba(128,82,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#8052ff">
-                        <ellipse cx="7" cy="5" rx="2.5" ry="3" />
-                        <ellipse cx="17" cy="5" rx="2.5" ry="3" />
-                        <path d="M12 22c-4 0-6-3-6-6 0-2 2-4 6-4s6 2 6 4c0 3-2 6-6 6z" />
-                      </svg>
-                    </div>
-                  )}
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 10, maxWidth: msg.role === "user" ? "70%" : "75%", flexDirection: msg.role === "user" ? "row-reverse" : "row" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: msg.role === "user" ? "#8052ff" : "rgba(255,255,255,0.1)", border: msg.role === "user" ? "none" : "1px solid rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 12, fontWeight: "bold", color: "#fff" }}>
+                    {msg.role === "user" ? "U" : "AI"}
+                  </div>
                   <div style={{
                     background: msg.role === "user" ? "#8052ff" : "rgba(255,255,255,0.04)",
                     border: msg.role === "user" ? "none" : "1px solid rgba(255,255,255,0.08)",
@@ -295,7 +328,7 @@ function ChatPage() {
                     {msg.role === "user" ? renderUserMessage(msg.content) : renderMessageContent(msg.content)}
                   </div>
                 </div>
-                <span style={{ fontSize: 11, color: msg.role === "user" ? "rgba(255,255,255,0.5)" : "#9a9a9a", marginTop: 4, marginLeft: msg.role === "assistant" ? 44 : 0, textAlign: msg.role === "user" ? "right" : "left" }}>
+                <span style={{ fontSize: 11, color: msg.role === "user" ? "rgba(255,255,255,0.5)" : "#9a9a9a", marginTop: 4, marginLeft: msg.role === "assistant" ? 44 : 0, marginRight: msg.role === "user" ? 44 : 0, textAlign: msg.role === "user" ? "right" : "left" }}>
                   {msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
                 </span>
               </motion.div>
@@ -308,11 +341,7 @@ function ChatPage() {
                 style={{ display: "flex", alignItems: "center", gap: 10 }}
               >
                 <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(128,82,255,0.2)", border: "1px solid rgba(128,82,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#8052ff">
-                    <ellipse cx="7" cy="5" rx="2.5" ry="3" />
-                    <ellipse cx="17" cy="5" rx="2.5" ry="3" />
-                    <path d="M12 22c-4 0-6-3-6-6 0-2 2-4 6-4s6 2 6 4c0 3-2 6-6 6z" />
-                  </svg>
+                  <span>AI</span>
                 </div>
                 <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "4px 18px 18px 18px", padding: "14px 18px", display: "flex", gap: 4 }}>
                   <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0 }} style={{ width: 6, height: 6, borderRadius: "50%", background: "#8052ff" }} />
@@ -330,7 +359,7 @@ function ChatPage() {
       {attachedImage && (
         <div style={{ padding: "12px 24px", background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", gap: 12, borderTop: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
           <div style={{ position: "relative", width: 60, height: 60 }}>
-            <img src={attachedImage.previewUrl} alt="Preview" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 8, border: "1px solid rgba(128,82,255,0.5)" }} />
+            <img src={attachedImage.previewUrl} alt="Preview" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 8, border: "1px solid #8052ff" }} />
             <button
               onClick={() => setAttachedImage(null)}
               style={{ position: "absolute", top: -6, right: -6, background: "#ff6b6b", border: "none", color: "#ffffff", width: 18, height: 18, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, cursor: "pointer", fontWeight: "bold" }}
@@ -343,7 +372,7 @@ function ChatPage() {
       )}
 
       {/* Input Bar */}
-      <div style={{ height: 80, borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.9)", backdropFilter: "blur(12px)", padding: "16px 24px", display: "flex", gap: 12, alignItems: "center", flexShrink: 0 }}>
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.9)", backdropFilter: "blur(12px)", padding: "16px 24px", display: "flex", gap: 12, alignItems: "center", flexShrink: 0 }}>
         <button onClick={() => fileInputRef.current?.click()} style={{ background: "none", border: "none", color: "#9a9a9a", cursor: "pointer", fontSize: 18 }} title="Attach Image">📎</button>
         <button
           onClick={toggleListening}
@@ -385,7 +414,7 @@ function ChatPage() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") handleSend(); }}
-          placeholder="Ask about your pet's health..."
+          placeholder="Describe your pet's symptoms..."
           style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 24, padding: "14px 20px", fontSize: 15, color: "#ffffff", outline: "none", transition: "border-color 0.2s, box-shadow 0.2s" }}
           onFocus={(e) => { e.currentTarget.style.borderColor = "#8052ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(128,82,255,0.1)"; }}
           onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }}
@@ -397,11 +426,18 @@ function ChatPage() {
           disabled={(!input.trim() && !attachedImage) || sending}
           style={{ width: 44, height: 44, borderRadius: "50%", background: (input.trim() || attachedImage) && !sending ? "#8052ff" : "rgba(128,82,255,0.3)", border: "none", color: "#fff", cursor: (input.trim() || attachedImage) && !sending ? "pointer" : "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, transition: "background 0.2s" }}
         >
-          ↑
+          {sending ? (
+            <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          ) : (
+            "✈"
+          )}
         </motion.button>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: "none" }} accept="image/*" />
       </div>
-      <p style={{ textAlign: "center", fontSize: 11, color: "#9a9a9a", opacity: 0.6, padding: "6px 0 12px" }}>PawPal AI can make mistakes. Always consult a vet for medical decisions.</p>
+      <p style={{ textAlign: "center", fontSize: 11, color: "#9a9a9a", opacity: 0.6, padding: "6px 0 12px", margin: 0 }}>PawPal AI can make mistakes. Always consult a vet for medical decisions.</p>
     </div>
   );
 }
