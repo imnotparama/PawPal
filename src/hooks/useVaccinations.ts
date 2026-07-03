@@ -36,7 +36,25 @@ export function useVaccinations(petId?: string) {
       if (petId) query = query.eq("pet_id", petId);
       const { data, error } = await query;
       if (error) throw error;
-      const freshData = data ?? [];
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const freshData = (data ?? []).map((v) => {
+        let status = v.status;
+        if (v.status !== "Completed" && v.date) {
+          const vacDate = new Date(v.date + "T00:00:00");
+          vacDate.setHours(0, 0, 0, 0);
+          if (vacDate < today) {
+            status = "Overdue";
+          }
+        }
+        return {
+          ...v,
+          status
+        };
+      });
+
       setVaccinations(freshData);
       try {
         if (typeof window !== "undefined") {

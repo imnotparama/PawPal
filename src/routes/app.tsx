@@ -22,6 +22,14 @@ function AppLayout() {
   const { user, loading, signOut } = useAuth();
   const [signOutHovered, setSignOutHovered] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentDateTime, setCurrentDateTime] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -89,12 +97,23 @@ function AppLayout() {
         style={{ backgroundColor: "#000000", borderRight: "1px solid rgba(255,255,255,0.08)" }}
       >
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 mb-10 px-2" style={{ textDecoration: "none" }}>
+        <Link to="/" className="flex items-center gap-2 mb-8 px-2" style={{ textDecoration: "none" }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="#8052ff">
             <path d="M12 2C8 2 4 6 4 10c0 2 1 4 2 5l6 7 6-7c1-1 2-3 2-5 0-4-4-8-8-8zm-4 5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm8 0a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm-4 2a2 2 0 110 4 2 2 0 010-4z"/>
           </svg>
           <span style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.02em" }}>PawPal</span>
         </Link>
+
+        {/* Date/Time Indicator */}
+        <div style={{ padding: "0 8px", marginBottom: 24, borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 16 }}>
+          <div style={{ color: "#8052ff", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Current Time</div>
+          <div style={{ color: "#ffffff", fontSize: 13, fontWeight: 600, marginTop: 4 }}>
+            {currentDateTime.toLocaleDateString("en-US", { weekday: 'long', month: 'short', day: 'numeric' })}
+          </div>
+          <div style={{ color: "#9a9a9a", fontSize: 12, marginTop: 2 }}>
+            {currentDateTime.toLocaleTimeString("en-US", { hour: 'numeric', minute: '2-digit', second: '2-digit' })}
+          </div>
+        </div>
 
         {/* Nav */}
         <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
