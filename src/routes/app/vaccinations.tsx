@@ -23,7 +23,7 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
-function AddVaccinationModal({ pets, onClose, onSubmit }: { pets: any[]; onClose: () => void; onSubmit: (values: any) => void }) {
+function AddVaccinationModal({ pets, onClose, onSubmit, submitting }: { pets: any[]; onClose: () => void; onSubmit: (values: any) => void; submitting: boolean }) {
   const [petId, setPetId] = useState(pets[0]?.id || "");
   const [vaccineName, setVaccineName] = useState("");
   const [date, setDate] = useState("");
@@ -80,8 +80,10 @@ function AddVaccinationModal({ pets, onClose, onSubmit }: { pets: any[]; onClose
             <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional notes" style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none" }} />
           </div>
           <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-            <button type="button" onClick={onClose} style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#9a9a9a", borderRadius: 12, padding: "12px", fontSize: 14, cursor: "pointer" }}>Cancel</button>
-            <button type="submit" style={{ flex: 1, background: "#8052ff", border: "none", color: "#fff", borderRadius: 12, padding: "12px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Add Vaccination</button>
+            <button type="button" onClick={onClose} disabled={submitting} style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#9a9a9a", borderRadius: 12, padding: "12px", fontSize: 14, cursor: submitting ? "not-allowed" : "pointer" }}>Cancel</button>
+            <button type="submit" disabled={submitting} style={{ flex: 1, background: submitting ? "rgba(128,82,255,0.5)" : "#8052ff", border: "none", color: "#fff", borderRadius: 12, padding: "12px", fontSize: 14, fontWeight: 600, cursor: submitting ? "not-allowed" : "pointer" }}>
+              {submitting ? "Adding..." : "Add Vaccination"}
+            </button>
           </div>
         </form>
       </div>
@@ -91,7 +93,7 @@ function AddVaccinationModal({ pets, onClose, onSubmit }: { pets: any[]; onClose
 
 function VaccinationsPage() {
   const { pets } = usePets();
-  const { vaccinations, loading, addVaccination, markComplete } = useVaccinations();
+  const { vaccinations, loading, adding, addVaccination, markComplete } = useVaccinations();
   const [activeFilter, setActiveFilter] = useState("All Pets");
   const [showModal, setShowModal] = useState(false);
 
@@ -279,7 +281,7 @@ function VaccinationsPage() {
         </div>
       )}
 
-      {showModal && <AddVaccinationModal pets={pets} onClose={() => setShowModal(false)} onSubmit={handleAddVaccination} />}
+      {showModal && <AddVaccinationModal pets={pets} onClose={() => setShowModal(false)} onSubmit={handleAddVaccination} submitting={adding} />}
     </div>
   );
 }

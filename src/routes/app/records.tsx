@@ -16,7 +16,7 @@ const typeColors: Record<string, string> = {
   Wellness: "#4a9eff",
 };
 
-function AddRecordModal({ pets, onClose, onSubmit }: { pets: any[]; onClose: () => void; onSubmit: (values: any) => void }) {
+function AddRecordModal({ pets, onClose, onSubmit, submitting }: { pets: any[]; onClose: () => void; onSubmit: (values: any) => void; submitting: boolean }) {
   const [petId, setPetId] = useState(pets[0]?.id || "");
   const [title, setTitle] = useState("");
   const [recordType, setRecordType] = useState("Checkup");
@@ -94,8 +94,10 @@ function AddRecordModal({ pets, onClose, onSubmit }: { pets: any[]; onClose: () 
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional notes" rows={3} style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 14, outline: "none", resize: "vertical" }} />
           </div>
           <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-            <button type="button" onClick={onClose} style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#9a9a9a", borderRadius: 12, padding: "12px", fontSize: 14, cursor: "pointer" }}>Cancel</button>
-            <button type="submit" style={{ flex: 1, background: "#8052ff", border: "none", color: "#fff", borderRadius: 12, padding: "12px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Add Record</button>
+            <button type="button" onClick={onClose} disabled={submitting} style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#9a9a9a", borderRadius: 12, padding: "12px", fontSize: 14, cursor: submitting ? "not-allowed" : "pointer" }}>Cancel</button>
+            <button type="submit" disabled={submitting} style={{ flex: 1, background: submitting ? "rgba(128,82,255,0.5)" : "#8052ff", border: "none", color: "#fff", borderRadius: 12, padding: "12px", fontSize: 14, fontWeight: 600, cursor: submitting ? "not-allowed" : "pointer" }}>
+              {submitting ? "Adding..." : "Add Record"}
+            </button>
           </div>
         </form>
       </div>
@@ -105,7 +107,7 @@ function AddRecordModal({ pets, onClose, onSubmit }: { pets: any[]; onClose: () 
 
 function RecordsPage() {
   const { pets } = usePets();
-  const { records, loading, addRecord } = useMedicalRecords();
+  const { records, loading, adding, addRecord } = useMedicalRecords();
   const [petFilter, setPetFilter] = useState("All Pets");
   const [typeFilter, setTypeFilter] = useState("All");
   const [search, setSearch] = useState("");
@@ -278,7 +280,7 @@ function RecordsPage() {
         </>
       )}
 
-      {showModal && <AddRecordModal pets={pets} onClose={() => setShowModal(false)} onSubmit={handleAddRecord} />}
+      {showModal && <AddRecordModal pets={pets} onClose={() => setShowModal(false)} onSubmit={handleAddRecord} submitting={adding} />}
     </div>
   );
 }
