@@ -229,8 +229,8 @@ function VaccinationsPage() {
         <div style={{ overflowX: "auto" }} className="w-full">
           <div style={{ minWidth: 600 }}>
             {/* Table Header */}
-            <div style={{ display: "grid", gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr", gap: 16, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              {["PET", "VACCINE", "DATE", "STATUS"].map((h) => (
+            <div style={{ display: "grid", gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr 1fr", gap: 16, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              {["PET", "VACCINE", "DATE", "STATUS", "ACTION"].map((h) => (
                 <span key={h} style={{ fontSize: 11, fontWeight: 400, color: "#9a9a9a", letterSpacing: "0.07em", textTransform: "uppercase" }}>{h}</span>
               ))}
             </div>
@@ -244,7 +244,7 @@ function VaccinationsPage() {
                 transition={{ delay: 0.3 + i * 0.05, duration: 0.35, ease: "easeOut" }}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr",
+                  gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr 1fr",
                   gap: 16,
                   padding: "16px 0",
                   borderBottom: "1px solid rgba(255,255,255,0.04)",
@@ -274,7 +274,40 @@ function VaccinationsPage() {
                 <span style={{ fontSize: 14, color: "#9a9a9a" }}>{v.date ? new Date(v.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}</span>
 
                 {/* Status */}
-                <StatusPill status={v.status} />
+                <div>
+                  <StatusPill status={v.status} />
+                </div>
+
+                {/* Action */}
+                <div>
+                  {v.status !== "Completed" ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        markComplete(v.id);
+                      }}
+                      style={{
+                        background: "rgba(21,132,110,0.15)",
+                        border: "1px solid rgba(21,132,110,0.3)",
+                        color: "#15846e",
+                        borderRadius: 16,
+                        padding: "6px 12px",
+                        fontSize: 11,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        transition: "all 0.15s"
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = "#15846e"; e.currentTarget.style.color = "#ffffff"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(21,132,110,0.15)"; e.currentTarget.style.color = "#15846e"; }}
+                    >
+                      Mark Done ✓
+                    </button>
+                  ) : (
+                    <span style={{ color: "#15846e", fontSize: 12, fontWeight: 500, display: "flex", alignItems: "center", gap: 4 }}>
+                      Done ✓
+                    </span>
+                  )}
+                </div>
               </motion.div>
             ))}
           </div>
