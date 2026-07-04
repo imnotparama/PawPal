@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { usePets } from "@/hooks/usePets";
 import { useMedicalRecords } from "@/hooks/useMedicalRecords";
+import { NoiseBackground } from "@/components/ui/noise-background";
 
 export const Route = createFileRoute("/app/records")({
   component: RecordsPage,
@@ -147,14 +148,18 @@ function RecordsPage() {
         </div>
         <div className="flex flex-wrap gap-3">
           <button style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 24, padding: "10px 20px", fontSize: 13, cursor: "pointer", transition: "all 0.2s" }}>Upload Record</button>
-          <motion.button
-            onClick={() => setShowModal(true)}
-            animate={{ boxShadow: ["0 0 0px rgba(128,82,255,0)", "0 0 20px rgba(128,82,255,0.35)", "0 0 0px rgba(128,82,255,0)"] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            style={{ background: "#8052ff", color: "#fff", borderRadius: 24, padding: "10px 20px", fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer" }}
+          <NoiseBackground
+            containerClassName="rounded-full w-fit p-[1.5px] self-start"
+            gradientColors={["#8052ff", "#ff6b6b", "#ffb829"]}
           >
-            Add Record +
-          </motion.button>
+            <button
+              onClick={() => setShowModal(true)}
+              className="cursor-pointer rounded-full bg-black hover:bg-neutral-900 text-white px-5 py-2 transition-all duration-100 active:scale-98 text-xs font-semibold uppercase tracking-wider"
+              style={{ border: "none" }}
+            >
+              Add Record +
+            </button>
+          </NoiseBackground>
         </div>
       </div>
 

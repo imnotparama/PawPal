@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { usePets } from "@/hooks/usePets";
 import { useVaccinations } from "@/hooks/useVaccinations";
+import { NoiseBackground } from "@/components/ui/noise-background";
 
 export const Route = createFileRoute("/app/vaccinations")({
   component: VaccinationsPage,
@@ -130,14 +131,18 @@ function VaccinationsPage() {
           <h1 style={{ fontSize: 36, fontWeight: 300, color: "#ffffff", marginBottom: 4 }}>Vaccinations</h1>
           <p style={{ fontSize: 15, color: "#9a9a9a" }}>Track upcoming and past vaccinations for all your pets.</p>
         </div>
-        <motion.button
-          onClick={() => setShowModal(true)}
-          animate={{ boxShadow: ["0 0 0px rgba(128,82,255,0)", "0 0 20px rgba(128,82,255,0.35)", "0 0 0px rgba(128,82,255,0)"] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-          style={{ background: "#8052ff", color: "#fff", borderRadius: 24, padding: "12px 24px", fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer", alignSelf: "flex-start" }}
+        <NoiseBackground
+          containerClassName="rounded-full w-fit p-[1.5px] self-start"
+          gradientColors={["#8052ff", "#ff6b6b", "#ffb829"]}
         >
-          Add Vaccination +
-        </motion.button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="cursor-pointer rounded-full bg-black hover:bg-neutral-900 text-white px-5 py-2.5 transition-all duration-100 active:scale-98 text-xs font-semibold uppercase tracking-wider"
+            style={{ border: "none" }}
+          >
+            Add Vaccination +
+          </button>
+        </NoiseBackground>
       </div>
 
       {/* Summary Cards */}
