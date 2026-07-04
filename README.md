@@ -34,11 +34,11 @@ Pet owners face three universal problems:
 - ACES Filmic Tone Mapping, per-instance rotation, 
   position-based color gradients (amber → white → plum violet)
 - Mouse parallax tracking and scroll-driven explosion effect on final panel
-- 60 FPS maintained via instanced rendering — 
+- 60 FPS target maintained via instanced rendering — 
   drawing 6,000 shapes as a single GPU draw call
 
 ### 🤖 AI Pet Health Triage (Google Gemini)
-- Real-time symptom triage powered by Gemini 2.5 Flash
+- Real-time symptom triage powered by Gemini 1.5 Flash
 - **Multimodal Image Analysis**: Attach a photo of rashes, wounds, eye concerns, or food labels via the attachment clip button for direct visual symptom diagnosis.
 - **Voice-to-text input** via Web Speech Recognition API — 
   describe symptoms hands-free
@@ -49,7 +49,7 @@ Pet owners face three universal problems:
   routed through TanStack Start Server Action on Vercel serverless
 
 ### 📊 Complete Health Management
-- **Pet Profiles** — Client-side canvas image compression, sequential DB insertion + file storage upserts matching `{user_id}/pets/{pet_id}/photo` pathing, strict Zod form validation schema parsing, and Sonner success/error toast alerts.
+- **Pet Profiles** — Photo uploads with client-side canvas compression before storage upload, Zod form validation, and real-time toast feedback
 - **Life Phase Advisor** — Dynamic care assessment that calculates your cat's exact growth/maturity stage (from Kitten infancy to Geriatric) to suggest target nutrition and medical focus.
 - **Printable Health Passport** — Clean print layouts with specialized document IDs, profile pictures, and mock QR verification stamps to easily print/export records for boarding facilities or vets.
 - **Vaccination Tracker** — Upcoming/Completed/Overdue status, 
@@ -97,7 +97,7 @@ Pet owners face three universal problems:
      ▼                          ▼
 ┌──────────────┐      ┌─────────────────────┐
 │   Supabase   │      │  Google Gemini API  │
-│              │      │  gemini-2.5-flash   │
+│              │      │  gemini-1.5-flash   │
 │ • Auth (JWT) │      │  Pet health triage  │
 │ • Postgres   │      └─────────────────────┘
 │  - pets      │
@@ -125,7 +125,7 @@ Pet owners face three universal problems:
 | Components | shadcn/ui + Radix UI | Accessible primitives |
 | Database | Supabase Postgres | RLS, realtime, storage |
 | Auth | Supabase Auth | JWT + email/password |
-| AI | Google Gemini 2.5 Flash | Fast, accurate pet health triage |
+| AI | Google Gemini 1.5 Flash | Fast, accurate pet health triage |
 | Deployment | Vercel (Nitro preset) | SSR serverless edge |
 
 ---
@@ -232,7 +232,7 @@ health_timeline VIEW (
   and animations disabled for 
   `prefers-reduced-motion: reduce` users
 - Mobile performance guard — devicePixelRatio capped at 1 
-  on screens under 768px
+  on screens under 767px
 
 ---
 
@@ -246,25 +246,25 @@ health_timeline VIEW (
 ### Local Development
 
 ```bash
-# 1. Clone
+# 0. Clone
 git clone https://github.com/imnotparama/PawPal.git
 cd PawPal
 
-# 2. Install
+# 1. Install
 npm install
 
-# 3. Environment
+# 2. Environment
 cp .env.example .env
 # Fill in your keys:
 # VITE_SUPABASE_URL=
 # VITE_SUPABASE_ANON_KEY=
 # GEMINI_API_KEY=  ← server-side only, no VITE_ prefix
 
-# 4. Run Supabase schema
+# 3. Run Supabase schema
 # Copy contents of /docs/schema.sql
 # Paste into Supabase SQL editor and run
 
-# 5. Start
+# 4. Start
 npm run dev
 # → http://localhost:8080
 ```
@@ -325,14 +325,14 @@ PawPal AI is architected with modern serverless computing, edge database query c
 
 | Metric | Free Tier (Hackathon Setup) | Pro Tier (Production Scaling) |
 |:---|:---|:---|
-| **Authentication** | 50,000 Monthly Active Users | **Unlimited (100,000+ MAU included)** |
+| **Authentication** | 50,000 MAU | **Unlimited (100,000+ MAU included)** |
 | **Database Space** | 500 MB PostgreSQL | **~160,000 Active Users** *(8 GB included)* |
 | **File Storage** | 1 GB Storage Bucket | **~830,000 Users** *(100 GB included)* |
-| **Client Media Compression** | Resized and Canvas-compressed to ~30-50KB before upload | **Massive bandwidth & hosting cost savings** |
-| **Edge Serverless Hosting** | 100 GB monthly bandwidth | **1 TB+ monthly bandwidth (150k+ visitors)** |
+| **Client Media Compression** | Resized and Canvas-compressed to ~29-50KB before upload | **Massive bandwidth & hosting cost savings** |
+| **Edge Serverless Hosting** | 99 GB monthly bandwidth | **1 TB+ monthly bandwidth (150k+ visitors)** |
 | **AI Chat capacity** | 15 Gemini requests per minute | **10,000+ concurrent prompts per minute** |
 
-*Under the free plan, the application comfortably supports **~5,000 to 8,000 fully active users** at zero monthly cost due to RLS data isolation and client-side Canvas optimization.*
+*Under the free plan, the application comfortably supports **~10,000 to 20,000 fully active users** at zero monthly cost due to RLS data isolation and client-side Canvas optimization.*
 
 ---
 
