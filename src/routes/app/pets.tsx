@@ -222,10 +222,10 @@ function PetCard({ pet, index, onDelete, onOpenPassport }: { pet: any; index: nu
 
           {/* Info */}
           <div style={{ padding: "12px 8px 8px" }}>
-            <p style={{ fontSize: 18, fontWeight: 600, color: "#ffffff" }}>{pet.name}</p>
-            <p style={{ fontSize: 13, color: "#9a9a9a", marginTop: 2 }}>{pet.breed} · {pet.age_years}y</p>
+            <p style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", userSelect: "none" }}>{pet.name}</p>
+            <p style={{ fontSize: 13, color: "#9a9a9a", marginTop: 2, userSelect: "none" }}>{pet.breed} · {pet.age_years}y</p>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10 }}>
-              <span style={{ background: "rgba(128,82,255,0.15)", color: "#8052ff", borderRadius: 20, padding: "4px 10px", fontSize: 11 }}>
+              <span style={{ background: "rgba(128,82,255,0.15)", color: "#8052ff", borderRadius: 20, padding: "4px 10px", fontSize: 11, userSelect: "none" }}>
                 Healthy
               </span>
               <button 
@@ -233,7 +233,7 @@ function PetCard({ pet, index, onDelete, onOpenPassport }: { pet: any; index: nu
                   e.stopPropagation();
                   onOpenPassport(pet);
                 }}
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#ffffff", borderRadius: 20, padding: "4px 10px", fontSize: 11, cursor: "pointer", transition: "all 0.15s" }}
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#ffffff", borderRadius: 20, padding: "4px 10px", fontSize: 11, cursor: "pointer", transition: "all 0.15s", userSelect: "none" }}
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#8052ff"; e.currentTarget.style.background = "rgba(128,82,255,0.1)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
               >
@@ -498,7 +498,7 @@ function PetsPage() {
       <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-start mb-8">
         <div>
           <h1 style={{ fontSize: 36, fontWeight: 300, color: "#ffffff", marginBottom: 4 }}>My Pets</h1>
-          <p style={{ fontSize: 15, color: "#9a9a9a" }}>Manage profiles for all your furry companions.</p>
+          <p style={{ fontSize: 15, color: "#9a9a9a", userSelect: "none" }}>Manage profiles for all your furry companions.</p>
         </div>
         <NoiseBackground
           containerClassName="rounded-full w-fit p-[1.5px] self-start"

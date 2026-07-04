@@ -9,7 +9,8 @@ import {
   Syringe, 
   FileText, 
   History, 
-  User 
+  User,
+  HelpCircle
 } from "lucide-react";
 
 const navItems = [
@@ -20,6 +21,7 @@ const navItems = [
   { label: "Medical Records", to: "/app/records", icon: FileText },
   { label: "Health Timeline", to: "/app/timeline", icon: History },
   { label: "Profile", to: "/dashboard/profile", icon: User },
+  { label: "Help & Support", to: "/dashboard/support", icon: HelpCircle },
 ];
 
 export function AppLayout() {
@@ -109,17 +111,6 @@ export function AppLayout() {
           </svg>
           <span style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.02em" }}>PawPal</span>
         </Link>
-
-        {/* Date/Time Indicator */}
-        <div style={{ padding: "0 8px", marginBottom: 24, borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 16 }}>
-          <div style={{ color: "#8052ff", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Current Time</div>
-          <div style={{ color: "#ffffff", fontSize: 13, fontWeight: 600, marginTop: 4 }}>
-            {currentDateTime.toLocaleDateString("en-US", { weekday: 'long', month: 'short', day: 'numeric' })}
-          </div>
-          <div style={{ color: "#9a9a9a", fontSize: 12, marginTop: 2 }}>
-            {currentDateTime.toLocaleTimeString("en-US", { hour: 'numeric', minute: '2-digit', second: '2-digit' })}
-          </div>
-        </div>
 
         {/* Nav */}
         <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
