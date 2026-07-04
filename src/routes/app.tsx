@@ -14,6 +14,7 @@ const navItems = [
   { label: "Vaccinations", to: "/app/vaccinations" },
   { label: "Medical Records", to: "/app/records" },
   { label: "Health Timeline", to: "/app/timeline" },
+  { label: "My Profile", to: "/app/profile" },
 ];
 
 function AppLayout() {
@@ -170,9 +171,29 @@ function AppLayout() {
           })}
         </nav>
 
+        {/* User Profile Mini Badge */}
+        <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 12, padding: "0 8px", marginBottom: 16, paddingTop: 32 }}>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(255,255,255,0.15)", flexShrink: 0, background: "#222" }}>
+            {user.user_metadata?.avatar_url ? (
+              <img src={user.user_metadata.avatar_url} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ) : (
+              <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #8052ff, #5030cc)", color: "#fff", fontSize: 14, fontWeight: 600 }}>
+                {(user.user_metadata?.display_name || user.email || "?")[0].toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <p style={{ color: "#ffffff", fontSize: 13, fontWeight: 600, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {user.user_metadata?.display_name || "PawPal User"}
+            </p>
+            <p style={{ color: "#9a9a9a", fontSize: 11, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {user.email}
+            </p>
+          </div>
+        </div>
+
         {/* Sign out */}
-        <div style={{ marginTop: "auto", paddingTop: 32 }}>
-          <p style={{ color: "#9a9a9a", fontSize: 12, paddingLeft: 16, marginBottom: 8, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</p>
+        <div>
           <button
             onClick={() => {
               setIsMobileMenuOpen(false);
