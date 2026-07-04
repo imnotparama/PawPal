@@ -60,6 +60,7 @@ Pet owners face three universal problems:
   merging all health events across all pets
 - **Health Score** — Dynamic calculation based on vaccination 
   compliance (vaccines_completed / expected_vaccinations * 100) and recent activity with a prominent 78px typography arc display on the main dashboard.
+- **My Profile Settings** — Full account personalization workspace. Includes canvas-based image compression for user avatar uploads to Supabase storage, metadata editing for display name/username, location, phone, favorite pet type selection, and focus area priorities, which dynamically sync with the navigation sidebar user badge.
 
 ### 💎 Premium UX Details
 - **Cat Purr Sound Therapy Widget**: Calming synthesizer using Web Audio API low-frequency oscillators (sine + triangle waves) modulated by breathing cycle gains (~0.18 Hz frequency) to simulate standard cat purring, complete with a custom neon canvas vibration visualizer.
