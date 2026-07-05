@@ -11,15 +11,21 @@ This document outlines the security architecture, threat modeling, and data prot
 * **Implementation**: We refactored all chat communication to use **TanStack Start Server Functions** (`src/utils/chat.ts`). 
 * **Mechanism**: The browser client makes a request to the serverless backend via a secure RPC bridge. The serverless function privately queries the Gemini API using the server-side environment variable `GEMINI_API_KEY`, returning only the formatted text candidates to the client. The key itself is never exposed to the public.
 
-### 2. Path Traversal Sanitation
-* **Vulnerability Mitigated**: Arbitrary file uploads in `usePets.ts` and `useMedicalRecords.ts` using unsanitized file extensions retrieved directly from `file.name` can lead to path traversal vulnerabilities.
-* **Implementation**: Sanitized all uploaded file extensions using regex replacement to strictly isolate alphanumeric characters:
+### 2. Path Traversal Sanitation & Validation
+* **Vulnerability Mitigated**: Dynamic components inside file paths (like `user.id` or user uploads) reaching Supabase storage upload functions can introduce path traversal vulnerabilities if directory traversal tokens (like `..`) are injected.
+* **Implementation**: Sanitized all uploaded file extensions using regex replacement to strictly isolate alphanumeric characters, and validated constructed upload paths to guarantee zero directory traversal:
   ```typescript
+  // Extension sanitization
   const rawExt = file.name.split(".").pop() || "";
   const cleanExt = rawExt.replace(/[^a-zA-Z0-9]/g, "");
   const ext = cleanExt || "pdf";
+
+  // Path validation
+  if (path.includes("..") || path.includes("../")) {
+    throw new Error("Security check failed: Path traversal detected");
+  }
   ```
-  This strips out any directory traversal characters (e.g. `.` or `/`), neutralizing path traversal attempts.
+  This ensures any attempt to write or read outside the authorized user directory is blocked before invoking the Supabase storage SDK.
 
 ### 3. HTTP Strict Transport Security (HSTS) & Headers
 * **Vulnerability Mitigated**: Missing security headers (like HSTS and Clickjacking blocks) can leave users vulnerable to downgrade attacks (SSL stripping) or clickjacking.

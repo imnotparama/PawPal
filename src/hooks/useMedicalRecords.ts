@@ -64,6 +64,9 @@ export function useMedicalRecords(petId?: string) {
         const cleanExt = rawExt.replace(/[^a-zA-Z0-9]/g, "");
         const ext = cleanExt || "pdf";
         const path = `records/${user.id}/${Date.now()}.${ext}`;
+        if (path.includes("..") || path.includes("../")) {
+          throw new Error("Security check failed: Path traversal detected");
+        }
         const { error: uploadError } = await supabase.storage.from("pawpal-uploads").upload(path, values.file);
         if (uploadError) throw uploadError;
         const { data: urlData } = supabase.storage.from("pawpal-uploads").getPublicUrl(path);

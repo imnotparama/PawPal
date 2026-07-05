@@ -134,6 +134,9 @@ export function ProfilePage() {
     try {
       const compressedBlob = await compressImage(file);
       const path = `avatars/${user.id}/avatar.jpg`;
+      if (path.includes("..") || path.includes("../")) {
+        throw new Error("Security check failed: Path traversal detected");
+      }
 
       const { error: uploadError } = await supabase.storage
         .from("pawpal-uploads")

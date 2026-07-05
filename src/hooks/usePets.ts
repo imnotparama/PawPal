@@ -124,6 +124,9 @@ export function usePets() {
       if (values.photo) {
         const compressedBlob = await compressImage(values.photo);
         const path = `${user.id}/pets/${petId}/photo`;
+        if (path.includes("..") || path.includes("../")) {
+          throw new Error("Security check failed: Path traversal detected");
+        }
         const { error: uploadError } = await supabase.storage.from("pawpal-uploads").upload(path, compressedBlob, {
           upsert: true,
           contentType: "image/jpeg"
