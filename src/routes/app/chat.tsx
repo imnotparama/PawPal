@@ -366,11 +366,65 @@ function ChatPage() {
               ))}
             </div>
 
-            {/* Suggestions Chips */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", maxWidth: 500 }}>
-              {suggestions.map((s) => (
-                <button key={s} onClick={() => { setInput(s); }} style={{ background: "rgba(128,82,255,0.1)", border: "1px solid rgba(128,82,255,0.3)", color: "#ffffff", borderRadius: 20, padding: "8px 16px", fontSize: 13, cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.borderColor = "#8052ff" } onMouseLeave={(e) => e.currentTarget.style.borderColor = "rgba(128,82,255,0.3)" }>{s}</button>
-              ))}
+            {/* Symptom Quick-Triage Hub */}
+            <div style={{ width: "100%", maxWidth: 640, marginTop: 12 }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center", marginBottom: 16, fontFamily: "'Space Grotesk', sans-serif" }}>
+                Select a symptom category to quick-triage:
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
+                {[
+                  {
+                    title: "Skin & Ears 🐾",
+                    desc: "Itching, scratching, rashes, or ticks",
+                    prompt: "My pet is scratching their ears and shaking their head frequently. What are common causes, and how do I examine their ears safely?"
+                  },
+                  {
+                    title: "Digestion & Food 🥩",
+                    desc: "Loss of appetite or dietary questions",
+                    prompt: "My pet has lost their appetite today and isn't eating. What symptoms should I watch for, and when is it a veterinary emergency?"
+                  },
+                  {
+                    title: "Energy & Sleep ⚡",
+                    desc: "Lethargy, sleeping a lot, or behavior changes",
+                    prompt: "My pet seems unusually lethargic and is sleeping much more than normal. How can I check their vital signs at home?"
+                  },
+                  {
+                    title: "Vaccines & Checks 🩺",
+                    desc: "Annual timelines or tick inspection guidance",
+                    prompt: "How often does my pet need vaccinations, and what is the best way to inspect them for ticks and fleas after outdoor play?"
+                  }
+                ].map((s) => (
+                  <button
+                    key={s.title}
+                    onClick={() => setInput(s.prompt)}
+                    style={{
+                      background: "rgba(255,255,255,0.02)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      borderRadius: 16,
+                      padding: "16px",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease-in-out",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 4
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "#8052ff";
+                      e.currentTarget.style.background = "rgba(128,82,255,0.05)";
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                      e.currentTarget.style.background = "rgba(255,255,255,0.02)";
+                      e.currentTarget.style.transform = "translateY(0)";
+                    }}
+                  >
+                    <span style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", fontFamily: "'Space Grotesk', sans-serif" }}>{s.title}</span>
+                    <span style={{ fontSize: 11, color: "#9a9a9a", fontFamily: "'Space Grotesk', sans-serif", lineHeight: 1.4 }}>{s.desc}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         ) : (

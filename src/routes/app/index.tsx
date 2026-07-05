@@ -660,12 +660,50 @@ function Dashboard() {
             overflow: "hidden"
           }}
         >
-          <span style={{ fontSize: 12, fontWeight: 600, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>Health Score</span>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-            <span style={{ fontSize: 78, fontWeight: 700, color: "#ffffff", lineHeight: 1 }}>
-              {healthScore}
-            </span>
-            <span style={{ fontSize: 24, fontWeight: 500, color: "#8052ff" }}>%</span>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, marginBottom: 8 }}>
+            <div>
+              <span style={{ fontSize: 12, fontWeight: 600, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8, display: "block" }}>Health Score</span>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                <span style={{ fontSize: 64, fontWeight: 700, color: "#ffffff", lineHeight: 1, fontFamily: "'Space Grotesk', sans-serif" }}>
+                  {healthScore}
+                </span>
+                <span style={{ fontSize: 24, fontWeight: 500, color: "#8052ff" }}>%</span>
+              </div>
+            </div>
+            
+            {/* SVG Circular Progress Gauge */}
+            <div style={{ position: "relative", width: 90, height: 90 }}>
+              <svg width="90" height="90" viewBox="0 0 90 90" style={{ transform: "rotate(-90deg)" }}>
+                {/* Background track circle */}
+                <circle
+                  cx="45"
+                  cy="45"
+                  r="36"
+                  fill="transparent"
+                  stroke="rgba(255,255,255,0.05)"
+                  strokeWidth="6"
+                />
+                {/* Glowing progress circle */}
+                <motion.circle
+                  cx="45"
+                  cy="45"
+                  r="36"
+                  fill="transparent"
+                  stroke="#8052ff"
+                  strokeWidth="6"
+                  strokeDasharray="226.2"
+                  initial={{ strokeDashoffset: "226.2" }}
+                  animate={{ strokeDashoffset: String(226.2 * (1 - healthScore / 100)) }}
+                  transition={{ duration: 1.2, ease: "easeOut" }}
+                  strokeLinecap="round"
+                  style={{ filter: "drop-shadow(0 0 4px #8052ff)" }}
+                />
+              </svg>
+              {/* Center status text */}
+              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+                {healthScore >= 80 ? "🏆" : healthScore >= 50 ? "⚡" : "⚠️"}
+              </div>
+            </div>
           </div>
           
           <div style={{ marginTop: 20 }}>
