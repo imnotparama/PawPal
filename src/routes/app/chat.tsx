@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { usePets } from "@/hooks/usePets";
 import { useChat } from "@/hooks/useChat";
