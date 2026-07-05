@@ -150,79 +150,93 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
     const group = new THREE.Group();
     scene.add(group);
 
-    // Warm Orange wireframe cat material
-    const wireMaterial = new THREE.MeshBasicMaterial({
-      color: 0xff9f1c,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.22
+    // Warm, ambient & directional lighting to give cat solid depth & shadows
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    dirLight.position.set(2, 4, 3);
+    scene.add(dirLight);
+
+    // Ginger orange solid cat material with smooth specular highlights
+    const catMaterial = new THREE.MeshPhongMaterial({
+      color: 0xf9812a,      
+      shininess: 8,
+      specular: 0x222222,
+      flatShading: false    
     });
 
     // 1. Cat Body (Horizontal Cylinder)
-    const bodyGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.9, 8);
-    const bodyMesh = new THREE.Mesh(bodyGeo, wireMaterial);
+    const bodyGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.9, 16);
+    const bodyMesh = new THREE.Mesh(bodyGeo, catMaterial);
     bodyMesh.position.set(0, -0.1, 0);
     bodyMesh.rotation.x = Math.PI / 2;
     group.add(bodyMesh);
 
     // 2. Neck (Angled forward)
-    const neckGeo = new THREE.CylinderGeometry(0.12, 0.14, 0.35, 6);
-    const neckMesh = new THREE.Mesh(neckGeo, wireMaterial);
+    const neckGeo = new THREE.CylinderGeometry(0.12, 0.14, 0.35, 12);
+    const neckMesh = new THREE.Mesh(neckGeo, catMaterial);
     neckMesh.position.set(0, 0.15, 0.38);
     neckMesh.rotation.x = -Math.PI / 6;
     group.add(neckMesh);
 
     // 3. Cat Head (Sphere)
-    const headGeo = new THREE.SphereGeometry(0.26, 8, 8);
-    const headMesh = new THREE.Mesh(headGeo, wireMaterial);
+    const headGeo = new THREE.SphereGeometry(0.26, 16, 16);
+    const headMesh = new THREE.Mesh(headGeo, catMaterial);
     headMesh.position.set(0, 0.38, 0.5);
     group.add(headMesh);
 
-    // 4. Pointy Cat Ears (Cones)
-    const earGeo = new THREE.ConeGeometry(0.08, 0.18, 4);
-    const leftEar = new THREE.Mesh(earGeo, wireMaterial);
+    // 4. Muzzle (Round snout sphere)
+    const muzzleGeo = new THREE.SphereGeometry(0.11, 10, 10);
+    const muzzleMesh = new THREE.Mesh(muzzleGeo, catMaterial);
+    muzzleMesh.position.set(0, 0.33, 0.66);
+    group.add(muzzleMesh);
+
+    // 5. Pointy Cat Ears (Cones)
+    const earGeo = new THREE.ConeGeometry(0.08, 0.18, 12);
+    const leftEar = new THREE.Mesh(earGeo, catMaterial);
     leftEar.position.set(-0.14, 0.62, 0.48);
     leftEar.rotation.z = 0.2;
     leftEar.rotation.x = -0.1;
     group.add(leftEar);
 
-    const rightEar = new THREE.Mesh(earGeo, wireMaterial);
+    const rightEar = new THREE.Mesh(earGeo, catMaterial);
     rightEar.position.set(0.14, 0.62, 0.48);
     rightEar.rotation.z = -0.2;
     rightEar.rotation.x = -0.1;
     group.add(rightEar);
 
-    // 5. Tail (Cylinder pointing up/back)
-    const tailGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.5, 4);
-    const tailMesh = new THREE.Mesh(tailGeo, wireMaterial);
+    // 6. Tail (Cylinder pointing up/back)
+    const tailGeo = new THREE.CylinderGeometry(0.025, 0.02, 0.5, 8);
+    const tailMesh = new THREE.Mesh(tailGeo, catMaterial);
     tailMesh.position.set(0, 0.25, -0.6);
     tailMesh.rotation.x = -Math.PI / 4;
     group.add(tailMesh);
 
-    // 6. 4 Legs (Cylinders)
-    const legGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.45, 5);
+    // 7. 4 Legs (Cylinders)
+    const legGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.45, 8);
     
-    const legFL = new THREE.Mesh(legGeo, wireMaterial);
+    const legFL = new THREE.Mesh(legGeo, catMaterial);
     legFL.position.set(-0.15, -0.45, 0.3);
     group.add(legFL);
 
-    const legFR = new THREE.Mesh(legGeo, wireMaterial);
+    const legFR = new THREE.Mesh(legGeo, catMaterial);
     legFR.position.set(0.15, -0.45, 0.3);
     group.add(legFR);
 
-    const legBL = new THREE.Mesh(legGeo, wireMaterial);
+    const legBL = new THREE.Mesh(legGeo, catMaterial);
     legBL.position.set(-0.15, -0.45, -0.3);
     group.add(legBL);
 
-    const legBR = new THREE.Mesh(legGeo, wireMaterial);
+    const legBR = new THREE.Mesh(legGeo, catMaterial);
     legBR.position.set(0.15, -0.45, -0.3);
     group.add(legBR);
 
-    // 7. Whiskers (Line segments)
+    // 8. Whiskers (Faint white line segments to pop on orange fur)
     const whiskerMaterial = new THREE.LineBasicMaterial({
-      color: 0xff9f1c,
+      color: 0xffffff,
       transparent: true,
-      opacity: 0.4
+      opacity: 0.55
     });
 
     const whiskerPointsL = [
@@ -243,7 +257,7 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
     const whiskersR = new THREE.LineSegments(whiskerGeoR, whiskerMaterial);
     group.add(whiskersR);
 
-    // 8. Eyes (Tiny black spheres)
+    // 9. Eyes (Tiny black spheres)
     const eyeGeo = new THREE.SphereGeometry(0.03, 4, 4);
     const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
     
@@ -255,7 +269,7 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
     rightEye.position.set(0.11, 0.45, 0.68);
     group.add(rightEye);
 
-    // 9. Pink Nose (Cone)
+    // 10. Pink Nose (Cone)
     const noseGeo = new THREE.ConeGeometry(0.025, 0.04, 3);
     const noseMaterial = new THREE.MeshBasicMaterial({ color: 0xff6b6b });
     const noseMesh = new THREE.Mesh(noseGeo, noseMaterial);
@@ -276,7 +290,7 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
     const nodeMaterial = new THREE.MeshBasicMaterial({
       color: 0x8052ff,
       transparent: true,
-      opacity: 0.8
+      opacity: 0.95
     });
 
     nodesData.forEach((data) => {
@@ -383,6 +397,7 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
       bodyGeo.dispose();
       neckGeo.dispose();
       headGeo.dispose();
+      muzzleGeo.dispose();
       earGeo.dispose();
       tailGeo.dispose();
       legGeo.dispose();
@@ -391,7 +406,7 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
       eyeGeo.dispose();
       noseGeo.dispose();
       
-      wireMaterial.dispose();
+      catMaterial.dispose();
       nodeMaterial.dispose();
       lineMaterial.dispose();
       lineGeo.dispose();
