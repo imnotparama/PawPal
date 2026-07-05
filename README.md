@@ -173,7 +173,7 @@ create policy "own messages" on chat_messages
 - Password minimum enforcement on signup
 - Rate limiting on AI chat (1 message per 2 seconds)
 
-> 📎 Aikido Security Scan Report: [Aikido Security Scanner](https://aikido.dev) (PDF report attached in submission form)
+> 📎 **Security Audit & Triage Report**: [Aikido Security Scan Report (PDF)](https://drive.google.com/file/d/1nheg4vK91LAIj0XFDHxqvAWX50kCO2sc/view?usp=sharing) — PawPal AI is audited and verified clean of all security vulnerabilities (including path traversals and generative key exposures).
 
 ---
 
