@@ -159,6 +159,7 @@ function ChatPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      document.title = "AI Chat — PawPal AI";
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
         const rec = new SpeechRecognition();
@@ -304,7 +305,17 @@ function ChatPage() {
         )}
 
         {messages.length === 0 && !sending ? (
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, padding: "48px 0", minHeight: "100%" }}>
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            flex: 1,
+            height: "100%",
+            minHeight: 0,
+            gap: 24,
+            padding: "48px 0"
+          }}>
             
             {/* Paw Illustration with Breathing Animation */}
             <motion.div

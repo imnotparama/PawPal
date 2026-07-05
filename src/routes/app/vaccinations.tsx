@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePets } from "@/hooks/usePets";
 import { useVaccinations } from "@/hooks/useVaccinations";
 import { NoiseBackground } from "@/components/ui/noise-background";
@@ -98,6 +98,12 @@ function VaccinationsPage() {
   const [activeFilter, setActiveFilter] = useState("All Pets");
   const [showModal, setShowModal] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      document.title = "Vaccinations — PawPal AI";
+    }
+  }, []);
+
   const filters = ["All Pets", ...pets.map((p) => p.name)];
 
   const filtered = activeFilter === "All Pets"
@@ -124,7 +130,7 @@ function VaccinationsPage() {
   }
 
   return (
-    <div>
+    <div style={{ background: "#000000", minHeight: "100vh", position: "relative" }}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-start mb-8">
         <div>

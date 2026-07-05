@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { CometCard } from "@/components/ui/comet-card";
 import { usePets } from "@/hooks/usePets";
 import { z } from "zod";
@@ -164,7 +164,7 @@ function PetCard({ pet, index, onDelete, onOpenPassport }: { pet: any; index: nu
           }}
         >
           {/* Photo */}
-          <div style={{ position: "relative", aspectRatio: "3/4", borderRadius: 14, overflow: "hidden" }}>
+          <div style={{ position: "relative", aspectRatio: "16/10", borderRadius: 12, overflow: "hidden" }}>
             {pet.photo_url ? (
               <img
                 src={pet.photo_url}
@@ -262,6 +262,24 @@ function PetCard({ pet, index, onDelete, onOpenPassport }: { pet: any; index: nu
                 Passport 📖
               </button>
             </div>
+          </div>
+          
+          <div 
+            style={{ 
+              textAlign: "center", 
+              color: "#8052ff", 
+              fontFamily: "'Space Grotesk', sans-serif", 
+              fontWeight: 500, 
+              fontSize: 13, 
+              opacity: hovered ? 1 : 0, 
+              transition: "opacity 0.2s ease, transform 0.2s ease",
+              transform: hovered ? "translateY(0)" : "translateY(4px)",
+              paddingTop: 4,
+              paddingBottom: 4,
+              marginTop: 4,
+            }}
+          >
+            View Profile →
           </div>
         </div>
       </CometCard>
@@ -504,6 +522,12 @@ function PetsPage() {
   const { pets, loading, addPet, deletePet } = usePets();
   const [showModal, setShowModal] = useState(false);
   const [selectedPassportPet, setSelectedPassportPet] = useState<any | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      document.title = "My Pets — PawPal AI";
+    }
+  }, []);
 
   const handleAddPet = async (values: any) => {
     await addPet(values);

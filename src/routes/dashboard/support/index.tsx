@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { 
   Accordion, 
@@ -67,6 +67,12 @@ function SupportPage() {
   const navigate = useNavigate();
   const [issueType, setIssueType] = useState("Bug Report");
   const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      document.title = "Help & Support — PawPal AI";
+    }
+  }, []);
 
   const handleSubmitReport = (e: React.FormEvent) => {
     e.preventDefault();
@@ -337,7 +343,10 @@ function SupportPage() {
                 <Mail size={18} color="#ffffff" className="group-hover:text-[#8052ff] transition-colors" />
                 <div style={{ flex: 1 }}>
                   <span style={{ fontSize: 14, fontWeight: 500, color: "#ffffff", display: "block" }} className="group-hover:text-[#8052ff] transition-colors">Email</span>
-                  <span style={{ fontSize: 12, color: "#9a9a9a" }}>hunterparama@gmail.com</span>
+                  <span style={{ fontSize: 12, color: "#9a9a9a", display: "block" }}>hunterparama@gmail.com</span>
+                  <span style={{ fontSize: 11, color: "#9a9a9a", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 400, marginTop: 2, display: "block" }}>
+                    ⚡ Typically responds within 24 hours
+                  </span>
                 </div>
               </a>
 
@@ -372,6 +381,14 @@ function SupportPage() {
               </span>
               <span style={{ background: "rgba(128,82,255,0.1)", border: "1px solid rgba(128,82,255,0.2)", color: "#8052ff", borderRadius: 20, padding: "4px 12px", fontSize: 11 }}>
                 Hack the Kitty 2026
+              </span>
+            </div>
+
+            {/* System Status */}
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 12 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#15846e", display: "inline-block" }} />
+              <span style={{ fontSize: 11, color: "#9a9a9a", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 400 }}>
+                All systems operational
               </span>
             </div>
           </motion.div>

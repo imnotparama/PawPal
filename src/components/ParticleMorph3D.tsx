@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo } from "react";
 import * as THREE from "three";
 import { CAT_PATH, DOG_PATH, GIRL_CAT_PATH } from "@/lib/silhouettes";
 
@@ -271,7 +271,7 @@ const fragmentShader = `
  * 6000 instanced outlined 3D triangles with position-based color gradient,
  * Perlin noise floating, per-triangle 3D rotation, and scroll-bound morphing.
  */
-export function ParticleMorph3D() {
+export const ParticleMorph3D = memo(function ParticleMorph3D() {
   const containerRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number>(0);
   const mouseRef = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
@@ -452,4 +452,4 @@ export function ParticleMorph3D() {
       aria-hidden="true"
     />
   );
-}
+});

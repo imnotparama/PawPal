@@ -486,3 +486,19 @@
 
 .bg-void { background-color: #000000 !important; }
 html, body, main { background-color: #000000 !important; }
+
+.timeline-connecting-line {
+  position: absolute;
+  left: 17px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(128,82,255,0.4) 0%, rgba(128,82,255,0.1) 100%);
+  z-index: 0;
+}
+
+@media (min-width: 768px) {
+  .timeline-connecting-line {
+    left: 185px;
+  }
+}

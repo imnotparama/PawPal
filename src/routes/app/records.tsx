@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePets } from "@/hooks/usePets";
 import { useMedicalRecords } from "@/hooks/useMedicalRecords";
 import { NoiseBackground } from "@/components/ui/noise-background";
@@ -113,6 +113,12 @@ function RecordsPage() {
   const [typeFilter, setTypeFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      document.title = "Medical Records — PawPal AI";
+    }
+  }, []);
 
   const petFilters = ["All Pets", ...pets.map((p) => p.name)];
   const typeFilters = ["All", "Checkup", "Surgery", "Treatment", "Consultation", "Wellness"];

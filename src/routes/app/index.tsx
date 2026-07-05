@@ -390,36 +390,36 @@ function Dashboard() {
   const { messages } = useChat();
   const loading = petsLoading || vacsLoading || recsLoading;
 
-  const [firstName, setFirstName] = useState("there");
   const [isJudgeView, setIsJudgeView] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const searchParams = new URLSearchParams(window.location.search);
       setIsJudgeView(searchParams.get("judgeview") === "true");
+      document.title = "Dashboard — PawPal AI";
     }
   }, []);
 
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
-        const fullName = currentUser?.user_metadata?.full_name;
-        const name = fullName?.split(' ')[0] ?? currentUser?.email?.split('@')[0] ?? 'there';
-        setFirstName(name);
-      } catch (err) {
-        console.error("Error fetching user name:", err);
-      }
-    }
-    fetchUser();
-  }, []);
+  const displayName = 
+    user?.user_metadata?.display_name ||
+    user?.user_metadata?.full_name?.split(' ')[0] ||
+    'there';
+
+  const firstPetName = pets[0]?.name;
+  const subtitleText = firstPetName 
+    ? `Here's everything happening with ${firstPetName} today.`
+    : "Here's everything happening with your pets today.";
+
+  const completedCheckups = records.filter(r =>
+    r.record_type === 'Wellness' || 
+    r.record_type === 'Checkup'
+  ).length;
 
   const completedVaccinesCount = vaccinations.filter(v => v.status === "Completed").length;
   const expectedVaccinesCount = vaccinations.length;
   const healthScore = expectedVaccinesCount > 0 ? Math.round((completedVaccinesCount / expectedVaccinesCount) * 100) : 100;
 
   const upcomingCount = vaccinations.filter(v => v.status === "Upcoming").length;
-  const checkupsCount = records.filter(r => r.type?.toLowerCase() === "checkup").length;
   const overdueCount = vaccinations.filter((v) => v.status === "Upcoming" && new Date(v.date) < new Date()).length;
 
   const nextVaccines = vaccinations
@@ -541,28 +541,36 @@ function Dashboard() {
   return (
     <div style={{ background: "#000000", minHeight: "100vh", color: "#ffffff", fontFamily: "'Space Grotesk', sans-serif" }}>
       {isJudgeView && (
-        <div
-          style={{
-            height: 36,
-            background: "linear-gradient(90deg, rgba(128,82,255,0.1) 0%, rgba(128,82,255,0.05) 100%)",
-            borderBottom: "1px solid rgba(128,82,255,0.15)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            marginBottom: 20,
-            borderRadius: 8
-          }}
-        >
-          <span style={{ fontSize: 14 }}>🐱</span>
-          <span style={{ fontSize: 12, color: "#9a9a9a" }}>Built for Hack the Kitty 2026</span>
+        <div style={{
+          width: '100%',
+          height: '36px',
+          background: 'linear-gradient(90deg, rgba(128,82,255,0.12), rgba(128,82,255,0.06))',
+          borderBottom: '1px solid rgba(128,82,255,0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '12px',
+          marginBottom: '24px'
+        }}>
+          <span style={{fontSize:'14px'}}>🐱</span>
+          <span style={{
+            color: '#9a9a9a',
+            fontSize: '12px',
+            fontFamily: 'Space Grotesk'
+          }}>
+            Built for Hack the Kitty 2026 — Judge Preview
+          </span>
           <a 
-            href="https://pawpal-wheat.vercel.app" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            style={{ fontSize: 12, color: "#8052ff", textDecoration: "none", fontWeight: 500 }}
+            href="https://github.com/imnotparama/PawPal"
+            target="_blank"
+            style={{
+              color: '#8052ff',
+              fontSize: '12px',
+              textDecoration: 'none',
+              fontFamily: 'Space Grotesk'
+            }}
           >
-            View Live Demo →
+            View Source →
           </a>
         </div>
       )}
@@ -574,7 +582,7 @@ function Dashboard() {
           transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
           style={{ fontSize: 36, fontWeight: 300, color: "#ffffff", marginBottom: 6 }}
         >
-          Welcome back, <span style={{ color: '#8052ff', fontWeight: 500 }}>{firstName}</span>.
+          Welcome back, <span style={{ color: '#8052ff', fontWeight: 500 }}>{displayName}</span>.
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 16 }}
@@ -582,7 +590,7 @@ function Dashboard() {
           transition={{ duration: 0.4, ease: "easeOut", delay: 0.15 }}
           style={{ fontSize: 15, color: "#9a9a9a" }}
         >
-          Here is your pet care compliance report for today.
+          {subtitleText}
         </motion.p>
       </div>
 
@@ -734,7 +742,7 @@ function Dashboard() {
         >
           <div>
             <p style={{ fontSize: 12, fontWeight: 500, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Completed Checkups</p>
-            <p style={{ fontSize: 36, fontWeight: 600, color: "#15846e", margin: 0 }}>{checkupsCount}</p>
+            <p style={{ fontSize: 36, fontWeight: 600, color: "#15846e", margin: 0 }}>{completedCheckups}</p>
           </div>
           <span style={{ fontSize: 32 }}>🩺</span>
         </motion.div>

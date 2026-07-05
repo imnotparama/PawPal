@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePets } from "@/hooks/usePets";
 import { useVaccinations } from "@/hooks/useVaccinations";
 import { useMedicalRecords } from "@/hooks/useMedicalRecords";
@@ -25,6 +25,12 @@ function TimelinePage() {
   const { vaccinations } = useVaccinations();
   const { records } = useMedicalRecords();
   const [filter, setFilter] = useState("All Pets");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      document.title = "Health Timeline — PawPal AI";
+    }
+  }, []);
 
   const petFilters = ["All Pets", ...pets.map((p) => p.name)];
 
@@ -120,17 +126,28 @@ function TimelinePage() {
           {sortedYears.map((year) => (
             <div key={year} style={{ marginBottom: 32 }}>
               {/* Year label */}
-              <div style={{ fontSize: 11, color: "#9a9a9a", letterSpacing: "0.08em", textTransform: "uppercase", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 6, marginBottom: 16, marginTop: 8 }}>{year}</div>
+              <div style={{
+                background: "transparent",
+                border: "none",
+                color: "#9a9a9a",
+                fontSize: "11px",
+                fontWeight: 400,
+                letterSpacing: "0.07em",
+                textTransform: "uppercase",
+                padding: 0,
+                marginBottom: "12px",
+                marginTop: 8
+              }}>{year}</div>
 
               {/* Timeline */}
-              <div className="relative pl-8 md:pl-16">
+              <div className="relative pl-8 md:pl-[216px]">
                 {/* Animated vertical line */}
                 <motion.div
                   initial={{ scaleY: 0 }}
                   animate={{ scaleY: 1 }}
                   transition={{ duration: 1, ease: "easeOut" }}
-                  className="absolute left-[15px] md:left-[31px] top-0 bottom-0 w-[1px] transformOrigin-top"
-                  style={{ background: "linear-gradient(to bottom, rgba(128,82,255,0.4) 0%, rgba(128,82,255,0.1) 100%)", transformOrigin: "top" }}
+                  className="timeline-connecting-line"
+                  style={{ transformOrigin: "top" }}
                 />
 
                 {groupedByYear[year].map((event, i) => {
@@ -153,7 +170,7 @@ function TimelinePage() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.3, delay: i * 0.1 }}
                         className="absolute left-[-25px] md:left-[-41px] top-[22px] w-5 h-5 rounded-full flex items-center justify-center"
-                        style={{ border: `1px solid ${color}`, background: `${color}1A`, boxShadow: `0 0 10px ${color}66` }}
+                        style={{ border: `1px solid ${color}`, background: `${color}1A`, boxShadow: `0 0 10px ${color}66`, position: "absolute", zIndex: 1 }}
                       >
                         <div style={{ width: 8, height: 8, borderRadius: "50%", background: color }} />
                       </motion.div>
@@ -161,7 +178,7 @@ function TimelinePage() {
                       {/* Card */}
                       <div
                         className="ml-2 md:ml-4 cursor-pointer transition-all duration-200"
-                        style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: "20px 24px" }}
+                        style={{ position: "relative", zIndex: 1, background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: "20px 24px" }}
                         onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = color; e.currentTarget.style.boxShadow = "0 0 15px " + color + "1F"; }}
                         onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.01)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.boxShadow = "none"; }}
                       >

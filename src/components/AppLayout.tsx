@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate, Outlet } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { CursorGlow } from "@/components/CursorGlow";
 import { 
@@ -63,7 +63,7 @@ const playSound = (type: "hover" | "click") => {
   }
 };
 
-export function AppLayout() {
+export const AppLayout = React.memo(function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, loading, signOut } = useAuth();
@@ -207,72 +207,75 @@ export function AppLayout() {
           })}
         </nav>
 
-        {/* User Profile Mini Badge */}
-        <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 12, padding: "0 8px", marginBottom: 16, paddingTop: 32 }}>
-          <div style={{ width: 36, height: 36, borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(255,255,255,0.15)", flexShrink: 0, background: "#222" }}>
-            {user.user_metadata?.avatar_url ? (
-              <img src={user.user_metadata.avatar_url} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : (
-              <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #8052ff, #5030cc)", color: "#fff", fontSize: 14, fontWeight: 600 }}>
-                {(user.user_metadata?.display_name || user.email || "?")[0].toUpperCase()}
-              </div>
-            )}
+        {/* Sidebar Bottom Section with Breathable Spacing */}
+        <div style={{ marginTop: "auto", paddingBottom: "16px", display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
+          {/* User Profile Mini Badge */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 8px", paddingTop: 16 }}>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(255,255,255,0.15)", flexShrink: 0, background: "#222" }}>
+              {user.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #8052ff, #5030cc)", color: "#fff", fontSize: 14, fontWeight: 600 }}>
+                  {(user.user_metadata?.display_name || user.email || "?")[0].toUpperCase()}
+                </div>
+              )}
+            </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <p style={{ color: "#ffffff", fontSize: 13, fontWeight: 600, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {user.user_metadata?.display_name || "PawPal User"}
+              </p>
+              <p style={{ color: "#9a9a9a", fontSize: 11, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {user.email}
+              </p>
+            </div>
           </div>
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <p style={{ color: "#ffffff", fontSize: 13, fontWeight: 600, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {user.user_metadata?.display_name || "PawPal User"}
-            </p>
-            <p style={{ color: "#9a9a9a", fontSize: 11, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {user.email}
-            </p>
-          </div>
-        </div>
 
-        {/* Sign out & About Info Row */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%" }}>
-          <button
-            onClick={() => {
-              setIsMobileMenuOpen(false);
-              signOut();
-            }}
-            style={{
-              flex: 1,
-              padding: "10px 16px",
-              borderRadius: 8,
-              fontSize: 12,
-              fontWeight: 400,
-              color: signOutHovered ? "#ff4444" : "#9a9a9a",
-              textAlign: "left",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              transition: "color 0.2s"
-            }}
-            onMouseEnter={() => setSignOutHovered(true)}
-            onMouseLeave={() => setSignOutHovered(false)}
-          >
-            Sign out
-          </button>
-          
-          <button
-            onClick={() => setShowAboutModal(true)}
-            style={{
-              padding: "8px",
-              borderRadius: "50%",
-              background: "transparent",
-              border: "none",
-              color: "#9a9a9a",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.2s"
-            }}
-            className="hover:text-[#8052ff] hover:bg-white/5"
-            title="About PawPal AI"
-          >
-            <Info size={16} />
-          </button>
+          {/* Sign out & About Info Row */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%" }}>
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                signOut();
+              }}
+              style={{
+                flex: 1,
+                padding: "10px 16px",
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 400,
+                color: signOutHovered ? "#ff4444" : "#9a9a9a",
+                textAlign: "left",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                transition: "color 0.2s"
+              }}
+              onMouseEnter={() => setSignOutHovered(true)}
+              onMouseLeave={() => setSignOutHovered(false)}
+            >
+              Sign out
+            </button>
+            
+            <button
+              onClick={() => setShowAboutModal(true)}
+              style={{
+                padding: "8px",
+                borderRadius: "50%",
+                background: "transparent",
+                border: "none",
+                color: "#9a9a9a",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.2s"
+              }}
+              className="hover:text-[#8052ff] hover:bg-white/5"
+              title="About PawPal AI"
+            >
+              <Info size={16} />
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -420,4 +423,4 @@ export function AppLayout() {
       </main>
     </div>
   );
-}
+});

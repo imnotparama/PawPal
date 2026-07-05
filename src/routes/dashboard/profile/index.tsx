@@ -99,6 +99,9 @@ export function ProfilePage() {
   const [weeklySummary, setWeeklySummary] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      document.title = "My Profile — PawPal AI";
+    }
     async function loadUser() {
       setUserLoading(true);
       try {
@@ -387,9 +390,9 @@ export function ProfilePage() {
                 </AlertDialogTrigger>
                 <AlertDialogContent style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, fontFamily: "'Space Grotesk', sans-serif" }}>
                   <AlertDialogHeader>
-                    <AlertDialogTitle style={{ color: "#ffffff", fontSize: 18, fontWeight: 600 }}>Are you sure?</AlertDialogTitle>
+                    <AlertDialogTitle style={{ color: "#ffffff", fontSize: 18, fontWeight: 600 }}>Delete your account?</AlertDialogTitle>
                     <AlertDialogDescription style={{ color: "#9a9a9a", fontSize: 14, lineHeight: 1.5 }}>
-                      This will permanently delete your account, all pets, vaccinations, medical records, and chat history. This cannot be undone.
+                      This will permanently delete your account, {pets[0]?.name ? `${pets[0].name}'s profile` : 'all pet profiles'}, all vaccinations, medical records, and chat history. This action cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter style={{ marginTop: 16 }}>
@@ -400,7 +403,7 @@ export function ProfilePage() {
                       onClick={handleDeleteAccount}
                       style={{ background: "#ff4444", color: "#ffffff", border: "none", borderRadius: 24, padding: "8px 16px", cursor: "pointer" }}
                     >
-                      Delete Account
+                      Yes, delete everything
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
