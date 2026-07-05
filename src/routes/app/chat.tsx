@@ -140,7 +140,7 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10);
-    camera.position.set(0, 0, 3.2);
+    camera.position.set(0, 0.15, 2.8);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
@@ -157,33 +157,73 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
       opacity: 0.18
     });
 
-    const headGeo = new THREE.SphereGeometry(0.7, 10, 10);
+    // 1. Cat Body (Horizontal Cylinder)
+    const bodyGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.9, 8);
+    const bodyMesh = new THREE.Mesh(bodyGeo, wireMaterial);
+    bodyMesh.position.set(0, -0.1, 0);
+    bodyMesh.rotation.x = Math.PI / 2;
+    group.add(bodyMesh);
+
+    // 2. Neck (Angled forward)
+    const neckGeo = new THREE.CylinderGeometry(0.12, 0.14, 0.35, 6);
+    const neckMesh = new THREE.Mesh(neckGeo, wireMaterial);
+    neckMesh.position.set(0, 0.15, 0.38);
+    neckMesh.rotation.x = -Math.PI / 6;
+    group.add(neckMesh);
+
+    // 3. Cat Head (Sphere)
+    const headGeo = new THREE.SphereGeometry(0.26, 8, 8);
     const headMesh = new THREE.Mesh(headGeo, wireMaterial);
+    headMesh.position.set(0, 0.38, 0.5);
     group.add(headMesh);
 
-    const muzzleGeo = new THREE.CylinderGeometry(0.22, 0.3, 0.5, 8);
-    const muzzleMesh = new THREE.Mesh(muzzleGeo, wireMaterial);
-    muzzleMesh.position.set(0, -0.15, 0.55);
-    muzzleMesh.rotation.x = Math.PI / 2.3;
-    group.add(muzzleMesh);
-
-    const earGeo = new THREE.BoxGeometry(0.3, 0.5, 0.2);
+    // 4. Pointy Cat Ears (Cones)
+    const earGeo = new THREE.ConeGeometry(0.08, 0.18, 4);
     const leftEar = new THREE.Mesh(earGeo, wireMaterial);
-    leftEar.position.set(-0.65, 0.4, 0);
+    leftEar.position.set(-0.14, 0.62, 0.48);
     leftEar.rotation.z = 0.2;
+    leftEar.rotation.x = -0.1;
     group.add(leftEar);
 
     const rightEar = new THREE.Mesh(earGeo, wireMaterial);
-    rightEar.position.set(0.65, 0.4, 0);
+    rightEar.position.set(0.14, 0.62, 0.48);
     rightEar.rotation.z = -0.2;
+    rightEar.rotation.x = -0.1;
     group.add(rightEar);
 
+    // 5. Tail (Cylinder pointing up/back)
+    const tailGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.5, 4);
+    const tailMesh = new THREE.Mesh(tailGeo, wireMaterial);
+    tailMesh.position.set(0, 0.25, -0.6);
+    tailMesh.rotation.x = -Math.PI / 4;
+    group.add(tailMesh);
+
+    // 6. 4 Legs (Cylinders)
+    const legGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.45, 5);
+    
+    const legFL = new THREE.Mesh(legGeo, wireMaterial);
+    legFL.position.set(-0.15, -0.45, 0.3);
+    group.add(legFL);
+
+    const legFR = new THREE.Mesh(legGeo, wireMaterial);
+    legFR.position.set(0.15, -0.45, 0.3);
+    group.add(legFR);
+
+    const legBL = new THREE.Mesh(legGeo, wireMaterial);
+    legBL.position.set(-0.15, -0.45, -0.3);
+    group.add(legBL);
+
+    const legBR = new THREE.Mesh(legGeo, wireMaterial);
+    legBR.position.set(0.15, -0.45, -0.3);
+    group.add(legBR);
+
+    // Dynamic Hotspot Nodes on appropriate Cat Anatomy
     const nodesData = [
-      { id: "ears", label: "Ears 👂", x: 0.65, y: 0.5, z: 0.1, prompt: "My pet is shaking their head, scratching their ears, and has some discharge. What could this indicate, and how should I clean their ears?" },
-      { id: "eyes", label: "Eyes/Face 👁️", x: 0, y: 0.15, z: 0.7, prompt: "I'm noticing redness and watering in my pet's eyes, and their nose feels dry. What are normal facial health signs to check?" },
-      { id: "stomach", label: "Digestion 🥩", x: 0, y: -0.4, z: 0.5, prompt: "My pet's stomach feels hard, and they are trying to vomit but nothing is coming out. What should I check, and is this bloat?" },
-      { id: "paws", label: "Paws/Skin 🐾", x: -0.5, y: -0.8, z: 0.2, prompt: "My pet is constantly chewing and licking their paws, and the skin looks raw. Is this likely allergies, and how can I soothe it?" },
-      { id: "joints", label: "Spine/Joints 🦴", x: 0, y: -0.5, z: -0.5, prompt: "My pet is hesitating to jump, limping slightly on their hind legs, or showing stiffness when getting up. How can I support their joints?" }
+      { id: "ears", label: "Ears 👂", x: 0, y: 0.72, z: 0.48, prompt: "My pet is shaking their head, scratching their ears, and has some discharge. What could this indicate, and how should I clean their ears?" },
+      { id: "eyes", label: "Eyes/Face 👁️", x: 0, y: 0.38, z: 0.8, prompt: "I'm noticing redness and watering in my pet's eyes, and their nose feels dry. What are normal facial health signs to check?" },
+      { id: "stomach", label: "Stomach 🥩", x: 0, y: -0.1, z: 0, prompt: "My pet's stomach feels hard, and they are trying to vomit but nothing is coming out. What should I check, and is this bloat?" },
+      { id: "paws", label: "Paws/Skin 🐾", x: 0.15, y: -0.68, z: 0.3, prompt: "My pet is constantly chewing and licking their paws, and the skin looks raw. Is this likely allergies, and how can I soothe it?" },
+      { id: "joints", label: "Spine/Joints 🦴", x: 0, y: 0.18, z: -0.3, prompt: "My pet is hesitating to jump, limping slightly on their hind legs, or showing stiffness when getting up. How can I support their joints?" }
     ];
 
     const nodeMeshes: THREE.Mesh[] = [];
@@ -204,6 +244,7 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
       nodeMeshes.push(mesh);
     });
 
+    // Faint constellation lines connecting cat nodes
     const lineMaterial = new THREE.LineBasicMaterial({
       color: 0x8052ff,
       transparent: true,
@@ -271,8 +312,9 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
     const clock = new THREE.Clock();
     const animate = () => {
       const time = clock.getElapsedTime();
-      group.rotation.y = Math.sin(time * 0.4) * 0.35;
-      group.rotation.x = Math.cos(time * 0.35) * 0.12;
+      // Smooth automatic rotation
+      group.rotation.y = Math.sin(time * 0.35) * 0.45;
+      group.rotation.x = Math.cos(time * 0.3) * 0.08;
 
       nodeMeshes.forEach((mesh) => {
         if (mesh !== currentHoveredMesh) {
@@ -292,13 +334,20 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
       renderer.domElement.removeEventListener("pointermove", onPointerMove);
       renderer.domElement.removeEventListener("click", onClick);
       renderer.dispose();
+      
+      // Dispose all cat geometries
+      bodyGeo.dispose();
+      neckGeo.dispose();
       headGeo.dispose();
-      muzzleGeo.dispose();
       earGeo.dispose();
+      tailGeo.dispose();
+      legGeo.dispose();
+      
       wireMaterial.dispose();
       nodeMaterial.dispose();
       lineMaterial.dispose();
       lineGeo.dispose();
+      
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
@@ -319,6 +368,21 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
       }}
     >
       <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
+      {/* Blueprint background symbol */}
+      <div 
+        style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          opacity: 0.06,
+          fontSize: 90
+        }}
+      >
+        🐱
+      </div>
       {hoveredLabel && (
         <div 
           style={{
