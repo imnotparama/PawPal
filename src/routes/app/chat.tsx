@@ -150,11 +150,12 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
     const group = new THREE.Group();
     scene.add(group);
 
+    // Warm Orange wireframe cat material
     const wireMaterial = new THREE.MeshBasicMaterial({
-      color: 0x8052ff,
+      color: 0xff9f1c,
       wireframe: true,
       transparent: true,
-      opacity: 0.18
+      opacity: 0.22
     });
 
     // 1. Cat Body (Horizontal Cylinder)
@@ -217,7 +218,52 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
     legBR.position.set(0.15, -0.45, -0.3);
     group.add(legBR);
 
-    // Dynamic Hotspot Nodes on appropriate Cat Anatomy
+    // 7. Whiskers (Line segments)
+    const whiskerMaterial = new THREE.LineBasicMaterial({
+      color: 0xff9f1c,
+      transparent: true,
+      opacity: 0.4
+    });
+
+    const whiskerPointsL = [
+      new THREE.Vector3(-0.08, 0.38, 0.65), new THREE.Vector3(-0.35, 0.44, 0.72),
+      new THREE.Vector3(-0.08, 0.38, 0.65), new THREE.Vector3(-0.38, 0.38, 0.72),
+      new THREE.Vector3(-0.08, 0.38, 0.65), new THREE.Vector3(-0.35, 0.32, 0.72)
+    ];
+    const whiskerGeoL = new THREE.BufferGeometry().setFromPoints(whiskerPointsL);
+    const whiskersL = new THREE.LineSegments(whiskerGeoL, whiskerMaterial);
+    group.add(whiskersL);
+
+    const whiskerPointsR = [
+      new THREE.Vector3(0.08, 0.38, 0.65), new THREE.Vector3(0.35, 0.44, 0.72),
+      new THREE.Vector3(0.08, 0.38, 0.65), new THREE.Vector3(0.38, 0.38, 0.72),
+      new THREE.Vector3(0.08, 0.38, 0.65), new THREE.Vector3(0.35, 0.32, 0.72)
+    ];
+    const whiskerGeoR = new THREE.BufferGeometry().setFromPoints(whiskerPointsR);
+    const whiskersR = new THREE.LineSegments(whiskerGeoR, whiskerMaterial);
+    group.add(whiskersR);
+
+    // 8. Eyes (Tiny black spheres)
+    const eyeGeo = new THREE.SphereGeometry(0.03, 4, 4);
+    const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    
+    const leftEye = new THREE.Mesh(eyeGeo, eyeMaterial);
+    leftEye.position.set(-0.11, 0.45, 0.68);
+    group.add(leftEye);
+
+    const rightEye = new THREE.Mesh(eyeGeo, eyeMaterial);
+    rightEye.position.set(0.11, 0.45, 0.68);
+    group.add(rightEye);
+
+    // 9. Pink Nose (Cone)
+    const noseGeo = new THREE.ConeGeometry(0.025, 0.04, 3);
+    const noseMaterial = new THREE.MeshBasicMaterial({ color: 0xff6b6b });
+    const noseMesh = new THREE.Mesh(noseGeo, noseMaterial);
+    noseMesh.position.set(0, 0.37, 0.73);
+    noseMesh.rotation.x = Math.PI;
+    group.add(noseMesh);
+
+    // Dynamic Hotspot Nodes
     const nodesData = [
       { id: "ears", label: "Ears 👂", x: 0, y: 0.72, z: 0.48, prompt: "My pet is shaking their head, scratching their ears, and has some discharge. What could this indicate, and how should I clean their ears?" },
       { id: "eyes", label: "Eyes/Face 👁️", x: 0, y: 0.38, z: 0.8, prompt: "I'm noticing redness and watering in my pet's eyes, and their nose feels dry. What are normal facial health signs to check?" },
@@ -244,7 +290,7 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
       nodeMeshes.push(mesh);
     });
 
-    // Faint constellation lines connecting cat nodes
+    // Constellation lines
     const lineMaterial = new THREE.LineBasicMaterial({
       color: 0x8052ff,
       transparent: true,
@@ -312,7 +358,6 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
     const clock = new THREE.Clock();
     const animate = () => {
       const time = clock.getElapsedTime();
-      // Smooth automatic rotation
       group.rotation.y = Math.sin(time * 0.35) * 0.45;
       group.rotation.x = Math.cos(time * 0.3) * 0.08;
 
@@ -335,18 +380,24 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
       renderer.domElement.removeEventListener("click", onClick);
       renderer.dispose();
       
-      // Dispose all cat geometries
       bodyGeo.dispose();
       neckGeo.dispose();
       headGeo.dispose();
       earGeo.dispose();
       tailGeo.dispose();
       legGeo.dispose();
+      whiskerGeoL.dispose();
+      whiskerGeoR.dispose();
+      eyeGeo.dispose();
+      noseGeo.dispose();
       
       wireMaterial.dispose();
       nodeMaterial.dispose();
       lineMaterial.dispose();
       lineGeo.dispose();
+      whiskerMaterial.dispose();
+      eyeMaterial.dispose();
+      noseMaterial.dispose();
       
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
