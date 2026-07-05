@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate, Outlet } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { CursorGlow } from "@/components/CursorGlow";
 import { 
   LayoutDashboard, 
@@ -25,6 +26,43 @@ const navItems = [
   { label: "Help & Support", to: "/dashboard/support", icon: HelpCircle },
 ];
 
+const playSound = (type: "hover" | "click") => {
+  if (typeof window === "undefined") return;
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    
+    if (type === "hover") {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.012, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.05);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.05);
+    } else if (type === "click") {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(300, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.05, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.08);
+    }
+  } catch (e) {
+    // browser auto-play policy blocker
+  }
+};
+
 export function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,6 +70,7 @@ export function AppLayout() {
   const [signOutHovered, setSignOutHovered] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -118,50 +157,51 @@ export function AppLayout() {
               <Link
                 key={item.to}
                 to={item.to}
-                onClick={() => setIsMobileMenuOpen(false)}
-                style={
-                  isActive
-                    ? {
-                        padding: "10px 16px",
-                        borderRadius: "8px",
-                        fontSize: 14,
-                        fontWeight: 400,
-                        background: "rgba(128,82,255,0.15)",
-                        borderLeft: "2px solid #8052ff",
-                        color: "#ffffff",
-                        textDecoration: "none",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px",
-                        boxShadow: "inset 0 0 20px rgba(128,82,255,0.05)"
-                      }
-                    : {
-                        padding: "10px 16px",
-                        borderRadius: "8px",
-                        fontSize: 14,
-                        fontWeight: 400,
-                        color: "#9a9a9a",
-                        textDecoration: "none",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px"
-                      }
-                }
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLElement).style.color = "#ffffff";
-                    (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.05)";
-                  }
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  playSound("click");
                 }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLElement).style.color = "#9a9a9a";
-                    (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
-                  }
+                onMouseEnter={() => {
+                  setHoveredItem(item.to);
+                  playSound("hover");
+                }}
+                onMouseLeave={() => setHoveredItem(null)}
+                style={{
+                  position: "relative",
+                  padding: "10px 16px",
+                  borderRadius: "8px",
+                  fontSize: 14,
+                  fontWeight: 400,
+                  color: isActive ? "#ffffff" : "#9a9a9a",
+                  textDecoration: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  background: isActive ? "rgba(128,82,255,0.15)" : "transparent",
+                  borderLeft: isActive ? "2px solid #8052ff" : "2px solid transparent",
+                  transition: "color 0.2s, border-color 0.2s, background 0.2s",
                 }}
               >
-                <item.icon size={16} style={{ opacity: isActive ? 1 : 0.7 }} />
-                {item.label}
+                {/* Glow backdrop behind hovered item */}
+                {hoveredItem === item.to && !isActive && (
+                  <motion.div
+                    layoutId="sidebar-hover"
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "rgba(255, 255, 255, 0.05)",
+                      borderRadius: "8px",
+                      zIndex: 0,
+                      pointerEvents: "none"
+                    }}
+                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                  />
+                )}
+                
+                <span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: 12 }}>
+                  <item.icon size={16} style={{ opacity: isActive ? 1 : 0.7 }} />
+                  {item.label}
+                </span>
               </Link>
             );
           })}

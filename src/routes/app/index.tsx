@@ -217,30 +217,53 @@ function PurrTherapyWidget() {
     const draw = () => {
       canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
       
-      canvasCtx.beginPath();
-      canvasCtx.lineWidth = 2;
-      canvasCtx.strokeStyle = isPlaying ? "#8052ff" : "rgba(255,255,255,0.15)";
+      const breathingCycle = isPlaying ? (Math.sin(Date.now() * 0.0012) * 0.5 + 0.5) : 0;
       
-      const sliceWidth = canvas.width / 100;
-      let x = 0;
-      
-      for (let i = 0; i < 100; i++) {
-        const amplitudeMod = isPlaying ? (Math.sin(phrase * 0.05) * 0.4 + 0.6) : 0.1;
-        const vibration = isPlaying ? Math.sin(x * 0.15 - phrase) * 12 : 0;
-        const wave = vibration * amplitudeMod;
+      if (isPlaying) {
+        const glowGradient = canvasCtx.createRadialGradient(
+          canvas.width / 2, canvas.height / 2, 5,
+          canvas.width / 2, canvas.height / 2, (canvas.width / 2) * (0.5 + breathingCycle * 0.5)
+        );
+        glowGradient.addColorStop(0, "rgba(128,82,255,0.12)");
+        glowGradient.addColorStop(0.5, "rgba(128,82,255,0.03)");
+        glowGradient.addColorStop(1, "transparent");
+        canvasCtx.fillStyle = glowGradient;
+        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      const waveCount = isPlaying ? 3 : 1;
+      for (let w = 0; w < waveCount; w++) {
+        canvasCtx.beginPath();
+        canvasCtx.lineWidth = w === 0 ? 2 : 1;
         
-        const y = canvas.height / 2 + wave;
+        let strokeColor = "#8052ff";
+        if (w === 1) strokeColor = "rgba(128,82,255,0.4)";
+        if (w === 2) strokeColor = "rgba(255,184,41,0.3)";
         
-        if (i === 0) {
-          canvasCtx.moveTo(x, y);
-        } else {
-          canvasCtx.lineTo(x, y);
+        canvasCtx.strokeStyle = isPlaying ? strokeColor : "rgba(255,255,255,0.15)";
+        
+        const sliceWidth = canvas.width / 100;
+        let x = 0;
+        
+        for (let i = 0; i < 100; i++) {
+          const phaseOffset = w * Math.PI * 0.25;
+          const amplitudeMod = isPlaying ? (Math.sin(phrase * 0.04 + w * 0.5) * 0.35 + 0.65) * (0.6 + breathingCycle * 0.4) : 0.1;
+          const vibration = isPlaying ? Math.sin(x * 0.12 - phrase + phaseOffset) * (8 + w * 4) : 0;
+          const wave = vibration * amplitudeMod;
+          
+          const y = canvas.height / 2 + wave;
+          
+          if (i === 0) {
+            canvasCtx.moveTo(x, y);
+          } else {
+            canvasCtx.lineTo(x, y);
+          }
+          x += sliceWidth;
         }
-        x += sliceWidth;
+        canvasCtx.stroke();
       }
       
-      canvasCtx.stroke();
-      phrase += isPlaying ? (frequency * 0.4) : 0.1;
+      phrase += isPlaying ? (frequency * 0.25) : 0.05;
       animationRef.current = requestAnimationFrame(draw);
     };
 
