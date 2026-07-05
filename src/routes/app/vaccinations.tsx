@@ -157,16 +157,16 @@ function VaccinationsPage() {
               background: `${card.color}08`,
               border: `1px solid ${card.color}26`,
               borderRadius: 16,
-              padding: "20px 24px",
+              padding: "16px 24px",
               display: "flex",
               alignItems: "center",
               gap: 16,
             }}
           >
-            <span style={{ fontSize: 24 }}>{card.icon}</span>
-            <div>
-              <p style={{ fontSize: 12, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em" }}>{card.label}</p>
-              <p style={{ fontSize: 32, fontWeight: 600, color: "#ffffff" }}>{card.value}</p>
+            <span style={{ fontSize: 20 }}>{card.icon}</span>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+              <span style={{ fontSize: 28, fontWeight: 600, color: "#ffffff" }}>{card.value}</span>
+              <span style={{ fontSize: 12, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em" }}>{card.label}</span>
             </div>
           </motion.div>
         ))}
@@ -292,26 +292,22 @@ function VaccinationsPage() {
                         markComplete(v.id);
                       }}
                       style={{
-                        background: "rgba(21,132,110,0.15)",
+                        background: "transparent",
                         border: "1px solid rgba(21,132,110,0.3)",
                         color: "#15846e",
-                        borderRadius: 16,
-                        padding: "6px 12px",
-                        fontSize: 11,
-                        fontWeight: 600,
+                        borderRadius: 20,
+                        padding: "4px 12px",
+                        fontSize: 12,
+                        fontWeight: 500,
                         cursor: "pointer",
                         transition: "all 0.15s"
                       }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = "#15846e"; e.currentTarget.style.color = "#ffffff"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(21,132,110,0.15)"; e.currentTarget.style.color = "#15846e"; }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(21,132,110,0.1)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                     >
-                      Mark Done ✓
+                      Mark Complete
                     </button>
-                  ) : (
-                    <span style={{ color: "#15846e", fontSize: 12, fontWeight: 500, display: "flex", alignItems: "center", gap: 4 }}>
-                      Done ✓
-                    </span>
-                  )}
+                  ) : null}
                 </div>
               </motion.div>
             ))}

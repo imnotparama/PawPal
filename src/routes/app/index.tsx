@@ -361,12 +361,21 @@ const getLifePhase = (age: number, species: string) => {
 
 function Dashboard() {
   const { user } = useAuth();
-  const { pets } = usePets();
-  const { vaccinations } = useVaccinations();
-  const { records } = useMedicalRecords();
+  const { pets, loading: petsLoading } = usePets();
+  const { vaccinations, loading: vacsLoading } = useVaccinations();
+  const { records, loading: recsLoading } = useMedicalRecords();
   const { messages } = useChat();
+  const loading = petsLoading || vacsLoading || recsLoading;
 
   const [firstName, setFirstName] = useState("there");
+  const [isJudgeView, setIsJudgeView] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      setIsJudgeView(searchParams.get("judgeview") === "true");
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchUser() {
@@ -424,8 +433,116 @@ function Dashboard() {
       time: item.time ? getRelativeTime(new Date(item.time)) : "",
     }));
 
+  if (loading) {
+    return (
+      <div style={{ background: "#000000", minHeight: "100vh", color: "#ffffff", padding: "40px 48px", fontFamily: "'Space Grotesk', sans-serif" }}>
+        <style>{`
+          @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+          }
+        `}</style>
+
+        {isJudgeView && (
+          <div
+            style={{
+              height: 36,
+              background: "linear-gradient(90deg, rgba(128,82,255,0.1) 0%, rgba(128,82,255,0.05) 100%)",
+              borderBottom: "1px solid rgba(128,82,255,0.15)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              marginBottom: 20,
+              borderRadius: 8
+            }}
+          >
+            <span style={{ fontSize: 14 }}>🐱</span>
+            <span style={{ fontSize: 12, color: "#9a9a9a" }}>Built for Hack the Kitty 2026</span>
+            <a 
+              href="https://pawpal-wheat.vercel.app" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              style={{ fontSize: 12, color: "#8052ff", textDecoration: "none", fontWeight: 500 }}
+            >
+              View Live Demo →
+            </a>
+          </div>
+        )}
+
+        <div style={{ marginBottom: 32 }}>
+          <h1 style={{ fontSize: 36, fontWeight: 300, color: "#ffffff", marginBottom: 6 }}>
+            Welcome back, <span style={{ color: '#8052ff', fontWeight: 500 }}>there</span>.
+          </h1>
+          <p style={{ fontSize: 15, color: "#9a9a9a" }}>
+            Here is your pet care compliance report for today.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                background: "linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 100%)",
+                backgroundSize: "200% 100%",
+                animation: "shimmer 1.5s infinite linear",
+                borderRadius: "16px",
+                height: 106
+              }}
+            />
+          ))}
+        </div>
+
+        <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "24px", padding: 24, marginBottom: 32 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 600, color: "#ffffff", marginBottom: 20 }}>Companion Status</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  background: "linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 100%)",
+                  backgroundSize: "200% 100%",
+                  animation: "shimmer 1.5s infinite linear",
+                  borderRadius: "16px",
+                  height: 180
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ background: "#000000", minHeight: "100vh", color: "#ffffff", fontFamily: "'Space Grotesk', sans-serif" }}>
+      {isJudgeView && (
+        <div
+          style={{
+            height: 36,
+            background: "linear-gradient(90deg, rgba(128,82,255,0.1) 0%, rgba(128,82,255,0.05) 100%)",
+            borderBottom: "1px solid rgba(128,82,255,0.15)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            marginBottom: 20,
+            borderRadius: 8
+          }}
+        >
+          <span style={{ fontSize: 14 }}>🐱</span>
+          <span style={{ fontSize: 12, color: "#9a9a9a" }}>Built for Hack the Kitty 2026</span>
+          <a 
+            href="https://pawpal-wheat.vercel.app" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            style={{ fontSize: 12, color: "#8052ff", textDecoration: "none", fontWeight: 500 }}
+          >
+            View Live Demo →
+          </a>
+        </div>
+      )}
       {/* Header */}
       <div style={{ marginBottom: 32 }}>
         <motion.h1

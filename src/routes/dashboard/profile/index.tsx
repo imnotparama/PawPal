@@ -8,6 +8,17 @@ import { useChat } from "@/hooks/useChat";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Camera, Lock } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/dashboard/profile/")({
   component: ProfilePage,
@@ -208,9 +219,7 @@ export function ProfilePage() {
   };
 
   const handleDeleteAccount = () => {
-    if (confirm("Are you sure you want to delete your account? This action is permanent and cannot be undone.")) {
-      toast.error("Account deletion requires administrator approval. Please contact support@pawpal.ai.");
-    }
+    toast.error("Account deletion requires administrator approval. Please contact support@pawpal.ai.");
   };
 
   if (userLoading) {
@@ -348,32 +357,54 @@ export function ProfilePage() {
               borderTop: "1px solid rgba(255,255,255,0.06)",
               paddingTop: 24
             }}>
-              <button
-                onClick={handleDeleteAccount}
-                style={{
-                  width: "100%",
-                  background: "transparent",
-                  border: "1px solid rgba(255,107,107,0.3)",
-                  color: "#ff6b6b",
-                  borderRadius: 24,
-                  padding: 10,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  fontFamily: "'Space Grotesk', sans-serif"
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255,107,107,0.08)";
-                  e.currentTarget.style.borderColor = "#ff6b6b";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.borderColor = "rgba(255,107,107,0.3)";
-                }}
-              >
-                Delete Account
-              </button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    style={{
+                      width: "100%",
+                      background: "transparent",
+                      border: "1px solid rgba(255,107,107,0.3)",
+                      color: "#ff6b6b",
+                      borderRadius: 24,
+                      padding: 10,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      fontFamily: "'Space Grotesk', sans-serif"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "rgba(255,107,107,0.08)";
+                      e.currentTarget.style.borderColor = "#ff6b6b";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                      e.currentTarget.style.borderColor = "rgba(255,107,107,0.3)";
+                    }}
+                  >
+                    Delete Account
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, fontFamily: "'Space Grotesk', sans-serif" }}>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle style={{ color: "#ffffff", fontSize: 18, fontWeight: 600 }}>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription style={{ color: "#9a9a9a", fontSize: 14, lineHeight: 1.5 }}>
+                      This will permanently delete your account, all pets, vaccinations, medical records, and chat history. This cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter style={{ marginTop: 16 }}>
+                    <AlertDialogCancel style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.15)", color: "#ffffff", borderRadius: 24, padding: "8px 16px", cursor: "pointer" }}>
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleDeleteAccount}
+                      style={{ background: "#ff4444", color: "#ffffff", border: "none", borderRadius: 24, padding: "8px 16px", cursor: "pointer" }}
+                    >
+                      Delete Account
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
 
           </div>

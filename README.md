@@ -72,6 +72,9 @@ Pet owners face three universal problems:
 - Stale-While-Revalidate caching for instant navigation
 - Developer info modal with glassmorphic overlay
 - Custom cursor glow effect tied to mouse position
+- **Global Error Boundary & Fallback**: Standardized graceful error handling across router views to prevent blank screens on client crashes.
+- **Help & Support Hub**: Comprehensive interface containing search filtering, interactive accordion FAQ entries, and developer contact forms.
+- **Secure Account Actions**: A Radix UI confirmation AlertDialog wrapper for permanent account deletion triggers.
 
 ---
 
@@ -170,7 +173,7 @@ create policy "own messages" on chat_messages
 - Password minimum enforcement on signup
 - Rate limiting on AI chat (1 message per 2 seconds)
 
-> 📎 Aikido Security Scan Report: [attach PDF here]
+> 📎 Aikido Security Scan Report: [Aikido Security Scanner](https://aikido.dev) (PDF report attached in submission form)
 
 ---
 

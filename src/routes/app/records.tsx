@@ -11,10 +11,10 @@ export const Route = createFileRoute("/app/records")({
 
 const typeColors: Record<string, string> = {
   Checkup: "#8052ff",
-  Surgery: "#ff6b6b",
+  Surgery: "#ff4444",
   Treatment: "#ffb829",
-  Consultation: "#15846e",
-  Wellness: "#4a9eff",
+  Consultation: "#4a9eff",
+  Wellness: "#8052ff",
 };
 
 function AddRecordModal({ pets, onClose, onSubmit, submitting }: { pets: any[]; onClose: () => void; onSubmit: (values: any) => void; submitting: boolean }) {

@@ -131,13 +131,17 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+import { ErrorBoundary } from "../components/ErrorBoundary";
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </AuthProvider>
     </QueryClientProvider>
   );

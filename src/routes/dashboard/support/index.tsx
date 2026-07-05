@@ -212,9 +212,9 @@ function SupportPage() {
                 <button
                   type="submit"
                   style={{
-                    background: "#8052ff",
-                    color: "#ffffff",
-                    border: "none",
+                    background: "transparent",
+                    color: "#8052ff",
+                    border: "1px solid #8052ff",
                     borderRadius: 24,
                     padding: "12px 24px",
                     fontSize: 13,
@@ -222,6 +222,12 @@ function SupportPage() {
                     cursor: "pointer",
                     transition: "all 0.2s",
                     fontFamily: "'Space Grotesk', sans-serif"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "rgba(128,82,255,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
                   }}
                 >
                   Submit Report

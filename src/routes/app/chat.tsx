@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { usePets } from "@/hooks/usePets";
 import { useChat } from "@/hooks/useChat";
+import { toast } from "sonner";
+import { PawPrint } from "lucide-react";
 
 export const Route = createFileRoute("/app/chat")({
   component: ChatPage,
@@ -134,6 +136,7 @@ function ChatPage() {
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const lastSendTimeRef = useRef<number>(0);
   const [attachedImage, setAttachedImage] = useState<{ mimeType: string; data: string; previewUrl: string } | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,6 +209,14 @@ function ChatPage() {
 
   const handleSend = () => {
     if ((!input.trim() && !attachedImage) || sending) return;
+
+    const now = Date.now();
+    if (now - lastSendTimeRef.current < 2000) {
+      toast.error("Please wait a moment before sending another message.");
+      return;
+    }
+    lastSendTimeRef.current = now;
+
     sendMessage(
       input,
       selectedPetId,
@@ -293,9 +304,58 @@ function ChatPage() {
         )}
 
         {messages.length === 0 && !sending ? (
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, padding: "48px 0" }}>
-            <div style={{ fontSize: 48 }}>🤖</div>
-            <p style={{ fontSize: 18, color: "#9a9a9a", textAlign: "center", margin: 0 }}>Ask PawPal AI anything about your pet's health.</p>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, padding: "48px 0", minHeight: "100%" }}>
+            
+            {/* Paw Illustration with Breathing Animation */}
+            <motion.div
+              animate={{ scale: [1, 1.06, 1] }}
+              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+              style={{
+                width: 80,
+                height: 80,
+                background: "rgba(128,82,255,0.1)",
+                border: "1px solid rgba(128,82,255,0.2)",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}
+            >
+              <PawPrint size={36} color="#8052ff" />
+            </motion.div>
+
+            <div style={{ textAlign: "center" }}>
+              <p style={{ fontSize: 18, color: "#ffffff", textAlign: "center", margin: 0, fontWeight: 500, fontFamily: "'Space Grotesk', sans-serif" }}>Ask PawPal AI anything about your pet's health.</p>
+              <p style={{ fontSize: 12, color: "#9a9a9a", textAlign: "center", marginTop: 8, marginBottom: 0, fontFamily: "'Space Grotesk', sans-serif", fontWeight: 400 }}>
+                Powered by Google Gemini · Responses are not a substitute for professional veterinary advice.
+              </p>
+            </div>
+
+            {/* AI Feature Pills Row */}
+            <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 8 }}>
+              {[
+                "🎤 Voice Input",
+                "📷 Photo Analysis",
+                "🐾 Per-Pet Context"
+              ].map((pill) => (
+                <span 
+                  key={pill} 
+                  style={{ 
+                    background: "rgba(255,255,255,0.04)", 
+                    border: "1px solid rgba(255,255,255,0.08)", 
+                    color: "#9a9a9a", 
+                    borderRadius: "20px", 
+                    padding: "4px 12px", 
+                    fontSize: 12,
+                    fontFamily: "'Space Grotesk', sans-serif" 
+                  }}
+                >
+                  {pill}
+                </span>
+              ))}
+            </div>
+
+            {/* Suggestions Chips */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", maxWidth: 500 }}>
               {suggestions.map((s) => (
                 <button key={s} onClick={() => { setInput(s); }} style={{ background: "rgba(128,82,255,0.1)", border: "1px solid rgba(128,82,255,0.3)", color: "#ffffff", borderRadius: 20, padding: "8px 16px", fontSize: 13, cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.borderColor = "#8052ff" } onMouseLeave={(e) => e.currentTarget.style.borderColor = "rgba(128,82,255,0.3)" }>{s}</button>
@@ -437,7 +497,11 @@ function ChatPage() {
         </motion.button>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: "none" }} accept="image/*" />
       </div>
-      <p style={{ textAlign: "center", fontSize: 11, color: "#9a9a9a", opacity: 0.6, padding: "6px 0 12px", margin: 0 }}>PawPal AI can make mistakes. Always consult a vet for medical decisions.</p>
+      <p style={{ textAlign: "center", fontSize: 11, color: "#9a9a9a", opacity: 0.6, padding: "6px 0 12px", margin: 0, fontFamily: "'Space Grotesk', sans-serif" }}>
+        PawPal AI can make mistakes. Always consult a vet for medical decisions.
+        <br />
+        🔒 Your conversations are encrypted and stored securely. Gemini API key never reaches your browser.
+      </p>
     </div>
   );
 }

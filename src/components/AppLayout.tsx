@@ -10,7 +10,8 @@ import {
   FileText, 
   History, 
   User,
-  HelpCircle
+  HelpCircle,
+  Info
 } from "lucide-react";
 
 const navItems = [
@@ -30,14 +31,7 @@ export function AppLayout() {
   const { user, loading, signOut } = useAuth();
   const [signOutHovered, setSignOutHovered] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [currentDateTime, setCurrentDateTime] = useState(() => new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentDateTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  const [showAboutModal, setShowAboutModal] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -138,7 +132,8 @@ export function AppLayout() {
                         textDecoration: "none",
                         display: "flex",
                         alignItems: "center",
-                        gap: "12px"
+                        gap: "12px",
+                        boxShadow: "inset 0 0 20px rgba(128,82,255,0.05)"
                       }
                     : {
                         padding: "10px 16px",
@@ -193,15 +188,15 @@ export function AppLayout() {
           </div>
         </div>
 
-        {/* Sign out */}
-        <div>
+        {/* Sign out & About Info Row */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%" }}>
           <button
             onClick={() => {
               setIsMobileMenuOpen(false);
               signOut();
             }}
             style={{
-              width: "100%",
+              flex: 1,
               padding: "10px 16px",
               borderRadius: 8,
               fontSize: 12,
@@ -211,14 +206,172 @@ export function AppLayout() {
               background: "transparent",
               border: "none",
               cursor: "pointer",
+              transition: "color 0.2s"
             }}
             onMouseEnter={() => setSignOutHovered(true)}
             onMouseLeave={() => setSignOutHovered(false)}
           >
             Sign out
           </button>
+          
+          <button
+            onClick={() => setShowAboutModal(true)}
+            style={{
+              padding: "8px",
+              borderRadius: "50%",
+              background: "transparent",
+              border: "none",
+              color: "#9a9a9a",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s"
+            }}
+            className="hover:text-[#8052ff] hover:bg-white/5"
+            title="About PawPal AI"
+          >
+            <Info size={16} />
+          </button>
         </div>
       </aside>
+
+      {/* About Modal */}
+      {showAboutModal && (
+        <div 
+          style={{ 
+            position: "fixed", 
+            inset: 0, 
+            zIndex: 100, 
+            background: "rgba(0,0,0,0.85)", 
+            backdropFilter: "blur(20px)", 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "center" 
+          }} 
+          onClick={() => setShowAboutModal(false)}
+        >
+          <div
+            style={{
+              background: "rgba(10,10,10,0.95)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 16,
+              padding: 24,
+              width: "calc(100% - 32px)",
+              maxWidth: 400,
+              boxShadow: "0 0 40px rgba(128,82,255,0.15)",
+              position: "relative",
+              fontFamily: "'Space Grotesk', sans-serif"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setShowAboutModal(false)} 
+              style={{ 
+                position: "absolute", 
+                top: 16, 
+                right: 16, 
+                background: "none", 
+                border: "none", 
+                color: "#9a9a9a", 
+                fontSize: 18, 
+                cursor: "pointer" 
+              }}
+            >
+              ✕
+            </button>
+
+            <h3 style={{ fontSize: 20, fontWeight: 600, color: "#ffffff", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+              <span>🐾</span> PawPal AI
+            </h3>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: 8 }}>
+                <span style={{ fontSize: 13, color: "#9a9a9a" }}>Version</span>
+                <span style={{ fontSize: 13, color: "#ffffff" }}>1.0.0</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: 8 }}>
+                <span style={{ fontSize: 13, color: "#9a9a9a" }}>Built for</span>
+                <span style={{ fontSize: 13, color: "#ffffff" }}>Hack the Kitty 2026</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: 8 }}>
+                <span style={{ fontSize: 13, color: "#9a9a9a" }}>Stack</span>
+                <span style={{ fontSize: 13, color: "#ffffff" }}>React 19 + Supabase + Gemini</span>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <a 
+                href="https://github.com/imnotparama/PawPal" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                style={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "space-between", 
+                  background: "rgba(255,255,255,0.03)", 
+                  border: "1px solid rgba(255,255,255,0.08)", 
+                  borderRadius: 10, 
+                  padding: "10px 14px", 
+                  color: "#ffffff", 
+                  textDecoration: "none", 
+                  fontSize: 13,
+                  transition: "all 0.2s"
+                }}
+                className="hover:border-[#8052ff]/50 hover:bg-[#8052ff]/5"
+              >
+                <span>GitHub Repository</span>
+                <span>→</span>
+              </a>
+              <a 
+                href="https://pawpal-wheat.vercel.app" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                style={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "space-between", 
+                  background: "rgba(255,255,255,0.03)", 
+                  border: "1px solid rgba(255,255,255,0.08)", 
+                  borderRadius: 10, 
+                  padding: "10px 14px", 
+                  color: "#ffffff", 
+                  textDecoration: "none", 
+                  fontSize: 13,
+                  transition: "all 0.2s"
+                }}
+                className="hover:border-[#8052ff]/50 hover:bg-[#8052ff]/5"
+              >
+                <span>Live Deployment</span>
+                <span>→</span>
+              </a>
+              <a 
+                href="https://github.com/imnotparama/PawPal#readme" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                style={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "space-between", 
+                  background: "rgba(128,82,255,0.1)", 
+                  border: "1px solid rgba(128,82,255,0.25)", 
+                  borderRadius: 10, 
+                  padding: "10px 14px", 
+                  color: "#ffffff", 
+                  textDecoration: "none", 
+                  fontSize: 13,
+                  fontWeight: 600,
+                  transition: "all 0.2s"
+                }}
+                className="hover:bg-[#8052ff]/20"
+              >
+                <span>View Full Documentation</span>
+                <span>→</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main content */}
       <main className="md:ml-[220px] flex-1 min-h-screen p-6 md:p-12" style={{ background: "#000000" }}>

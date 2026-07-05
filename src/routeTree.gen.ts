@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
@@ -17,12 +18,20 @@ import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppVaccinationsRouteImport } from './routes/app/vaccinations'
 import { Route as AppTimelineRouteImport } from './routes/app/timeline'
 import { Route as AppRecordsRouteImport } from './routes/app/records'
+import { Route as AppProfileRouteImport } from './routes/app/profile'
 import { Route as AppPetsRouteImport } from './routes/app/pets'
 import { Route as AppChatRouteImport } from './routes/app/chat'
+import { Route as DashboardSupportIndexRouteImport } from './routes/dashboard/support/index'
+import { Route as DashboardProfileIndexRouteImport } from './routes/dashboard/profile/index'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -60,6 +69,11 @@ const AppRecordsRoute = AppRecordsRouteImport.update({
   path: '/records',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPetsRoute = AppPetsRouteImport.update({
   id: '/pets',
   path: '/pets',
@@ -70,84 +84,119 @@ const AppChatRoute = AppChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => AppRoute,
 } as any)
+const DashboardSupportIndexRoute = DashboardSupportIndexRouteImport.update({
+  id: '/support/',
+  path: '/support/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardProfileIndexRoute = DashboardProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/app/chat': typeof AppChatRoute
   '/app/pets': typeof AppPetsRoute
+  '/app/profile': typeof AppProfileRoute
   '/app/records': typeof AppRecordsRoute
   '/app/timeline': typeof AppTimelineRoute
   '/app/vaccinations': typeof AppVaccinationsRoute
   '/app/': typeof AppIndexRoute
   '/auth/': typeof AuthIndexRoute
+  '/dashboard/profile/': typeof DashboardProfileIndexRoute
+  '/dashboard/support/': typeof DashboardSupportIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/app/chat': typeof AppChatRoute
   '/app/pets': typeof AppPetsRoute
+  '/app/profile': typeof AppProfileRoute
   '/app/records': typeof AppRecordsRoute
   '/app/timeline': typeof AppTimelineRoute
   '/app/vaccinations': typeof AppVaccinationsRoute
   '/app': typeof AppIndexRoute
   '/auth': typeof AuthIndexRoute
+  '/dashboard/profile': typeof DashboardProfileIndexRoute
+  '/dashboard/support': typeof DashboardSupportIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/app/chat': typeof AppChatRoute
   '/app/pets': typeof AppPetsRoute
+  '/app/profile': typeof AppProfileRoute
   '/app/records': typeof AppRecordsRoute
   '/app/timeline': typeof AppTimelineRoute
   '/app/vaccinations': typeof AppVaccinationsRoute
   '/app/': typeof AppIndexRoute
   '/auth/': typeof AuthIndexRoute
+  '/dashboard/profile/': typeof DashboardProfileIndexRoute
+  '/dashboard/support/': typeof DashboardSupportIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/app'
+    | '/dashboard'
     | '/login'
     | '/app/chat'
     | '/app/pets'
+    | '/app/profile'
     | '/app/records'
     | '/app/timeline'
     | '/app/vaccinations'
     | '/app/'
     | '/auth/'
+    | '/dashboard/profile/'
+    | '/dashboard/support/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dashboard'
     | '/login'
     | '/app/chat'
     | '/app/pets'
+    | '/app/profile'
     | '/app/records'
     | '/app/timeline'
     | '/app/vaccinations'
     | '/app'
     | '/auth'
+    | '/dashboard/profile'
+    | '/dashboard/support'
   id:
     | '__root__'
     | '/'
     | '/app'
+    | '/dashboard'
     | '/login'
     | '/app/chat'
     | '/app/pets'
+    | '/app/profile'
     | '/app/records'
     | '/app/timeline'
     | '/app/vaccinations'
     | '/app/'
     | '/auth/'
+    | '/dashboard/profile/'
+    | '/dashboard/support/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  DashboardRoute: typeof DashboardRouteWithChildren
   LoginRoute: typeof LoginRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
@@ -159,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -210,6 +266,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRecordsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/profile': {
+      id: '/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/pets': {
       id: '/app/pets'
       path: '/pets'
@@ -224,12 +287,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppChatRouteImport
       parentRoute: typeof AppRoute
     }
+    '/dashboard/support/': {
+      id: '/dashboard/support/'
+      path: '/support'
+      fullPath: '/dashboard/support/'
+      preLoaderRoute: typeof DashboardSupportIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/profile/': {
+      id: '/dashboard/profile/'
+      path: '/profile'
+      fullPath: '/dashboard/profile/'
+      preLoaderRoute: typeof DashboardProfileIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
 interface AppRouteChildren {
   AppChatRoute: typeof AppChatRoute
   AppPetsRoute: typeof AppPetsRoute
+  AppProfileRoute: typeof AppProfileRoute
   AppRecordsRoute: typeof AppRecordsRoute
   AppTimelineRoute: typeof AppTimelineRoute
   AppVaccinationsRoute: typeof AppVaccinationsRoute
@@ -239,6 +317,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppChatRoute: AppChatRoute,
   AppPetsRoute: AppPetsRoute,
+  AppProfileRoute: AppProfileRoute,
   AppRecordsRoute: AppRecordsRoute,
   AppTimelineRoute: AppTimelineRoute,
   AppVaccinationsRoute: AppVaccinationsRoute,
@@ -247,9 +326,24 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface DashboardRouteChildren {
+  DashboardProfileIndexRoute: typeof DashboardProfileIndexRoute
+  DashboardSupportIndexRoute: typeof DashboardSupportIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardProfileIndexRoute: DashboardProfileIndexRoute,
+  DashboardSupportIndexRoute: DashboardSupportIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  DashboardRoute: DashboardRouteWithChildren,
   LoginRoute: LoginRoute,
   AuthIndexRoute: AuthIndexRoute,
 }

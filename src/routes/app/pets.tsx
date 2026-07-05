@@ -111,6 +111,23 @@ function PassportModal({ pet, onClose }: { pet: any; onClose: () => void }) {
   );
 }
 
+const getPetLifePhase = (age: number, species: string) => {
+  const isCat = species?.toLowerCase() === "cat";
+  if (isCat) {
+    if (age <= 1) return "Kitten";
+    if (age <= 6) return "Junior";
+    if (age <= 10) return "Mature";
+    if (age <= 15) return "Senior";
+    return "Geriatric";
+  } else {
+    if (age <= 1) return "Puppy";
+    if (age <= 3) return "Junior";
+    if (age <= 7) return "Adult";
+    if (age <= 10) return "Senior";
+    return "Geriatric";
+  }
+};
+
 function PetCard({ pet, index, onDelete, onOpenPassport }: { pet: any; index: number; onDelete: (id: string) => Promise<void>; onOpenPassport: (pet: any) => void }) {
   const [hovered, setHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -225,9 +242,14 @@ function PetCard({ pet, index, onDelete, onOpenPassport }: { pet: any; index: nu
             <p style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", userSelect: "none" }}>{pet.name}</p>
             <p style={{ fontSize: 13, color: "#9a9a9a", marginTop: 2, userSelect: "none" }}>{pet.breed} · {pet.age_years}y</p>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10 }}>
-              <span style={{ background: "rgba(128,82,255,0.15)", color: "#8052ff", borderRadius: 20, padding: "4px 10px", fontSize: 11, userSelect: "none" }}>
-                Healthy
-              </span>
+              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                <span style={{ background: "rgba(128,82,255,0.15)", color: "#8052ff", borderRadius: 20, padding: "4px 10px", fontSize: 11, userSelect: "none" }}>
+                  Healthy
+                </span>
+                <span style={{ background: "rgba(255,184,41,0.1)", border: "1px solid rgba(255,184,41,0.2)", color: "#ffb829", borderRadius: 20, padding: "3px 10px", fontSize: 11, userSelect: "none" }}>
+                  {getPetLifePhase(pet.age_years, pet.species)}
+                </span>
+              </div>
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
