@@ -131,6 +131,7 @@ function ChatPage() {
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>(undefined);
   const { messages, sending, error, sendMessage, clearHistory } = useChat(selectedPetId);
   const [input, setInput] = useState("");
+  const [activeNode, setActiveNode] = useState<string | null>(null);
   const [showPetMenu, setShowPetMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isListening, setIsListening] = useState(false);
@@ -366,64 +367,162 @@ function ChatPage() {
               ))}
             </div>
 
-            {/* Symptom Quick-Triage Hub */}
-            <div style={{ width: "100%", maxWidth: 640, marginTop: 12 }}>
-              <p style={{ fontSize: 12, fontWeight: 600, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center", marginBottom: 16, fontFamily: "'Space Grotesk', sans-serif" }}>
-                Select a symptom category to quick-triage:
-              </p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
-                {[
-                  {
-                    title: "Skin & Ears 🐾",
-                    desc: "Itching, scratching, rashes, or ticks",
-                    prompt: "My pet is scratching their ears and shaking their head frequently. What are common causes, and how do I examine their ears safely?"
-                  },
-                  {
-                    title: "Digestion & Food 🥩",
-                    desc: "Loss of appetite or dietary questions",
-                    prompt: "My pet has lost their appetite today and isn't eating. What symptoms should I watch for, and when is it a veterinary emergency?"
-                  },
-                  {
-                    title: "Energy & Sleep ⚡",
-                    desc: "Lethargy, sleeping a lot, or behavior changes",
-                    prompt: "My pet seems unusually lethargic and is sleeping much more than normal. How can I check their vital signs at home?"
-                  },
-                  {
-                    title: "Vaccines & Checks 🩺",
-                    desc: "Annual timelines or tick inspection guidance",
-                    prompt: "How often does my pet need vaccinations, and what is the best way to inspect them for ticks and fleas after outdoor play?"
-                  }
-                ].map((s) => (
-                  <button
-                    key={s.title}
-                    onClick={() => setInput(s.prompt)}
-                    style={{
-                      background: "rgba(255,255,255,0.02)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      borderRadius: 16,
-                      padding: "16px",
-                      textAlign: "left",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease-in-out",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 4
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "#8052ff";
-                      e.currentTarget.style.background = "rgba(128,82,255,0.05)";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
-                      e.currentTarget.style.background = "rgba(255,255,255,0.02)";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
-                  >
-                    <span style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", fontFamily: "'Space Grotesk', sans-serif" }}>{s.title}</span>
-                    <span style={{ fontSize: 11, color: "#9a9a9a", fontFamily: "'Space Grotesk', sans-serif", lineHeight: 1.4 }}>{s.desc}</span>
-                  </button>
-                ))}
+            {/* Triage Dashboard Container */}
+            <div className="flex flex-col md:flex-row gap-6 items-center justify-center w-full max-w-4xl mt-3">
+              {/* Constellation Triage Map */}
+              <div 
+                style={{
+                  width: 280,
+                  height: 160,
+                  background: "rgba(128,82,255,0.02)",
+                  border: "1px solid rgba(128,82,255,0.1)",
+                  borderRadius: 20,
+                  position: "relative",
+                  padding: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0
+                }}
+              >
+                <svg width="240" height="120" viewBox="0 0 200 100">
+                  {/* Connecting Constellation Lines */}
+                  <line x1="45" y1="45" x2="90" y2="65" stroke="rgba(128,82,255,0.15)" strokeWidth="1" strokeDasharray="3,3" />
+                  <line x1="90" y1="65" x2="55" y2="85" stroke="rgba(128,82,255,0.15)" strokeWidth="1" strokeDasharray="3,3" />
+                  <line x1="90" y1="65" x2="130" y2="35" stroke="rgba(128,82,255,0.15)" strokeWidth="1" strokeDasharray="3,3" />
+                  <line x1="130" y1="35" x2="145" y2="55" stroke="rgba(128,82,255,0.15)" strokeWidth="1" strokeDasharray="3,3" />
+                  <line x1="145" y1="55" x2="90" y2="65" stroke="rgba(128,82,255,0.15)" strokeWidth="1" strokeDasharray="3,3" />
+
+                  {/* Hotspot Nodes */}
+                  {[
+                    { id: "ears", cx: 130, cy: 35, label: "Ears 👂", prompt: "My pet is shaking their head, scratching their ears, and has some discharge. What could this indicate, and how should I clean their ears?" },
+                    { id: "eyes", cx: 145, cy: 55, label: "Eyes/Face 👁️", prompt: "I'm noticing redness and watering in my pet's eyes, and their nose feels dry. What are normal facial health signs to check?" },
+                    { id: "stomach", cx: 90, cy: 65, label: "Stomach 🥩", prompt: "My pet's stomach feels hard, and they are trying to vomit but nothing is coming out. What should I check, and is this bloat?" },
+                    { id: "paws", cx: 55, cy: 85, label: "Paws/Skin 🐾", prompt: "My pet is constantly chewing and licking their paws, and the skin looks raw. Is this likely allergies, and how can I soothe it?" },
+                    { id: "joints", cx: 45, cy: 45, label: "Spine/Joints 🦴", prompt: "My pet is hesitating to jump, limping slightly on their hind legs, or showing stiffness when getting up. How can I support their joints?" }
+                  ].map((node) => {
+                    const isNodeHovered = activeNode === node.id;
+                    return (
+                      <g 
+                        key={node.id}
+                        className="cursor-pointer"
+                        onClick={() => setInput(node.prompt)}
+                        onMouseEnter={() => setActiveNode(node.id)}
+                        onMouseLeave={() => setActiveNode(null)}
+                      >
+                        {/* Interactive hover halo */}
+                        <circle
+                          cx={node.cx}
+                          cy={node.cy}
+                          r={isNodeHovered ? 14 : 8}
+                          fill={isNodeHovered ? "rgba(128,82,255,0.15)" : "transparent"}
+                          stroke={isNodeHovered ? "#8052ff" : "transparent"}
+                          strokeWidth="1"
+                          style={{ transition: "all 0.2s ease" }}
+                        />
+                        {/* Core node */}
+                        <circle
+                          cx={node.cx}
+                          cy={node.cy}
+                          r="4"
+                          fill={isNodeHovered ? "#ffffff" : "#8052ff"}
+                          style={{ transition: "all 0.2s ease", filter: "drop-shadow(0 0 3px #8052ff)" }}
+                        />
+                        {/* Label tooltip */}
+                        {isNodeHovered && (
+                          <text
+                            x={node.cx}
+                            y={node.cy - 16}
+                            textAnchor="middle"
+                            fill="#ffffff"
+                            fontSize="9"
+                            fontFamily="'Space Grotesk', sans-serif"
+                            fontWeight="600"
+                            style={{ filter: "drop-shadow(0 0 2px #000)" }}
+                          >
+                            {node.label}
+                          </text>
+                        )}
+                      </g>
+                    );
+                  })}
+                </svg>
+                {/* Pet Blueprint Outline (Faint background) */}
+                <div 
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    pointerEvents: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    opacity: 0.08,
+                    fontSize: 84
+                  }}
+                >
+                  🐶
+                </div>
+              </div>
+
+              {/* Symptom Quick-Triage Hub */}
+              <div style={{ flex: 1, width: "100%", maxWidth: 440 }}>
+                <p style={{ fontSize: 12, fontWeight: 600, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12, fontFamily: "'Space Grotesk', sans-serif" }}>
+                  Select symptom or click interactive hotspot:
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  {[
+                    {
+                      title: "Skin & Ears 🐾",
+                      desc: "Scratching, rashes, tick check",
+                      prompt: "My pet is scratching their ears and shaking their head frequently. What are common causes, and how do I examine their ears safely?"
+                    },
+                    {
+                      title: "Digestion & Food 🥩",
+                      desc: "Loss of appetite, vomiting risk",
+                      prompt: "My pet has lost their appetite today and isn't eating. What symptoms should I watch for, and when is it a veterinary emergency?"
+                    },
+                    {
+                      title: "Energy & Sleep ⚡",
+                      desc: "Lethargy, sleeping, stiff joints",
+                      prompt: "My pet seems unusually lethargic and is sleeping much more than normal. How can I check their vital signs at home?"
+                    },
+                    {
+                      title: "Vaccines & Checks 🩺",
+                      desc: "Triage checks & routine guidelines",
+                      prompt: "How often does my pet need vaccinations, and what is the best way to inspect them for ticks and fleas after outdoor play?"
+                    }
+                  ].map((s) => (
+                    <button
+                      key={s.title}
+                      onClick={() => setInput(s.prompt)}
+                      style={{
+                        background: "rgba(255,255,255,0.02)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        borderRadius: 16,
+                        padding: "12px 16px",
+                        textAlign: "left",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease-in-out",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = "#8052ff";
+                        e.currentTarget.style.background = "rgba(128,82,255,0.05)";
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                        e.currentTarget.style.background = "rgba(255,255,255,0.02)";
+                        e.currentTarget.style.transform = "translateY(0)";
+                      }}
+                    >
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "#ffffff", fontFamily: "'Space Grotesk', sans-serif" }}>{s.title}</span>
+                      <span style={{ fontSize: 10, color: "#9a9a9a", fontFamily: "'Space Grotesk', sans-serif", lineHeight: 1.3 }}>{s.desc}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
