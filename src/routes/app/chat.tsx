@@ -5,6 +5,7 @@ import { usePets } from "@/hooks/usePets";
 import { useChat } from "@/hooks/useChat";
 import { toast } from "sonner";
 import { PawPrint } from "lucide-react";
+import * as THREE from "three";
 
 export const Route = createFileRoute("/app/chat")({
   component: ChatPage,
@@ -124,6 +125,227 @@ function renderUserMessage(content: string) {
     );
   }
   return content;
+}
+
+function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
+  const mountRef = useRef<HTMLDivElement>(null);
+  const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
+
+  useEffect(() => {
+    const container = mountRef.current;
+    if (!container) return;
+
+    const width = 280;
+    const height = 160;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10);
+    camera.position.set(0, 0, 3.2);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 2));
+    container.appendChild(renderer.domElement);
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    const wireMaterial = new THREE.MeshBasicMaterial({
+      color: 0x8052ff,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.18
+    });
+
+    const headGeo = new THREE.SphereGeometry(0.7, 10, 10);
+    const headMesh = new THREE.Mesh(headGeo, wireMaterial);
+    group.add(headMesh);
+
+    const muzzleGeo = new THREE.CylinderGeometry(0.22, 0.3, 0.5, 8);
+    const muzzleMesh = new THREE.Mesh(muzzleGeo, wireMaterial);
+    muzzleMesh.position.set(0, -0.15, 0.55);
+    muzzleMesh.rotation.x = Math.PI / 2.3;
+    group.add(muzzleMesh);
+
+    const earGeo = new THREE.BoxGeometry(0.3, 0.5, 0.2);
+    const leftEar = new THREE.Mesh(earGeo, wireMaterial);
+    leftEar.position.set(-0.65, 0.4, 0);
+    leftEar.rotation.z = 0.2;
+    group.add(leftEar);
+
+    const rightEar = new THREE.Mesh(earGeo, wireMaterial);
+    rightEar.position.set(0.65, 0.4, 0);
+    rightEar.rotation.z = -0.2;
+    group.add(rightEar);
+
+    const nodesData = [
+      { id: "ears", label: "Ears 👂", x: 0.65, y: 0.5, z: 0.1, prompt: "My pet is shaking their head, scratching their ears, and has some discharge. What could this indicate, and how should I clean their ears?" },
+      { id: "eyes", label: "Eyes/Face 👁️", x: 0, y: 0.15, z: 0.7, prompt: "I'm noticing redness and watering in my pet's eyes, and their nose feels dry. What are normal facial health signs to check?" },
+      { id: "stomach", label: "Digestion 🥩", x: 0, y: -0.4, z: 0.5, prompt: "My pet's stomach feels hard, and they are trying to vomit but nothing is coming out. What should I check, and is this bloat?" },
+      { id: "paws", label: "Paws/Skin 🐾", x: -0.5, y: -0.8, z: 0.2, prompt: "My pet is constantly chewing and licking their paws, and the skin looks raw. Is this likely allergies, and how can I soothe it?" },
+      { id: "joints", label: "Spine/Joints 🦴", x: 0, y: -0.5, z: -0.5, prompt: "My pet is hesitating to jump, limping slightly on their hind legs, or showing stiffness when getting up. How can I support their joints?" }
+    ];
+
+    const nodeMeshes: THREE.Mesh[] = [];
+    const nodeMaterial = new THREE.MeshBasicMaterial({
+      color: 0x8052ff,
+      transparent: true,
+      opacity: 0.8
+    });
+
+    nodesData.forEach((data) => {
+      const geo = new THREE.SphereGeometry(0.08, 8, 8);
+      const mesh = new THREE.Mesh(geo, nodeMaterial.clone());
+      mesh.position.set(data.x, data.y, data.z);
+      (mesh as any).nodeId = data.id;
+      (mesh as any).nodeLabel = data.label;
+      (mesh as any).nodePrompt = data.prompt;
+      group.add(mesh);
+      nodeMeshes.push(mesh);
+    });
+
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0x8052ff,
+      transparent: true,
+      opacity: 0.25
+    });
+
+    const points = nodeMeshes.map(m => m.position);
+    const lineGeo = new THREE.BufferGeometry().setFromPoints([
+      points[0], points[1],
+      points[1], points[2],
+      points[2], points[3],
+      points[3], points[4],
+      points[4], points[0],
+      points[1], points[3]
+    ]);
+    const lines = new THREE.LineSegments(lineGeo, lineMaterial);
+    group.add(lines);
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let currentHoveredMesh: THREE.Mesh | null = null;
+
+    const onPointerMove = (event: PointerEvent) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(nodeMeshes);
+
+      if (intersects.length > 0) {
+        const hitMesh = intersects[0].object as THREE.Mesh;
+        if (currentHoveredMesh !== hitMesh) {
+          if (currentHoveredMesh) {
+            currentHoveredMesh.scale.set(1, 1, 1);
+            (currentHoveredMesh.material as THREE.MeshBasicMaterial).color.setHex(0x8052ff);
+          }
+          currentHoveredMesh = hitMesh;
+          currentHoveredMesh.scale.set(1.5, 1.5, 1.5);
+          (currentHoveredMesh.material as THREE.MeshBasicMaterial).color.setHex(0xffffff);
+          setHoveredLabel((currentHoveredMesh as any).nodeLabel);
+          renderer.domElement.style.cursor = "pointer";
+        }
+      } else {
+        if (currentHoveredMesh) {
+          currentHoveredMesh.scale.set(1, 1, 1);
+          (currentHoveredMesh.material as THREE.MeshBasicMaterial).color.setHex(0x8052ff);
+          currentHoveredMesh = null;
+          setHoveredLabel(null);
+          renderer.domElement.style.cursor = "default";
+        }
+      }
+    };
+
+    const onClick = () => {
+      if (currentHoveredMesh) {
+        setInput((currentHoveredMesh as any).nodePrompt);
+      }
+    };
+
+    renderer.domElement.addEventListener("pointermove", onPointerMove);
+    renderer.domElement.addEventListener("click", onClick);
+
+    let rafId = 0;
+    const clock = new THREE.Clock();
+    const animate = () => {
+      const time = clock.getElapsedTime();
+      group.rotation.y = Math.sin(time * 0.4) * 0.35;
+      group.rotation.x = Math.cos(time * 0.35) * 0.12;
+
+      nodeMeshes.forEach((mesh) => {
+        if (mesh !== currentHoveredMesh) {
+          const pulse = 1 + Math.sin(time * 3 + mesh.position.x * 10) * 0.15;
+          mesh.scale.set(pulse, pulse, pulse);
+        }
+      });
+
+      renderer.render(scene, camera);
+      rafId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      renderer.domElement.removeEventListener("pointermove", onPointerMove);
+      renderer.domElement.removeEventListener("click", onClick);
+      renderer.dispose();
+      headGeo.dispose();
+      muzzleGeo.dispose();
+      earGeo.dispose();
+      wireMaterial.dispose();
+      nodeMaterial.dispose();
+      lineMaterial.dispose();
+      lineGeo.dispose();
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
+    };
+  }, [setInput]);
+
+  return (
+    <div 
+      style={{
+        width: 280,
+        height: 160,
+        background: "rgba(128,82,255,0.02)",
+        border: "1px solid rgba(128,82,255,0.1)",
+        borderRadius: 20,
+        position: "relative",
+        overflow: "hidden",
+        flexShrink: 0
+      }}
+    >
+      <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
+      {hoveredLabel && (
+        <div 
+          style={{
+            position: "absolute",
+            bottom: 8,
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            color: "#ffffff",
+            fontSize: 11,
+            fontWeight: 600,
+            fontFamily: "'Space Grotesk', sans-serif",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            pointerEvents: "none",
+            background: "rgba(0,0,0,0.7)",
+            padding: "2px 8px",
+            borderRadius: 8,
+            width: "fit-content",
+            margin: "0 auto"
+          }}
+        >
+          {hoveredLabel}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function ChatPage() {
@@ -369,105 +591,13 @@ function ChatPage() {
 
             {/* Triage Dashboard Container */}
             <div className="flex flex-col md:flex-row gap-6 items-center justify-center w-full max-w-4xl mt-3">
-              {/* Constellation Triage Map */}
-              <div 
-                style={{
-                  width: 280,
-                  height: 160,
-                  background: "rgba(128,82,255,0.02)",
-                  border: "1px solid rgba(128,82,255,0.1)",
-                  borderRadius: 20,
-                  position: "relative",
-                  padding: 16,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0
-                }}
-              >
-                <svg width="240" height="120" viewBox="0 0 200 100">
-                  {/* Connecting Constellation Lines */}
-                  <line x1="45" y1="45" x2="90" y2="65" stroke="rgba(128,82,255,0.15)" strokeWidth="1" strokeDasharray="3,3" />
-                  <line x1="90" y1="65" x2="55" y2="85" stroke="rgba(128,82,255,0.15)" strokeWidth="1" strokeDasharray="3,3" />
-                  <line x1="90" y1="65" x2="130" y2="35" stroke="rgba(128,82,255,0.15)" strokeWidth="1" strokeDasharray="3,3" />
-                  <line x1="130" y1="35" x2="145" y2="55" stroke="rgba(128,82,255,0.15)" strokeWidth="1" strokeDasharray="3,3" />
-                  <line x1="145" y1="55" x2="90" y2="65" stroke="rgba(128,82,255,0.15)" strokeWidth="1" strokeDasharray="3,3" />
-
-                  {/* Hotspot Nodes */}
-                  {[
-                    { id: "ears", cx: 130, cy: 35, label: "Ears 👂", prompt: "My pet is shaking their head, scratching their ears, and has some discharge. What could this indicate, and how should I clean their ears?" },
-                    { id: "eyes", cx: 145, cy: 55, label: "Eyes/Face 👁️", prompt: "I'm noticing redness and watering in my pet's eyes, and their nose feels dry. What are normal facial health signs to check?" },
-                    { id: "stomach", cx: 90, cy: 65, label: "Stomach 🥩", prompt: "My pet's stomach feels hard, and they are trying to vomit but nothing is coming out. What should I check, and is this bloat?" },
-                    { id: "paws", cx: 55, cy: 85, label: "Paws/Skin 🐾", prompt: "My pet is constantly chewing and licking their paws, and the skin looks raw. Is this likely allergies, and how can I soothe it?" },
-                    { id: "joints", cx: 45, cy: 45, label: "Spine/Joints 🦴", prompt: "My pet is hesitating to jump, limping slightly on their hind legs, or showing stiffness when getting up. How can I support their joints?" }
-                  ].map((node) => {
-                    const isNodeHovered = activeNode === node.id;
-                    return (
-                      <g 
-                        key={node.id}
-                        className="cursor-pointer"
-                        onClick={() => setInput(node.prompt)}
-                        onMouseEnter={() => setActiveNode(node.id)}
-                        onMouseLeave={() => setActiveNode(null)}
-                      >
-                        {/* Interactive hover halo */}
-                        <circle
-                          cx={node.cx}
-                          cy={node.cy}
-                          r={isNodeHovered ? 14 : 8}
-                          fill={isNodeHovered ? "rgba(128,82,255,0.15)" : "transparent"}
-                          stroke={isNodeHovered ? "#8052ff" : "transparent"}
-                          strokeWidth="1"
-                          style={{ transition: "all 0.2s ease" }}
-                        />
-                        {/* Core node */}
-                        <circle
-                          cx={node.cx}
-                          cy={node.cy}
-                          r="4"
-                          fill={isNodeHovered ? "#ffffff" : "#8052ff"}
-                          style={{ transition: "all 0.2s ease", filter: "drop-shadow(0 0 3px #8052ff)" }}
-                        />
-                        {/* Label tooltip */}
-                        {isNodeHovered && (
-                          <text
-                            x={node.cx}
-                            y={node.cy - 16}
-                            textAnchor="middle"
-                            fill="#ffffff"
-                            fontSize="9"
-                            fontFamily="'Space Grotesk', sans-serif"
-                            fontWeight="600"
-                            style={{ filter: "drop-shadow(0 0 2px #000)" }}
-                          >
-                            {node.label}
-                          </text>
-                        )}
-                      </g>
-                    );
-                  })}
-                </svg>
-                {/* Pet Blueprint Outline (Faint background) */}
-                <div 
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    pointerEvents: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    opacity: 0.08,
-                    fontSize: 84
-                  }}
-                >
-                  🐶
-                </div>
-              </div>
+              {/* 3D Blueprint Body Map */}
+              <ThreeDBodyMap setInput={setInput} />
 
               {/* Symptom Quick-Triage Hub */}
               <div style={{ flex: 1, width: "100%", maxWidth: 440 }}>
                 <p style={{ fontSize: 12, fontWeight: 600, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12, fontFamily: "'Space Grotesk', sans-serif" }}>
-                  Select symptom or click interactive hotspot:
+                  Select symptom or click interactive 3D hotspot:
                 </p>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   {[
