@@ -128,352 +128,139 @@ function renderUserMessage(content: string) {
 }
 
 function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
-  const mountRef = useRef<HTMLDivElement>(null);
   const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  const x = useMotionValue(0.5);
+  const y = useMotionValue(0.5);
+  
+  const rotateX = useTransform(y, [0, 1], [15, -15]);
+  const rotateY = useTransform(x, [0, 1], [-15, 15]);
 
-  useEffect(() => {
-    const container = mountRef.current;
-    if (!container) return;
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const mouseX = (event.clientX - rect.left) / rect.width;
+    const mouseY = (event.clientY - rect.top) / rect.height;
+    x.set(mouseX);
+    y.set(mouseY);
+  };
 
-    const width = 280;
-    const height = 160;
+  const handleMouseLeave = () => {
+    x.set(0.5);
+    y.set(0.5);
+    setHoveredLabel(null);
+  };
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10);
-    camera.position.set(0, 0.15, 2.8);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 2));
-    container.appendChild(renderer.domElement);
-
-    const group = new THREE.Group();
-    scene.add(group);
-
-    // Warm, ambient & directional lighting to give cat solid depth & shadows
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
-    scene.add(ambientLight);
-
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    dirLight.position.set(2, 4, 3);
-    scene.add(dirLight);
-
-    // Ginger orange solid cat material with smooth specular highlights
-    const catMaterial = new THREE.MeshPhongMaterial({
-      color: 0xf9812a,      
-      shininess: 8,
-      specular: 0x222222,
-      flatShading: false    
-    });
-
-    // 1. Cat Body (Horizontal Cylinder)
-    const bodyGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.9, 16);
-    const bodyMesh = new THREE.Mesh(bodyGeo, catMaterial);
-    bodyMesh.position.set(0, -0.1, 0);
-    bodyMesh.rotation.x = Math.PI / 2;
-    group.add(bodyMesh);
-
-    // 2. Neck (Angled forward)
-    const neckGeo = new THREE.CylinderGeometry(0.12, 0.14, 0.35, 12);
-    const neckMesh = new THREE.Mesh(neckGeo, catMaterial);
-    neckMesh.position.set(0, 0.15, 0.38);
-    neckMesh.rotation.x = -Math.PI / 6;
-    group.add(neckMesh);
-
-    // 3. Cat Head (Sphere)
-    const headGeo = new THREE.SphereGeometry(0.26, 16, 16);
-    const headMesh = new THREE.Mesh(headGeo, catMaterial);
-    headMesh.position.set(0, 0.38, 0.5);
-    group.add(headMesh);
-
-    // 4. Muzzle (Round snout sphere)
-    const muzzleGeo = new THREE.SphereGeometry(0.11, 10, 10);
-    const muzzleMesh = new THREE.Mesh(muzzleGeo, catMaterial);
-    muzzleMesh.position.set(0, 0.33, 0.66);
-    group.add(muzzleMesh);
-
-    // 5. Pointy Cat Ears (Cones)
-    const earGeo = new THREE.ConeGeometry(0.08, 0.18, 12);
-    const leftEar = new THREE.Mesh(earGeo, catMaterial);
-    leftEar.position.set(-0.14, 0.62, 0.48);
-    leftEar.rotation.z = 0.2;
-    leftEar.rotation.x = -0.1;
-    group.add(leftEar);
-
-    const rightEar = new THREE.Mesh(earGeo, catMaterial);
-    rightEar.position.set(0.14, 0.62, 0.48);
-    rightEar.rotation.z = -0.2;
-    rightEar.rotation.x = -0.1;
-    group.add(rightEar);
-
-    // 6. Tail (Cylinder pointing up/back)
-    const tailGeo = new THREE.CylinderGeometry(0.025, 0.02, 0.5, 8);
-    const tailMesh = new THREE.Mesh(tailGeo, catMaterial);
-    tailMesh.position.set(0, 0.25, -0.6);
-    tailMesh.rotation.x = -Math.PI / 4;
-    group.add(tailMesh);
-
-    // 7. 4 Legs (Cylinders)
-    const legGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.45, 8);
-    
-    const legFL = new THREE.Mesh(legGeo, catMaterial);
-    legFL.position.set(-0.15, -0.45, 0.3);
-    group.add(legFL);
-
-    const legFR = new THREE.Mesh(legGeo, catMaterial);
-    legFR.position.set(0.15, -0.45, 0.3);
-    group.add(legFR);
-
-    const legBL = new THREE.Mesh(legGeo, catMaterial);
-    legBL.position.set(-0.15, -0.45, -0.3);
-    group.add(legBL);
-
-    const legBR = new THREE.Mesh(legGeo, catMaterial);
-    legBR.position.set(0.15, -0.45, -0.3);
-    group.add(legBR);
-
-    // 8. Whiskers (Faint white line segments to pop on orange fur)
-    const whiskerMaterial = new THREE.LineBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.55
-    });
-
-    const whiskerPointsL = [
-      new THREE.Vector3(-0.08, 0.38, 0.65), new THREE.Vector3(-0.35, 0.44, 0.72),
-      new THREE.Vector3(-0.08, 0.38, 0.65), new THREE.Vector3(-0.38, 0.38, 0.72),
-      new THREE.Vector3(-0.08, 0.38, 0.65), new THREE.Vector3(-0.35, 0.32, 0.72)
-    ];
-    const whiskerGeoL = new THREE.BufferGeometry().setFromPoints(whiskerPointsL);
-    const whiskersL = new THREE.LineSegments(whiskerGeoL, whiskerMaterial);
-    group.add(whiskersL);
-
-    const whiskerPointsR = [
-      new THREE.Vector3(0.08, 0.38, 0.65), new THREE.Vector3(0.35, 0.44, 0.72),
-      new THREE.Vector3(0.08, 0.38, 0.65), new THREE.Vector3(0.38, 0.38, 0.72),
-      new THREE.Vector3(0.08, 0.38, 0.65), new THREE.Vector3(0.35, 0.32, 0.72)
-    ];
-    const whiskerGeoR = new THREE.BufferGeometry().setFromPoints(whiskerPointsR);
-    const whiskersR = new THREE.LineSegments(whiskerGeoR, whiskerMaterial);
-    group.add(whiskersR);
-
-    // 9. Eyes (Tiny black spheres)
-    const eyeGeo = new THREE.SphereGeometry(0.03, 4, 4);
-    const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    
-    const leftEye = new THREE.Mesh(eyeGeo, eyeMaterial);
-    leftEye.position.set(-0.11, 0.45, 0.68);
-    group.add(leftEye);
-
-    const rightEye = new THREE.Mesh(eyeGeo, eyeMaterial);
-    rightEye.position.set(0.11, 0.45, 0.68);
-    group.add(rightEye);
-
-    // 10. Pink Nose (Cone)
-    const noseGeo = new THREE.ConeGeometry(0.025, 0.04, 3);
-    const noseMaterial = new THREE.MeshBasicMaterial({ color: 0xff6b6b });
-    const noseMesh = new THREE.Mesh(noseGeo, noseMaterial);
-    noseMesh.position.set(0, 0.37, 0.73);
-    noseMesh.rotation.x = Math.PI;
-    group.add(noseMesh);
-
-    // Dynamic Hotspot Nodes
-    const nodesData = [
-      { id: "ears", label: "Ears 👂", x: 0, y: 0.72, z: 0.48, prompt: "My pet is shaking their head, scratching their ears, and has some discharge. What could this indicate, and how should I clean their ears?" },
-      { id: "eyes", label: "Eyes/Face 👁️", x: 0, y: 0.38, z: 0.8, prompt: "I'm noticing redness and watering in my pet's eyes, and their nose feels dry. What are normal facial health signs to check?" },
-      { id: "stomach", label: "Stomach 🥩", x: 0, y: -0.1, z: 0, prompt: "My pet's stomach feels hard, and they are trying to vomit but nothing is coming out. What should I check, and is this bloat?" },
-      { id: "paws", label: "Paws/Skin 🐾", x: 0.15, y: -0.68, z: 0.3, prompt: "My pet is constantly chewing and licking their paws, and the skin looks raw. Is this likely allergies, and how can I soothe it?" },
-      { id: "joints", label: "Spine/Joints 🦴", x: 0, y: 0.18, z: -0.3, prompt: "My pet is hesitating to jump, limping slightly on their hind legs, or showing stiffness when getting up. How can I support their joints?" }
-    ];
-
-    const nodeMeshes: THREE.Mesh[] = [];
-    const nodeMaterial = new THREE.MeshBasicMaterial({
-      color: 0x8052ff,
-      transparent: true,
-      opacity: 0.95
-    });
-
-    nodesData.forEach((data) => {
-      const geo = new THREE.SphereGeometry(0.08, 8, 8);
-      const mesh = new THREE.Mesh(geo, nodeMaterial.clone());
-      mesh.position.set(data.x, data.y, data.z);
-      (mesh as any).nodeId = data.id;
-      (mesh as any).nodeLabel = data.label;
-      (mesh as any).nodePrompt = data.prompt;
-      group.add(mesh);
-      nodeMeshes.push(mesh);
-    });
-
-    // Constellation lines
-    const lineMaterial = new THREE.LineBasicMaterial({
-      color: 0x8052ff,
-      transparent: true,
-      opacity: 0.25
-    });
-
-    const points = nodeMeshes.map(m => m.position);
-    const lineGeo = new THREE.BufferGeometry().setFromPoints([
-      points[0], points[1],
-      points[1], points[2],
-      points[2], points[3],
-      points[3], points[4],
-      points[4], points[0],
-      points[1], points[3]
-    ]);
-    const lines = new THREE.LineSegments(lineGeo, lineMaterial);
-    group.add(lines);
-
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    let currentHoveredMesh: THREE.Mesh | null = null;
-
-    const onPointerMove = (event: PointerEvent) => {
-      const rect = renderer.domElement.getBoundingClientRect();
-      mouse.x = ((event.clientX - rect.left) / width) * 2 - 1;
-      mouse.y = -((event.clientY - rect.top) / height) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(nodeMeshes);
-
-      if (intersects.length > 0) {
-        const hitMesh = intersects[0].object as THREE.Mesh;
-        if (currentHoveredMesh !== hitMesh) {
-          if (currentHoveredMesh) {
-            currentHoveredMesh.scale.set(1, 1, 1);
-            (currentHoveredMesh.material as THREE.MeshBasicMaterial).color.setHex(0x8052ff);
-          }
-          currentHoveredMesh = hitMesh;
-          currentHoveredMesh.scale.set(1.5, 1.5, 1.5);
-          (currentHoveredMesh.material as THREE.MeshBasicMaterial).color.setHex(0xffffff);
-          setHoveredLabel((currentHoveredMesh as any).nodeLabel);
-          renderer.domElement.style.cursor = "pointer";
-        }
-      } else {
-        if (currentHoveredMesh) {
-          currentHoveredMesh.scale.set(1, 1, 1);
-          (currentHoveredMesh.material as THREE.MeshBasicMaterial).color.setHex(0x8052ff);
-          currentHoveredMesh = null;
-          setHoveredLabel(null);
-          renderer.domElement.style.cursor = "default";
-        }
-      }
-    };
-
-    const onClick = () => {
-      if (currentHoveredMesh) {
-        setInput((currentHoveredMesh as any).nodePrompt);
-      }
-    };
-
-    renderer.domElement.addEventListener("pointermove", onPointerMove);
-    renderer.domElement.addEventListener("click", onClick);
-
-    let rafId = 0;
-    const clock = new THREE.Clock();
-    const animate = () => {
-      const time = clock.getElapsedTime();
-      group.rotation.y = Math.sin(time * 0.35) * 0.45;
-      group.rotation.x = Math.cos(time * 0.3) * 0.08;
-
-      nodeMeshes.forEach((mesh) => {
-        if (mesh !== currentHoveredMesh) {
-          const pulse = 1 + Math.sin(time * 3 + mesh.position.x * 10) * 0.15;
-          mesh.scale.set(pulse, pulse, pulse);
-        }
-      });
-
-      renderer.render(scene, camera);
-      rafId = requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      renderer.domElement.removeEventListener("pointermove", onPointerMove);
-      renderer.domElement.removeEventListener("click", onClick);
-      renderer.dispose();
-      
-      bodyGeo.dispose();
-      neckGeo.dispose();
-      headGeo.dispose();
-      muzzleGeo.dispose();
-      earGeo.dispose();
-      tailGeo.dispose();
-      legGeo.dispose();
-      whiskerGeoL.dispose();
-      whiskerGeoR.dispose();
-      eyeGeo.dispose();
-      noseGeo.dispose();
-      
-      catMaterial.dispose();
-      nodeMaterial.dispose();
-      lineMaterial.dispose();
-      lineGeo.dispose();
-      whiskerMaterial.dispose();
-      eyeMaterial.dispose();
-      noseMaterial.dispose();
-      
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
-      }
-    };
-  }, [setInput]);
+  const nodesData = [
+    { id: "ears", label: "Ears 👂", top: "18%", left: "46%", prompt: "My pet is shaking their head, scratching their ears, and has some discharge. What could this indicate, and how should I clean their ears?" },
+    { id: "eyes", label: "Eyes/Face 👁️", top: "28%", left: "54%", prompt: "I'm noticing redness and watering in my pet's eyes, and their nose feels dry. What are normal facial health signs to check?" },
+    { id: "stomach", label: "Stomach 🥩", top: "48%", left: "38%", prompt: "My pet's stomach feels hard, and they are trying to vomit but nothing is coming out. What should I check, and is this bloat?" },
+    { id: "paws", label: "Paws/Skin 🐾", top: "78%", left: "42%", prompt: "My pet is constantly chewing and licking their paws, and the skin looks raw. Is this likely allergies, and how can I soothe it?" },
+    { id: "joints", label: "Spine/Joints 🦴", top: "54%", left: "26%", prompt: "My pet is hesitating to jump, limping slightly on their hind legs, or showing stiffness when getting up. How can I support their joints?" }
+  ];
 
   return (
     <div 
       style={{
+        perspective: 1000,
         width: 280,
         height: 160,
-        background: "rgba(128,82,255,0.02)",
-        border: "1px solid rgba(128,82,255,0.1)",
-        borderRadius: 20,
-        position: "relative",
-        overflow: "hidden",
         flexShrink: 0
       }}
     >
-      <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
-      {/* Blueprint background symbol */}
-      <div 
+      <motion.div
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
         style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          opacity: 0.06,
-          fontSize: 90
+          rotateX,
+          rotateY,
+          width: "100%",
+          height: "100%",
+          background: "rgba(128,82,255,0.02)",
+          border: "1px solid rgba(128,82,255,0.15)",
+          borderRadius: 20,
+          position: "relative",
+          overflow: "hidden",
+          cursor: "pointer",
+          transformStyle: "preserve-3d"
         }}
       >
-        🐱
-      </div>
-      {hoveredLabel && (
-        <div 
+        {/* Shaded 3D Cat Photo */}
+        <img 
+          src="/triage-cat-3d.png" 
+          alt="3D Triage Cat" 
           style={{
-            position: "absolute",
-            bottom: 8,
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            color: "#ffffff",
-            fontSize: 11,
-            fontWeight: 600,
-            fontFamily: "'Space Grotesk', sans-serif",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            opacity: 0.9,
             pointerEvents: "none",
-            background: "rgba(0,0,0,0.7)",
-            padding: "2px 8px",
-            borderRadius: 8,
-            width: "fit-content",
-            margin: "0 auto"
+            transform: "translateZ(-20px) scale(0.95)"
           }}
-        >
-          {hoveredLabel}
-        </div>
-      )}
+        />
+
+        {/* Hotspot Nodes overlaid in 3D perspective space */}
+        {nodesData.map((node) => (
+          <button
+            key={node.id}
+            onClick={(e) => {
+              e.stopPropagation();
+              setInput(node.prompt);
+            }}
+            onMouseEnter={() => setHoveredLabel(node.label)}
+            onMouseLeave={() => setHoveredLabel(null)}
+            style={{
+              position: "absolute",
+              top: node.top,
+              left: node.left,
+              width: 14,
+              height: 14,
+              borderRadius: "50%",
+              background: "rgba(128,82,255,0.9)",
+              border: "2px solid #ffffff",
+              cursor: "pointer",
+              transform: "translateZ(20px)",
+              boxShadow: "0 0 10px #8052ff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0
+            }}
+          >
+            <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#ffffff" }} />
+          </button>
+        ))}
+
+        {hoveredLabel && (
+          <div 
+            style={{
+              position: "absolute",
+              bottom: 8,
+              left: 0,
+              right: 0,
+              textAlign: "center",
+              color: "#ffffff",
+              fontSize: 11,
+              fontWeight: 600,
+              fontFamily: "'Space Grotesk', sans-serif",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              pointerEvents: "none",
+              background: "rgba(0,0,0,0.75)",
+              padding: "2px 8px",
+              borderRadius: 8,
+              width: "fit-content",
+              margin: "0 auto",
+              transform: "translateZ(30px)"
+            }}
+          >
+            {hoveredLabel}
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 }
