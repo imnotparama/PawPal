@@ -34,10 +34,7 @@ function AuthPage() {
     if (tab === "signup") {
       const { error } = await signUp(email, password);
       if (error) {
-        const msg = error.message.toLowerCase().includes("database") || error.message.toLowerCase().includes("postgres")
-          ? "Failed to create account. Please try again later."
-          : error.message;
-        setError(msg);
+        setError("Sign up failed. Please check that you entered a valid email and a strong password.");
       } else {
         setSuccessMsg("Check your email to confirm your account, then sign in.");
         setTab("signin");
@@ -45,10 +42,7 @@ function AuthPage() {
     } else {
       const { error } = await signIn(email, password);
       if (error) {
-        const msg = error.message.toLowerCase().includes("database") || error.message.toLowerCase().includes("postgres")
-          ? "Invalid email or password. Please try again."
-          : error.message;
-        setError(msg);
+        setError("Invalid email or password. Please try again.");
       } else navigate({ to: "/dashboard" });
     }
     setLoading(false);
