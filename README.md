@@ -57,6 +57,8 @@ Pet owners face three universal problems:
 
 ### 💎 Premium UX & Visual Polish
 - **Cat Purr Sound Therapy Widget**: Calming synthesizer using Web Audio API low-frequency oscillators (sine + triangle waves) modulated by breathing cycle gains (~0.18 Hz) to simulate standard cat purring, complete with a custom neon canvas vibration visualizer.
+- **Ctrl+K Command Palette**: Linear-style global command interface for instant navigation across all app sections — keyboard-first power users can reach any page without touching the mouse.
+- **Guided Onboarding Flow**: First-time users see a 3-step welcome modal that walks through adding their first pet, with localStorage persistence so it never shows twice.
 - **Hackathon Judge Conditonal Banner**: Conditionally renders a premium "Hack the Kitty" judge view panel if URL parameters contain `?judgeview=true`.
 - **Global Error Boundary Wrapper**: Graceful error boundary intercepts React thread crashes and presents a styled recovery panel.
 - **Version drawer popups**: VERSION drawer in the navigation sidebar footer details release metadata.
@@ -274,7 +276,46 @@ GEMINI_API_KEY=
 
 ## 🐱 Hack the Kitty 2026 — Theme Integration
 
-Cats already run the internet. Now it's time they run everything. PawPal AI is built specifically for **wholesome kitty world-domination**. By equipping cats and cat owners with clinical-grade health tracking, real-time AI triage, and secure health passports, we ensure our future feline overlords are healthy, happy, and fully supported in their rise to global power. PawPal AI aligns with the theme by driving positive impact for cats, cat owners, and the broader cat community, proving that world domination can be wholesome, one health record at a time.
+**Theme: "Cats already run the internet. 
+Now it's time they run everything."**
+
+PawPal AI is built for wholesome feline world domination.
+Every feature exists because cats deserve better healthcare
+and their humans deserve less panic.
+
+**For cats:**
+The Life Phase Advisor tracks exact feline stages 
+from Kitten to Geriatric, surfacing age-specific 
+nutrition and medical priorities. The Vaccination 
+Alert Tracker ensures no cat ever misses a critical 
+immunization. The AI triage analyzes photos of rashes, 
+wounds, and food labels — because cats can't tell you 
+what hurts.
+
+**For cat owners:**
+No more 2am panic-googling. No more forgotten 
+vaccination dates. No more scattered vet notes. 
+PawPal centralizes everything into one beautiful, 
+AI-powered companion that answers the next health 
+question before you think to ask it.
+
+**For the community:**
+The Printable Health Passport exports a professional 
+document ready for boarding facilities, shelter 
+handovers, and rescue organizations — directly 
+supporting the cat rehoming community.
+
+**The deeper connection:**
+The landing page opens with 6,000 particles 
+assembling into a cat silhouette. The Cat Purr 
+Sound Therapy synthesizes clinically accurate 
+25-50 Hz healing frequencies. The interactive 
+3D symptom hotspot lets owners click on anatomical 
+body regions for targeted triage. Every layer of 
+this product was built around cats.
+
+PawPal AI doesn't mention cats as an afterthought. 
+Cats are the product.
 
 ---
 
