@@ -27,54 +27,40 @@ Pet owners face three universal problems:
 ## 🌟 Key Features
 
 ### 🌌 3D Particle Morph Landing Page
-- 6,000 instanced Three.js triangles rendered with custom GLSL 
-  vertex + fragment shaders
-- Particles morph in real-time between three silhouettes 
-  (Cat → Dog → Girl-with-Cat) as users scroll through 4 horizontal panels
-- ACES Filmic Tone Mapping, per-instance rotation, 
-  position-based color gradients (amber → white → plum violet)
-- Mouse parallax tracking and scroll-driven explosion effect on final panel
-- 60 FPS target maintained via instanced rendering — 
-  drawing 6,000 shapes as a single GPU draw call
+- **Instanced GPU Rendering**: 6,000 instanced Three.js triangles rendered as a single draw call with custom GLSL vertex + fragment shaders for a target 60 FPS on any device.
+- **Scroll-Driven Morphing**: Particles morph in real-time between three high-fidelity silhouettes (Cat → Dog → Girl-with-Cat) as users scroll.
+- **Cinematic Visuals**: ACES Filmic Tone Mapping, dynamic per-particle rotation, position-based gradient mapping (amber → white → plum violet), and mouse parallax tracking.
+- **Explosion Transition**: Interactive scroll-driven particle explosion effect on the final panel.
+
+### 🐈 Interactive 3D Pet Triage Dashboard
+- **Dark-Theme 3D Panel**: Sleek, glassmorphic card housing a high-contrast ginger cat blended into a dark backdrop with a floating Three.js WebGL particle field.
+- **Dynamic 3D Parallax Tilt**: Real-time cursor tracking on the visual panel calculates mouse offsets to apply smooth perspective rotation transforms (`rotateX` / `rotateY`).
+- **Interactive Hotspot Pins**: Pulsing hotspots mapped to anatomical sectors (Ears 👂, Eyes/Face 👁️, Stomach 🥩, Paws/Skin 🐾, Spine/Joints 🦴).
+- **Auto-Focus Prompt Injection**: Clicking any hotspot automatically inserts a targeted vet diagnostic query and instantly focuses the chat input bar.
+- **Shimmering Symptom Grid**: Companion list with premium Framer Motion hover states animating a white gradient sweep across the cards.
 
 ### 🤖 AI Pet Health Triage (Google Gemini)
-- Real-time symptom triage powered by Gemini 1.5 Flash
-- **Multimodal Image Analysis**: Attach a photo of rashes, wounds, eye concerns, or food labels via the attachment clip button for direct visual symptom diagnosis.
-- **Voice-to-text input** via Web Speech Recognition API — 
-  describe symptoms hands-free
-- **Selected Pet History Filter**: Dropdown above the chat history window allowing instant message-history filtering dynamically synced to specific pet IDs.
-- Structured Markdown responses with code blocks, headers, bold formatting, and actionable advice
-- Full chat history persisted per pet in Supabase
-- Gemini API key never exposed to client — 
-  routed through TanStack Start Server Action on Vercel serverless
+- **Gemini-Powered Diagnosis**: Real-time triage analysis utilizing Google Gemini 1.5 Flash.
+- **Multimodal Visual Analysis**: Attach photos of rashes, bites, foods, or stools for instant computer-vision diagnostic support.
+- **Hands-Free Voice Input**: Describe symptoms directly using the Web Speech Recognition API.
+- **Pet History Filter**: Toggle active pet history filters dynamically to review custom chat logs.
+- **Server Action Security**: Gemini API keys reside strictly on the server via TanStack Start Server Actions, keeping credentials safe from the client.
 
 ### 📊 Complete Health Management
-- **Pet Profiles** — Photo uploads with client-side canvas compression before storage upload, Zod form validation, and real-time toast feedback
-- **Life Phase Advisor** — Dynamic care assessment that calculates your cat's exact growth/maturity stage (from Kitten infancy to Geriatric) to suggest target nutrition and medical focus.
-- **Printable Health Passport** — Clean print layouts with specialized document IDs, profile pictures, and mock QR verification stamps to easily print/export records for boarding facilities or vets.
-- **Vaccination Tracker** — Upcoming/Completed/Overdue status, 
-  urgency indicators with pulsing alerts for near-due dates
-- **Medical Records** — File upload (PDF/images), 
-  typed by Checkup/Surgery/Treatment/Consultation with color coding
-- **Health Timeline** — Auto-generated chronological view 
-  merging all health events across all pets
-- **Health Score** — Dynamic calculation based on vaccination 
-  compliance (vaccines_completed / expected_vaccinations * 100) and recent activity with a prominent 78px typography arc display on the main dashboard.
-- **My Profile Settings** — Full account personalization workspace. Includes canvas-based image compression for user avatar uploads to Supabase storage, metadata editing for display name/username, location, phone, favorite pet type selection, and focus area priorities, which dynamically sync with the navigation sidebar user badge.
+- **Companion Life Phase Advisor**: Automatically calculates your pet's life phase (from Kitten/Puppy infancy to Senior/Geriatric stages) to recommend custom nutritional and health focus plans.
+- **Printable Health Passport**: Features a clean print stylesheet layout, customized document QR stamps, and verification IDs to easily export health details for boarders and vets.
+- **Vaccination Alert Tracker**: Urgency statuses (Upcoming/Completed/Overdue) with color-coded badges and pulse indicators for near-due items.
+- **Centralized Medical Records**: Document management workspace categorized by type (Wellness, Surgery, Treatment, Consultation) with dynamic color tagging.
+- **Interactive Health Timeline**: Chronological layout automatically grouping veterinary visits, tests, and events by calendar year.
+- **Dynamic Health Score Indicator**: Computes real-time compliance metrics (vaccines_completed / expected_vaccinations * 100) shown on a premium 78px dashboard arc wrapper.
+- **Canvas-Compressed Uploads**: Profiles compress image uploads on the client canvas before uploading to Supabase Storage, saving client bandwidth and server storage.
 
-### 💎 Premium UX Details
-- **Cat Purr Sound Therapy Widget**: Calming synthesizer using Web Audio API low-frequency oscillators (sine + triangle waves) modulated by breathing cycle gains (~0.18 Hz frequency) to simulate standard cat purring, complete with a custom neon canvas vibration visualizer.
-- Magnetic buttons with spring-physics hover effect
-- CometCard 3D tilt on pet profile cards (Framer Motion)
-- Staggered page-load animations across all dashboard widgets
-- Glassmorphic empty states with onboarding checklists
-- Real-time health alerts when vaccinations are overdue
-- Stale-While-Revalidate caching for instant navigation
-- Developer info modal with glassmorphic overlay
-- Custom cursor glow effect tied to mouse position
-- **Global Error Boundary & Fallback**: Standardized graceful error handling across router views to prevent blank screens on client crashes.
-- **Help & Support Hub**: Comprehensive interface containing search filtering, interactive accordion FAQ entries, and developer contact forms.
-- **Secure Account Actions**: A Radix UI confirmation AlertDialog wrapper for permanent account deletion triggers.
+### 💎 Premium UX & Visual Polish
+- **Cat Purr Sound Therapy Widget**: Calming synthesizer using Web Audio API low-frequency oscillators (sine + triangle waves) modulated by breathing cycle gains (~0.18 Hz) to simulate standard cat purring, complete with a custom neon canvas vibration visualizer.
+- **Hackathon Judge Conditonal Banner**: Conditionally renders a premium "Hack the Kitty" judge view panel if URL parameters contain `?judgeview=true`.
+- **Global Error Boundary Wrapper**: Graceful error boundary intercepts React thread crashes and presents a styled recovery panel.
+- **Version drawer popups**: VERSION drawer in the navigation sidebar footer details release metadata.
+- Custom cursor glows, spring-physics magnet controls, loading skeleton grids, and Radix UI Confirmation AlertDialog wrappers.
 
 ---
 
