@@ -1,8 +1,30 @@
 import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
 
 export const getGeminiResponse = createServerFn({ method: "POST" })
-  .validator((data: { content: string; image?: { mimeType: string; data: string } }) => data)
-  .handler(async ({ data: { content, image } }) => {
+  .validator((data: { content: string; token: string; image?: { mimeType: string; data: string } }) => data)
+  .handler(async ({ data: { content, token, image } }) => {
+    // Verify Supabase Auth Token
+    if (!token) {
+      throw new Error("Unauthorized: Missing session token");
+    }
+
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("Missing Supabase configuration");
+    }
+
+    const serverSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: { persistSession: false }
+    });
+
+    const { data: { user }, error } = await serverSupabase.auth.getUser(token);
+    if (error || !user) {
+      throw new Error("Unauthorized: Invalid user session");
+    }
+
     // Read the secret strictly from server-side environment variables
     const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
     if (!apiKey) {

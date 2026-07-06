@@ -3,26 +3,8 @@ import { supabase } from "@/lib/supabase";
 import type { MedicalRecord } from "@/types";
 
 export function useMedicalRecords(petId?: string) {
-  const cacheKey = `pawpal_cache_records_${petId || "all"}`;
-  const [records, setRecords] = useState<MedicalRecord[]>(() => {
-    try {
-      if (typeof window !== "undefined") {
-        const cached = localStorage.getItem(cacheKey);
-        return cached ? JSON.parse(cached) : [];
-      }
-    } catch (e) {
-      console.error("Error loading records cache:", e);
-    }
-    return [];
-  });
-  const [loading, setLoading] = useState(() => {
-    try {
-      if (typeof window !== "undefined") {
-        return !localStorage.getItem(cacheKey);
-      }
-    } catch (e) {}
-    return true;
-  });
+  const [records, setRecords] = useState<MedicalRecord[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -38,11 +20,6 @@ export function useMedicalRecords(petId?: string) {
       if (error) throw error;
       const freshData = data ?? [];
       setRecords(freshData);
-      try {
-        if (typeof window !== "undefined") {
-          localStorage.setItem(cacheKey, JSON.stringify(freshData));
-        }
-      } catch (e) {}
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch medical records");
       console.error("Error fetching medical records:", err);

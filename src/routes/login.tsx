@@ -25,7 +25,10 @@ function LoginPage() {
     if (isSignUp) {
       const { error } = await signUp(email, password);
       if (error) {
-        setError(error.message);
+        const msg = error.message.toLowerCase().includes("database") || error.message.toLowerCase().includes("postgres")
+          ? "Failed to create account. Please try again later."
+          : error.message;
+        setError(msg);
       } else {
         setSuccessMsg("Check your email to confirm your account, then sign in.");
         setIsSignUp(false);
@@ -33,7 +36,10 @@ function LoginPage() {
     } else {
       const { error } = await signIn(email, password);
       if (error) {
-        setError(error.message);
+        const msg = error.message.toLowerCase().includes("database") || error.message.toLowerCase().includes("postgres")
+          ? "Invalid email or password. Please try again."
+          : error.message;
+        setError(msg);
       } else {
         navigate({ to: "/dashboard" });
       }

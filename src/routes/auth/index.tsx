@@ -33,15 +33,23 @@ function AuthPage() {
 
     if (tab === "signup") {
       const { error } = await signUp(email, password);
-      if (error) setError(error.message);
-      else {
+      if (error) {
+        const msg = error.message.toLowerCase().includes("database") || error.message.toLowerCase().includes("postgres")
+          ? "Failed to create account. Please try again later."
+          : error.message;
+        setError(msg);
+      } else {
         setSuccessMsg("Check your email to confirm your account, then sign in.");
         setTab("signin");
       }
     } else {
       const { error } = await signIn(email, password);
-      if (error) setError(error.message);
-      else navigate({ to: "/dashboard" });
+      if (error) {
+        const msg = error.message.toLowerCase().includes("database") || error.message.toLowerCase().includes("postgres")
+          ? "Invalid email or password. Please try again."
+          : error.message;
+        setError(msg);
+      } else navigate({ to: "/dashboard" });
     }
     setLoading(false);
   };

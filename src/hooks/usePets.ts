@@ -55,25 +55,8 @@ async function compressImage(file: File): Promise<Blob | File> {
 }
 
 export function usePets() {
-  const [pets, setPets] = useState<Pet[]>(() => {
-    try {
-      if (typeof window !== "undefined") {
-        const cached = localStorage.getItem("pawpal_cache_pets");
-        return cached ? JSON.parse(cached) : [];
-      }
-    } catch (e) {
-      console.error("Error loading pets cache:", e);
-    }
-    return [];
-  });
-  const [loading, setLoading] = useState(() => {
-    try {
-      if (typeof window !== "undefined") {
-        return !localStorage.getItem("pawpal_cache_pets");
-      }
-    } catch (e) {}
-    return true;
-  });
+  const [pets, setPets] = useState<Pet[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -87,11 +70,6 @@ export function usePets() {
       if (error) throw error;
       const freshData = data ?? [];
       setPets(freshData);
-      try {
-        if (typeof window !== "undefined") {
-          localStorage.setItem("pawpal_cache_pets", JSON.stringify(freshData));
-        }
-      } catch (e) {}
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch pets");
       console.error("Error fetching pets:", err);

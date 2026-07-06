@@ -3,26 +3,8 @@ import { supabase } from "@/lib/supabase";
 import type { Vaccination } from "@/types";
 
 export function useVaccinations(petId?: string) {
-  const cacheKey = `pawpal_cache_vaccinations_${petId || "all"}`;
-  const [vaccinations, setVaccinations] = useState<Vaccination[]>(() => {
-    try {
-      if (typeof window !== "undefined") {
-        const cached = localStorage.getItem(cacheKey);
-        return cached ? JSON.parse(cached) : [];
-      }
-    } catch (e) {
-      console.error("Error loading vaccinations cache:", e);
-    }
-    return [];
-  });
-  const [loading, setLoading] = useState(() => {
-    try {
-      if (typeof window !== "undefined") {
-        return !localStorage.getItem(cacheKey);
-      }
-    } catch (e) {}
-    return true;
-  });
+  const [vaccinations, setVaccinations] = useState<Vaccination[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [updating, setUpdating] = useState(false);
@@ -56,11 +38,6 @@ export function useVaccinations(petId?: string) {
       });
 
       setVaccinations(freshData);
-      try {
-        if (typeof window !== "undefined") {
-          localStorage.setItem(cacheKey, JSON.stringify(freshData));
-        }
-      } catch (e) {}
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch vaccinations");
       console.error("Error fetching vaccinations:", err);
