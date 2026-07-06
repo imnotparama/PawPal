@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, Component } from "react";
 import { usePets } from "@/hooks/usePets";
 import { useChat } from "@/hooks/useChat";
 import { toast } from "sonner";
 import { PawPrint } from "lucide-react";
 import * as THREE from "three";
+import { PetBodyHotspot3D } from "@/components/PetBodyHotspot3D";
 
 export const Route = createFileRoute("/app/chat")({
   component: ChatPage,
@@ -265,6 +266,31 @@ function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
   );
 }
 
+class SafePetBodyHotspot extends Component<
+  { children: React.ReactNode; fallback: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("PetBodyHotspot3D error caught by boundary:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+    return this.props.children;
+  }
+}
+
 function ChatPage() {
   const { pets } = usePets();
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>(undefined);
@@ -278,6 +304,13 @@ function ChatPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastSendTimeRef = useRef<number>(0);
   const [attachedImage, setAttachedImage] = useState<{ mimeType: string; data: string; previewUrl: string } | null>(null);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const focusInput = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -507,70 +540,72 @@ function ChatPage() {
             </div>
 
             {/* Triage Dashboard Container */}
-            <div className="flex flex-col md:flex-row gap-6 items-center justify-center w-full max-w-4xl mt-3">
-              {/* 3D Blueprint Body Map */}
-              <ThreeDBodyMap setInput={setInput} />
-
-              {/* Symptom Quick-Triage Hub */}
-              <div style={{ flex: 1, width: "100%", maxWidth: 440 }}>
-                <p style={{ fontSize: 12, fontWeight: 600, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12, fontFamily: "'Space Grotesk', sans-serif" }}>
-                  Select symptom or click interactive 3D hotspot:
-                </p>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  {[
-                    {
-                      title: "Skin & Ears 🐾",
-                      desc: "Scratching, rashes, tick check",
-                      prompt: "My pet is scratching their ears and shaking their head frequently. What are common causes, and how do I examine their ears safely?"
-                    },
-                    {
-                      title: "Digestion & Food 🥩",
-                      desc: "Loss of appetite, vomiting risk",
-                      prompt: "My pet has lost their appetite today and isn't eating. What symptoms should I watch for, and when is it a veterinary emergency?"
-                    },
-                    {
-                      title: "Energy & Sleep ⚡",
-                      desc: "Lethargy, sleeping, stiff joints",
-                      prompt: "My pet seems unusually lethargic and is sleeping much more than normal. How can I check their vital signs at home?"
-                    },
-                    {
-                      title: "Vaccines & Checks 🩺",
-                      desc: "Triage checks & routine guidelines",
-                      prompt: "How often does my pet need vaccinations, and what is the best way to inspect them for ticks and fleas after outdoor play?"
-                    }
-                  ].map((s) => (
-                    <button
-                      key={s.title}
-                      onClick={() => setInput(s.prompt)}
-                      style={{
-                        background: "rgba(255,255,255,0.02)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        borderRadius: 16,
-                        padding: "12px 16px",
-                        textAlign: "left",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease-in-out",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 2
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = "#8052ff";
-                        e.currentTarget.style.background = "rgba(128,82,255,0.05)";
-                        e.currentTarget.style.transform = "translateY(-2px)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
-                        e.currentTarget.style.background = "rgba(255,255,255,0.02)";
-                        e.currentTarget.style.transform = "translateY(0)";
-                      }}
-                    >
-                      <span style={{ fontSize: 13, fontWeight: 600, color: "#ffffff", fontFamily: "'Space Grotesk', sans-serif" }}>{s.title}</span>
-                      <span style={{ fontSize: 10, color: "#9a9a9a", fontFamily: "'Space Grotesk', sans-serif", lineHeight: 1.3 }}>{s.desc}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 12 }}>
+              <SafePetBodyHotspot
+                fallback={
+                  <div style={{ width: "100%", maxWidth: 440, margin: "0 auto" }}>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12, fontFamily: "'Space Grotesk', sans-serif" }}>
+                      Select symptom:
+                    </p>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                      {[
+                        {
+                          title: "Skin & Ears 🐾",
+                          desc: "Scratching, rashes, tick check",
+                          prompt: "My pet has been scratching their ears and skin a lot. Could this be an infection or allergies?"
+                        },
+                        {
+                          title: "Digestion & Food 🥩",
+                          desc: "Loss of appetite, vomiting risk",
+                          prompt: "My pet hasn't been eating well and seems nauseous. What could be causing this?"
+                        },
+                        {
+                          title: "Energy & Sleep ⚡",
+                          desc: "Lethargy, sleeping, stiff joints",
+                          prompt: "My pet seems lethargic and is sleeping more than usual. Should I be concerned?"
+                        },
+                        {
+                          title: "Vaccines & Checks 🩺",
+                          desc: "Triage checks & routine guidelines",
+                          prompt: "Can you tell me what routine vaccinations and health checks my pet needs at their current age?"
+                        }
+                      ].map((s) => (
+                        <button
+                          key={s.title}
+                          onClick={() => { setInput(s.prompt); focusInput(); }}
+                          style={{
+                            background: "rgba(255,255,255,0.02)",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                            borderRadius: 16,
+                            padding: "12px 16px",
+                            textAlign: "left",
+                            cursor: "pointer",
+                            transition: "all 0.2s ease-in-out",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = "#8052ff";
+                            e.currentTarget.style.background = "rgba(128,82,255,0.05)";
+                            e.currentTarget.style.transform = "translateY(-2px)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                            e.currentTarget.style.background = "rgba(255,255,255,0.02)";
+                            e.currentTarget.style.transform = "translateY(0)";
+                          }}
+                        >
+                          <span style={{ fontSize: 13, fontWeight: 600, color: "#ffffff", fontFamily: "'Space Grotesk', sans-serif" }}>{s.title}</span>
+                          <span style={{ fontSize: 10, color: "#9a9a9a", fontFamily: "'Space Grotesk', sans-serif", lineHeight: 1.3 }}>{s.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                }
+              >
+                <PetBodyHotspot3D setInput={setInput} focusInput={focusInput} />
+              </SafePetBodyHotspot>
             </div>
           </div>
         ) : (
@@ -681,6 +716,7 @@ function ChatPage() {
           )}
         </button>
         <input
+          ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
