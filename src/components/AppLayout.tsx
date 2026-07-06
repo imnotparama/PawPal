@@ -3,6 +3,7 @@ import { useAuth } from "@/lib/auth";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { CursorGlow } from "@/components/CursorGlow";
+import { CommandPalette } from "./CommandPalette";
 import { 
   LayoutDashboard, 
   Heart, 
@@ -16,12 +17,12 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { label: "Dashboard", to: "/app", icon: LayoutDashboard },
-  { label: "My Pets", to: "/app/pets", icon: Heart },
-  { label: "AI Chat", to: "/app/chat", icon: MessageSquare },
-  { label: "Vaccinations", to: "/app/vaccinations", icon: Syringe },
-  { label: "Medical Records", to: "/app/records", icon: FileText },
-  { label: "Health Timeline", to: "/app/timeline", icon: History },
+  { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
+  { label: "My Pets", to: "/dashboard/pets", icon: Heart },
+  { label: "AI Chat", to: "/dashboard/chat", icon: MessageSquare },
+  { label: "Vaccinations", to: "/dashboard/vaccinations", icon: Syringe },
+  { label: "Medical Records", to: "/dashboard/records", icon: FileText },
+  { label: "Health Timeline", to: "/dashboard/timeline", icon: History },
   { label: "Profile", to: "/dashboard/profile", icon: User },
   { label: "Help & Support", to: "/dashboard/support", icon: HelpCircle },
 ];
@@ -90,6 +91,7 @@ export const AppLayout = React.memo(function AppLayout() {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen font-sans" style={{ background: "#000000", color: "#ffffff" }}>
+      <CommandPalette />
       {/* Mobile Top Bar */}
       <header
         className="md:hidden flex items-center justify-between px-6 h-16 border-b z-40 sticky top-0"
@@ -149,8 +151,8 @@ export const AppLayout = React.memo(function AppLayout() {
         <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {navItems.map((item) => {
             const isActive =
-              item.to === "/app"
-                ? location.pathname === "/app" || location.pathname === "/app/"
+              item.to === "/dashboard"
+                ? location.pathname === "/dashboard" || location.pathname === "/dashboard/"
                 : location.pathname.startsWith(item.to);
 
             return (

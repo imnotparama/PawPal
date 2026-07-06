@@ -5,7 +5,7 @@ import { usePets } from "@/hooks/usePets";
 import { useVaccinations } from "@/hooks/useVaccinations";
 import { NoiseBackground } from "@/components/ui/noise-background";
 
-export const Route = createFileRoute("/app/vaccinations")({
+export const Route = createFileRoute("/dashboard/vaccinations")({
   component: VaccinationsPage,
 });
 

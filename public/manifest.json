@@ -1,0 +1,16 @@
+{
+  "name": "PawPal AI",
+  "short_name": "PawPal",
+  "description": "Your pet's smart health companion",
+  "theme_color": "#000000",
+  "background_color": "#000000",
+  "display": "standalone",
+  "start_url": "/dashboard",
+  "icons": [
+    {
+      "src": "/pawpal-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

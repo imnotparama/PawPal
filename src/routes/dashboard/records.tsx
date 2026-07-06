@@ -5,7 +5,7 @@ import { usePets } from "@/hooks/usePets";
 import { useMedicalRecords } from "@/hooks/useMedicalRecords";
 import { NoiseBackground } from "@/components/ui/noise-background";
 
-export const Route = createFileRoute("/app/records")({
+export const Route = createFileRoute("/dashboard/records")({
   component: RecordsPage,
 });
 
@@ -130,7 +130,6 @@ function RecordsPage() {
     return true;
   });
 
-  // Get current year from data
   const currentYear = filtered.length > 0 
     ? new Date(filtered[0].date).getFullYear().toString() 
     : new Date().getFullYear().toString();
@@ -237,12 +236,9 @@ function RecordsPage() {
         </motion.div>
       ) : (
         <>
-          {/* Year label */}
           <div style={{ fontSize: 12, color: "#9a9a9a", letterSpacing: "0.07em", textTransform: "uppercase", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 8, marginBottom: 16 }}>{currentYear}</div>
 
-          {/* Timeline */}
           <div style={{ position: "relative", paddingLeft: 32 }}>
-            {/* Vertical line */}
             <motion.div
               initial={{ scaleY: 0 }}
               animate={{ scaleY: 1 }}
@@ -250,7 +246,6 @@ function RecordsPage() {
               style={{ position: "absolute", left: 16, top: 0, bottom: 0, width: 1, background: "rgba(255,255,255,0.08)", transformOrigin: "top" }}
             />
 
-            {/* Records */}
             {filtered.map((r, i) => {
               const color = typeColors[r.record_type] || "#8052ff";
               const provider = [r.doctor_name, r.clinic_name].filter(Boolean).join(" · ") || "—";
@@ -262,15 +257,12 @@ function RecordsPage() {
                   transition={{ delay: 0.2 + i * 0.08, duration: 0.4, ease: "easeOut" }}
                   style={{ position: "relative", marginBottom: 12 }}
                 >
-                  {/* Timeline dot */}
                   <div style={{ position: "absolute", left: -21, top: 24, width: 10, height: 10, borderRadius: "50%", background: color, boxShadow: `0 0 8px ${color}80` }} />
 
-                  {/* Card */}
                   <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: "20px 24px", transition: "all 0.2s ease", cursor: "pointer" }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.02)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
                   >
-                    {/* Top row */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <span style={{ background: `${color}1F`, border: `1px solid ${color}40`, color, borderRadius: 20, padding: "3px 10px", fontSize: 11 }}>{r.record_type}</span>
@@ -279,9 +271,7 @@ function RecordsPage() {
                       </div>
                       <span style={{ fontSize: 13, color: "#9a9a9a" }}>{r.date ? new Date(r.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}</span>
                     </div>
-                    {/* Provider */}
                     <p style={{ fontSize: 13, color: "#9a9a9a", marginBottom: 8 }}>{provider}</p>
-                    {/* Notes */}
                     {r.notes && <p style={{ fontSize: 14, color: "#bdbdbd", lineHeight: 1.6 }}>{r.notes}</p>}
                   </div>
                 </motion.div>

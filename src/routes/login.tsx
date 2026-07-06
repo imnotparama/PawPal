@@ -35,7 +35,7 @@ function LoginPage() {
       if (error) {
         setError(error.message);
       } else {
-        navigate({ to: "/app" });
+        navigate({ to: "/dashboard" });
       }
     }
 

@@ -1,46 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef, type MouseEvent } from "react";
 import { useAuth } from "@/lib/auth";
 import { usePets } from "@/hooks/usePets";
 import { useVaccinations } from "@/hooks/useVaccinations";
 import { useMedicalRecords } from "@/hooks/useMedicalRecords";
-import { useChat } from "@/hooks/useChat";
-import { supabase } from "@/lib/supabase";
+import { NoiseBackground } from "@/components/ui/noise-background";
+import { PawPrint } from "lucide-react";
 
-export const Route = createFileRoute("/app/")({
+export const Route = createFileRoute("/dashboard/")({
   component: Dashboard,
 });
-
-function HealthArc({ score }: { score: number | null }) {
-  const numericScore = score !== null ? score : 0;
-  const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    const timer = setTimeout(() => setProgress(numericScore), 100);
-    return () => clearTimeout(timer);
-  }, [numericScore]);
-  const radius = 26;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (progress / 100) * circumference;
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-      <div style={{ position: "relative", width: 60, height: 60 }}>
-        <svg width="60" height="60" viewBox="0 0 60 60">
-          <circle cx="30" cy="30" r={radius} fill="none" stroke="rgba(128,82,255,0.1)" strokeWidth="4" />
-          {score !== null && (
-            <circle cx="30" cy="30" r={radius} fill="none" stroke="#8052ff" strokeWidth="4" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} style={{ transition: "stroke-dashoffset 1s ease-out", transform: "rotate(-90deg)", transformOrigin: "center" }} />
-          )}
-        </svg>
-        <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 600, color: score !== null ? "#8052ff" : "#9a9a9a" }}>
-          {score !== null ? `${score}%` : "—"}
-        </span>
-      </div>
-      {score === null && (
-        <span style={{ fontSize: 11, color: "#9a9a9a", marginTop: 8 }}>Add pets to calculate</span>
-      )}
-    </div>
-  );
-}
 
 function MagneticCard({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -76,7 +46,7 @@ function MagneticCard({ children }: { children: React.ReactNode }) {
 function PurrTherapyWidget() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
-  const [frequency, setFrequency] = useState(25); // base pitch (Hz)
+  const [frequency, setFrequency] = useState(25);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const baseGainNodeRef = useRef<GainNode | null>(null);
   const osc1Ref = useRef<OscillatorNode | null>(null);
@@ -86,6 +56,23 @@ function PurrTherapyWidget() {
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleFocusPurr = () => {
+      if (containerRef.current) {
+        containerRef.current.scrollIntoView({ behavior: "smooth" });
+        containerRef.current.style.outline = "2px solid #8052ff";
+        setTimeout(() => {
+          if (containerRef.current) containerRef.current.style.outline = "none";
+        }, 2000);
+      }
+    };
+    window.addEventListener("pawpal_focus_purr", handleFocusPurr);
+    return () => {
+      window.removeEventListener("pawpal_focus_purr", handleFocusPurr);
+    };
+  }, []);
 
   const startPurring = () => {
     try {
@@ -94,7 +81,6 @@ function PurrTherapyWidget() {
       const ctx = new AudioCtx();
       audioCtxRef.current = ctx;
 
-      // 1. Base carriers (purr vibrations)
       const osc1 = ctx.createOscillator();
       const osc2 = ctx.createOscillator();
       osc1.type = "sine";
@@ -106,26 +92,24 @@ function PurrTherapyWidget() {
       osc1Ref.current = osc1;
       osc2Ref.current = osc2;
 
-      // 2. Modulators
       const mod = ctx.createOscillator();
       mod.type = "sine";
       mod.frequency.setValueAtTime(23, ctx.currentTime);
       modRef.current = mod;
 
       const modGain = ctx.createGain();
-      modGain.gain.setValueAtTime(frequency * 0.35, ctx.currentTime); // sweep range
+      modGain.gain.setValueAtTime(frequency * 0.35, ctx.currentTime);
 
       mod.connect(modGain);
       modGain.connect(osc1.frequency);
 
-      // 3. Breathing cycle modulator (slow swell)
       const breath = ctx.createOscillator();
       breath.type = "sine";
-      breath.frequency.setValueAtTime(0.18, ctx.currentTime); // ~5 seconds cycle
+      breath.frequency.setValueAtTime(0.18, ctx.currentTime);
       breathRef.current = breath;
 
       const breathGain = ctx.createGain();
-      breathGain.gain.setValueAtTime(0.3, ctx.currentTime); // mod range
+      breathGain.gain.setValueAtTime(0.3, ctx.currentTime);
 
       const carrier1Gain = ctx.createGain();
       carrier1Gain.gain.setValueAtTime(0.4, ctx.currentTime);
@@ -134,7 +118,7 @@ function PurrTherapyWidget() {
 
       const baseGain = ctx.createGain();
       baseGain.gain.setValueAtTime(volume * 0.8, ctx.currentTime);
-      baseGainRef.current = baseGain;
+      baseGainNodeRef.current = baseGain;
 
       const filter = ctx.createBiquadFilter();
       filter.type = "lowpass";
@@ -277,7 +261,7 @@ function PurrTherapyWidget() {
   }, [isPlaying, frequency]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: 14, transition: "outline 0.2s" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 20 }}>🐈‍⬛</span>
@@ -382,23 +366,177 @@ const getLifePhase = (age: number, species: string) => {
   return { phase: "Geriatric", advice: "Tailor comfortable environments. Check for cognitive dysfunction, kidney function, and pain management." };
 };
 
+function OnboardingAddPetForm({ addPet, onSuccess }: { addPet: any, onSuccess: (name: string) => void }) {
+  const [name, setName] = useState("");
+  const [species, setSpecies] = useState("cat");
+  const [breed, setBreed] = useState("");
+  const [age, setAge] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      setError("Pet name is required");
+      return;
+    }
+    const ageNum = parseInt(age, 10);
+    if (isNaN(ageNum) || ageNum < 0) {
+      setError("Please enter a valid age");
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
+    try {
+      await addPet({
+        name,
+        species: species.toLowerCase() === "cat" ? "Cat" : "Dog",
+        breed: breed || "Mixed Breed",
+        age_years: ageNum
+      });
+      onSuccess(name);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add pet");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={{ textAlign: "left" }}>
+      <h2 style={{ fontSize: 24, fontWeight: 300, color: "#ffffff", marginBottom: 8, textAlign: "center", fontFamily: "'Space Grotesk', sans-serif" }}>Tell us about your cat</h2>
+      <p style={{ fontSize: 13, color: "#9a9a9a", marginBottom: 24, textAlign: "center" }}>Provide a few quick details to get started.</p>
+
+      {error && (
+        <div style={{ background: "rgba(255, 107, 107, 0.1)", border: "1px solid rgba(255, 107, 107, 0.2)", borderRadius: 12, padding: "10px 14px", color: "#ff6b6b", fontSize: 12, marginBottom: 16 }}>
+          {error}
+        </div>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 28 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <label style={{ fontSize: 11, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em" }}>Pet Name</label>
+          <input
+            type="text"
+            placeholder="e.g. Rhoni"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: 14, outline: "none", fontFamily: "'Space Grotesk', sans-serif" }}
+          />
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <label style={{ fontSize: 11, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em" }}>Species</label>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {["cat", "dog"].map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setSpecies(s)}
+                style={{
+                  background: species === s ? "rgba(128, 82, 255, 0.15)" : "rgba(255,255,255,0.04)",
+                  border: species === s ? "1.5px solid #8052ff" : "1.5px solid rgba(255,255,255,0.08)",
+                  borderRadius: 12,
+                  padding: "12px",
+                  color: "#ffffff",
+                  fontSize: 14,
+                  cursor: "pointer",
+                  textTransform: "capitalize",
+                  fontWeight: species === s ? 600 : 400,
+                  transition: "all 0.2s",
+                  fontFamily: "'Space Grotesk', sans-serif"
+                }}
+              >
+                {s === "cat" ? "🐱 Cat" : "🐶 Dog"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 11, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em" }}>Breed</label>
+            <input
+              type="text"
+              placeholder="e.g. Ginger Tabby"
+              value={breed}
+              onChange={(e) => setBreed(e.target.value)}
+              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: 14, outline: "none", fontFamily: "'Space Grotesk', sans-serif" }}
+            />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 11, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em" }}>Age (Years)</label>
+            <input
+              type="number"
+              placeholder="e.g. 3"
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: 14, outline: "none", fontFamily: "'Space Grotesk', sans-serif" }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        disabled={submitting}
+        style={{
+          width: "100%",
+          background: "#8052ff",
+          border: "none",
+          borderRadius: 24,
+          color: "#ffffff",
+          padding: "14px 28px",
+          height: 52,
+          fontSize: 14,
+          fontWeight: 600,
+          cursor: submitting ? "not-allowed" : "pointer",
+          boxShadow: "0 0 16px rgba(128, 82, 255, 0.4)",
+          textAlign: "center",
+          fontFamily: "'Space Grotesk', sans-serif"
+        }}
+      >
+        {submitting ? "Adding..." : `Add Pet & Continue →`}
+      </button>
+    </form>
+  );
+}
+
 function Dashboard() {
   const { user } = useAuth();
-  const { pets, loading: petsLoading } = usePets();
+  const { pets, loading: petsLoading, addPet } = usePets();
   const { vaccinations, loading: vacsLoading } = useVaccinations();
   const { records, loading: recsLoading } = useMedicalRecords();
-  const { messages } = useChat();
   const loading = petsLoading || vacsLoading || recsLoading;
 
   const [isJudgeView, setIsJudgeView] = useState(false);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(1);
+  const [createdPetName, setCreatedPetName] = useState("");
+  const [dismissedNearDue, setDismissedNearDue] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const searchParams = new URLSearchParams(window.location.search);
       setIsJudgeView(searchParams.get("judgeview") === "true");
       document.title = "Dashboard — PawPal AI";
+      
+      const bannerDismissed = sessionStorage.getItem("vacc_banner_dismissed") === "true";
+      setDismissedNearDue(bannerDismissed);
     }
   }, []);
+
+  useEffect(() => {
+    if (!petsLoading) {
+      setInitialLoadDone(true);
+      const hasOnboarded = localStorage.getItem("pawpal_onboarded") === "true";
+      if (pets.length === 0 && !hasOnboarded) {
+        setShowOnboarding(true);
+      }
+    }
+  }, [petsLoading, pets.length]);
 
   const displayName = 
     user?.user_metadata?.display_name ||
@@ -407,8 +545,8 @@ function Dashboard() {
 
   const firstPetName = pets[0]?.name;
   const subtitleText = firstPetName 
-    ? `Here's everything happening with ${firstPetName} today.`
-    : "Here's everything happening with your pets today.";
+    ? `${firstPetName} is waiting to meet their health companion 🐾`
+    : "Your pets are waiting to meet their health companion 🐾";
 
   const completedCheckups = records.filter(r =>
     r.record_type === 'Wellness' || 
@@ -427,13 +565,26 @@ function Dashboard() {
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, 3);
 
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const urgentUpcoming = vaccinations
+    .filter(v => v.status === "Upcoming")
+    .map(v => {
+      const d = new Date(v.date);
+      d.setHours(0,0,0,0);
+      const diff = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      return { ...v, diffDays: diff };
+    })
+    .filter(v => v.diffDays >= 0 && v.diffDays <= 7)
+    .sort((a, b) => a.diffDays - b.diffDays)[0];
+
   const getVaccineStatusDetails = (v: any) => {
     const dueDate = new Date(v.date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const t = new Date();
+    t.setHours(0, 0, 0, 0);
     dueDate.setHours(0, 0, 0, 0);
 
-    const diffTime = dueDate.getTime() - today.getTime();
+    const diffTime = dueDate.getTime() - t.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays < 0) {
@@ -481,15 +632,7 @@ function Dashboard() {
             }}
           >
             <span style={{ fontSize: 14 }}>🐱</span>
-            <span style={{ fontSize: 12, color: "#9a9a9a" }}>Built for Hack the Kitty 2026</span>
-            <a 
-              href="https://pawpal-wheat.vercel.app" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              style={{ fontSize: 12, color: "#8052ff", textDecoration: "none", fontWeight: 500 }}
-            >
-              View Live Demo →
-            </a>
+            <span style={{ fontSize: 12, color: "#9a9a9a" }}>Built for Hack the Kitty 2026 — Helping cats run the world, one health record at a time.</span>
           </div>
         )}
 
@@ -558,22 +701,85 @@ function Dashboard() {
             fontSize: '12px',
             fontFamily: 'Space Grotesk'
           }}>
-            Built for Hack the Kitty 2026 — Judge Preview
+            Built for Hack the Kitty 2026 — Helping cats run the world, one health record at a time.
           </span>
           <a 
             href="https://github.com/imnotparama/PawPal"
             target="_blank"
+            rel="noopener noreferrer"
             style={{
               color: '#8052ff',
               fontSize: '12px',
               textDecoration: 'none',
-              fontFamily: 'Space Grotesk'
+              fontFamily: 'Space Grotesk',
+              marginLeft: '8px'
             }}
           >
             View Source →
           </a>
+          <a 
+            href="https://pawpal-wheat.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: '#8052ff',
+              fontSize: '12px',
+              textDecoration: 'none',
+              fontFamily: 'Space Grotesk',
+              marginLeft: '8px'
+            }}
+          >
+            Live Demo →
+          </a>
         </div>
       )}
+
+      {/* Near Due Amber Alert Banner */}
+      {urgentUpcoming && !dismissedNearDue && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            width: '100%',
+            background: 'rgba(255,184,41,0.08)',
+            borderBottom: '1px solid rgba(255,184,41,0.2)',
+            color: '#ffb829',
+            padding: '12px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            fontSize: '14px',
+            fontFamily: "'Space Grotesk', sans-serif",
+            borderRadius: "12px",
+            marginBottom: "24px"
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>⚠️</span>
+            <span>
+              <strong>{urgentUpcoming.pets?.name || "Pet"}'s {urgentUpcoming.vaccine_name}</strong> is due in {urgentUpcoming.diffDays} day{urgentUpcoming.diffDays === 1 ? "" : "s"}. Book a vet appointment soon.
+            </span>
+          </div>
+          <button 
+            onClick={() => {
+              setDismissedNearDue(true);
+              sessionStorage.setItem("vacc_banner_dismissed", "true");
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#ffb829',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              padding: '0 8px'
+            }}
+          >
+            ✕
+          </button>
+        </motion.div>
+      )}
+
       {/* Header */}
       <div style={{ marginBottom: 32 }}>
         <motion.h1
@@ -594,7 +800,7 @@ function Dashboard() {
         </motion.p>
       </div>
 
-      {/* Alert Banner */}
+      {/* Red Alert Banner */}
       {overdueCount > 0 && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -623,7 +829,7 @@ function Dashboard() {
             </div>
           </div>
           <Link
-            to="/app/vaccinations"
+            to="/dashboard/vaccinations"
             style={{
               color: "#ffffff",
               background: "#ff6b6b",
@@ -671,10 +877,8 @@ function Dashboard() {
               </div>
             </div>
             
-            {/* SVG Circular Progress Gauge */}
             <div style={{ position: "relative", width: 90, height: 90 }}>
               <svg width="90" height="90" viewBox="0 0 90 90" style={{ transform: "rotate(-90deg)" }}>
-                {/* Background track circle */}
                 <circle
                   cx="45"
                   cy="45"
@@ -683,7 +887,6 @@ function Dashboard() {
                   stroke="rgba(255,255,255,0.05)"
                   strokeWidth="6"
                 />
-                {/* Glowing progress circle */}
                 <motion.circle
                   cx="45"
                   cy="45"
@@ -699,7 +902,6 @@ function Dashboard() {
                   style={{ filter: "drop-shadow(0 0 4px #8052ff)" }}
                 />
               </svg>
-              {/* Center status text */}
               <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
                 {healthScore >= 80 ? "🏆" : healthScore >= 50 ? "⚡" : "⚠️"}
               </div>
@@ -738,9 +940,8 @@ function Dashboard() {
         </motion.div>
       </div>
 
-      {/* Quick Stats Grid (3 Columns) */}
+      {/* Quick Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* Stat 1: Total Pets */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -755,7 +956,6 @@ function Dashboard() {
           <span style={{ fontSize: 32 }}>🐾</span>
         </motion.div>
 
-        {/* Stat 2: Overdue/Upcoming Vaccines */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -770,11 +970,10 @@ function Dashboard() {
           <span style={{ fontSize: 32 }}>⚠️</span>
         </motion.div>
 
-        {/* Stat 3: Completed Checkups */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut", delay: 0.4 }}
+          transition={{ duration: 0.4, ease: "easeOut", delay: 0.45 }}
           whileHover={{ scale: 1.02 }}
           style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "24px", padding: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}
         >
@@ -788,9 +987,7 @@ function Dashboard() {
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column */}
         <div className="lg:col-span-2 flex flex-col gap-6">
-          {/* Life Phase Care Advisor Card */}
           {pets.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -826,7 +1023,6 @@ function Dashboard() {
             </motion.div>
           )}
 
-          {/* Pet Health Cards Grid */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -835,7 +1031,7 @@ function Dashboard() {
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", margin: 0 }}>Your Pets</h2>
-              <Link to="/app/pets" style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#ffffff", borderRadius: "24px", padding: "6px 14px", fontSize: 12, fontWeight: 500, cursor: "pointer", textDecoration: "none" }}>Manage Pets</Link>
+              <Link to="/dashboard/pets" style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#ffffff", borderRadius: "24px", padding: "6px 14px", fontSize: 12, fontWeight: 500, cursor: "pointer", textDecoration: "none" }}>Manage Pets</Link>
             </div>
             {pets.length === 0 ? (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 160, padding: "24px 0" }}>
@@ -843,19 +1039,17 @@ function Dashboard() {
                   <circle cx="7.5" cy="5.5" r="1.5" />
                   <circle cx="12" cy="4" r="1.5" />
                   <circle cx="16.5" cy="5.5" r="1.5" />
-                  <circle cx="4.5" cy="9.5" r="1.2" />
-                  <circle cx="19.5" cy="9.5" r="1.2" />
                   <path d="M12 22c-4 0-6-3-6-6 0-2 2-4 6-4s6 2 6 4c0 3-2 6-6 6z" />
                 </svg>
-                <h3 style={{ fontSize: 16, fontWeight: 500, color: "#ffffff", marginTop: 12, fontFamily: "'Space Grotesk', sans-serif" }}>
-                  No pets added yet
+                <h3 style={{ fontSize: 16, fontWeight: 500, color: "#ffffff", marginTop: 12 }}>
+                  Rhoni is waiting to meet their health companion 🐾
                 </h3>
                 <p style={{ fontSize: 13, color: "#9a9a9a", marginTop: 6, textAlign: "center" }}>
                   Add your first pet to start tracking their health
                 </p>
                 <div style={{ marginTop: 16 }}>
                   <Link
-                    to="/app/pets"
+                    to="/dashboard/pets"
                     style={{
                       background: "#8052ff",
                       color: "#ffffff",
@@ -874,7 +1068,7 @@ function Dashboard() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {pets.map((pet, i) => (
-                  <Link to="/app/pets" key={pet.id} style={{ textDecoration: "none" }}>
+                  <Link to="/dashboard/pets" key={pet.id} style={{ textDecoration: "none" }}>
                     <motion.div
                       initial={{ opacity: 0, y: 16 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -897,7 +1091,6 @@ function Dashboard() {
             )}
           </motion.div>
 
-          {/* Quick Actions */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -906,16 +1099,14 @@ function Dashboard() {
           >
             <h2 style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", marginBottom: 16 }}>Quick Actions</h2>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Link to="/app/chat" style={{ flex: 1, background: "#8052ff", color: "#fff", borderRadius: "24px", padding: "12px 20px", fontSize: 13, fontWeight: 600, textDecoration: "none", display: "block", textAlign: "center" }}>Ask AI Triage</Link>
-              <Link to="/app/vaccinations" style={{ flex: 1, border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: "24px", padding: "11px 20px", fontSize: 13, fontWeight: 600, textDecoration: "none", display: "block", textAlign: "center" }}>Add Vaccination</Link>
-              <Link to="/app/records" style={{ flex: 1, border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: "24px", padding: "11px 20px", fontSize: 13, fontWeight: 600, textDecoration: "none", display: "block", textAlign: "center" }}>Upload Record</Link>
+              <Link to="/dashboard/chat" style={{ flex: 1, background: "#8052ff", color: "#fff", borderRadius: "24px", padding: "12px 20px", fontSize: 13, fontWeight: 600, textDecoration: "none", display: "block", textAlign: "center" }}>Ask AI Triage</Link>
+              <Link to="/dashboard/vaccinations" style={{ flex: 1, border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: "24px", padding: "11px 20px", fontSize: 13, fontWeight: 600, textDecoration: "none", display: "block", textAlign: "center" }}>Add Vaccination</Link>
+              <Link to="/dashboard/records" style={{ flex: 1, border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: "24px", padding: "11px 20px", fontSize: 13, fontWeight: 600, textDecoration: "none", display: "block", textAlign: "center" }}>Upload Record</Link>
             </div>
           </motion.div>
         </div>
 
-        {/* Right Column */}
         <div className="flex flex-col gap-6">
-          {/* Upcoming Vaccines Alert Section */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -925,8 +1116,8 @@ function Dashboard() {
             <h2 style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", marginBottom: 16 }}>Upcoming Vaccines</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {nextVaccines.length === 0 ? (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px 0" }}>
-                  <p style={{ fontSize: 13, color: "#9a9a9a", margin: 0 }}>No upcoming vaccinations scheduled</p>
+                <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", padding: "20px 0" }}>
+                  <p style={{ fontSize: 13, color: "#9a9a9a", margin: 0 }}>Rhoni is all caught up! Add the next vaccine when your vet schedules one.</p>
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -952,7 +1143,7 @@ function Dashboard() {
                           <p style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", margin: 0 }}>{v.vaccine_name}</p>
                           <p style={{ fontSize: 12, color: "#9a9a9a", margin: "2px 0 0" }}>{v.pets?.name || "Pet"}</p>
                         </div>
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                        <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", gap: 4 }}>
                           <span style={{ fontSize: 11, color: "#9a9a9a" }}>
                             {v.date ? new Date(v.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}
                           </span>
@@ -976,7 +1167,6 @@ function Dashboard() {
             </div>
           </motion.div>
 
-          {/* Recent Activity */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -986,13 +1176,13 @@ function Dashboard() {
             <h2 style={{ fontSize: 18, fontWeight: 600, color: "#ffffff", marginBottom: 16 }}>Recent Activity</h2>
             <div>
               {recentActivity.length === 0 ? (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px 0" }}>
+                <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", padding: "20px 0" }}>
                   <p style={{ fontSize: 13, color: "#9a9a9a", margin: 0 }}>Activity will appear here</p>
                 </div>
               ) : (
                 recentActivity.map((item, i) => (
                   <div key={i}>
-                    <div style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0" }}>
+                    <div style={{ display: "flex", justifyContent: "flex-start", gap: 10, padding: "10px 0" }}>
                       <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#8052ff", marginTop: 6, flexShrink: 0 }} />
                       <div>
                         <p style={{ fontSize: 13, color: "#ffffff", margin: 0 }}>{item.text}</p>
@@ -1003,11 +1193,158 @@ function Dashboard() {
                   </div>
                 ))
               )}
-              <Link to="/app/timeline" style={{ display: "block", marginTop: 12, fontSize: 13, color: "#8052ff", cursor: "pointer", textDecoration: "none" }}>View all →</Link>
+              <Link to="/dashboard/timeline" style={{ display: "block", marginTop: 12, fontSize: 13, color: "#8052ff", cursor: "pointer", textDecoration: "none" }}>View all →</Link>
             </div>
           </motion.div>
         </div>
       </div>
+
+      {/* Onboarding Welcome Modal Overlay */}
+      <AnimatePresence>
+        {showOnboarding && (
+          <div style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.85)",
+            backdropFilter: "blur(8px)",
+            zIndex: 10000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 24,
+            fontFamily: "'Space Grotesk', sans-serif"
+          }}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              style={{
+                background: "#0a0a0a",
+                border: "1px solid rgba(128, 82, 255, 0.2)",
+                borderRadius: 24,
+                padding: 40,
+                maxWidth: 480,
+                width: "100%",
+                position: "relative",
+                textAlign: "center"
+              }}
+            >
+              {/* Step indicator dots */}
+              <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 28 }}>
+                {[1, 2, 3].map((s) => (
+                  <div
+                    key={s}
+                    style={{
+                      width: onboardingStep === s ? 8 : 6,
+                      height: onboardingStep === s ? 8 : 6,
+                      borderRadius: "50%",
+                      background: onboardingStep === s ? "#8052ff" : "rgba(255,255,255,0.2)",
+                      transition: "all 0.2s"
+                    }}
+                  />
+                ))}
+              </div>
+
+              {onboardingStep === 1 && (
+                <div>
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+                    <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(128,82,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <PawPrint size={36} color="#8052ff" />
+                    </div>
+                  </div>
+                  <h2 style={{ fontSize: 28, fontWeight: 300, color: "#ffffff", marginBottom: 12, fontFamily: "'Space Grotesk', sans-serif" }}>Welcome to PawPal AI 🐾</h2>
+                  <p style={{ fontSize: 15, color: "#9a9a9a", lineHeight: 1.6, marginTop: 12, marginBottom: 32 }}>
+                    The smart health companion for cats and the humans who serve them.
+                  </p>
+                  <button
+                    onClick={() => setOnboardingStep(2)}
+                    style={{
+                      width: "100%",
+                      background: "#8052ff",
+                      border: "none",
+                      borderRadius: 24,
+                      color: "#ffffff",
+                      height: 52,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      boxShadow: "0 0 16px rgba(128, 82, 255, 0.4)",
+                      transition: "all 0.2s",
+                      fontFamily: "'Space Grotesk', sans-serif"
+                    }}
+                  >
+                    Get Started →
+                  </button>
+                </div>
+              )}
+
+              {onboardingStep === 2 && (
+                <OnboardingAddPetForm 
+                  addPet={addPet} 
+                  onSuccess={(name) => {
+                    setCreatedPetName(name);
+                    setOnboardingStep(3);
+                  }} 
+                />
+              )}
+
+              {onboardingStep === 3 && (
+                <div>
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+                    <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(128,82,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8052ff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                  </div>
+                  <h2 style={{ fontSize: 22, fontWeight: 600, color: "#ffffff", marginBottom: 12 }}>{createdPetName} is all set! 🎉</h2>
+                  
+                  <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 32 }}>
+                    {["AI Triage", "Vaccination Tracking", "Health Records"].map((pill) => (
+                      <span
+                        key={pill}
+                        style={{
+                          background: "rgba(128,82,255,0.12)",
+                          border: "1px solid rgba(128,82,255,0.2)",
+                          borderRadius: 20,
+                          padding: "6px 14px",
+                          color: "#ffffff",
+                          fontSize: 12,
+                          fontWeight: 500
+                        }}
+                      >
+                        {pill}
+                      </span>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      localStorage.setItem("pawpal_onboarded", "true");
+                      setShowOnboarding(false);
+                    }}
+                    style={{
+                      width: "100%",
+                      background: "#8052ff",
+                      border: "none",
+                      borderRadius: 24,
+                      color: "#ffffff",
+                      height: 52,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      boxShadow: "0 0 16px rgba(128, 82, 255, 0.4)",
+                      fontFamily: "'Space Grotesk', sans-serif"
+                    }}
+                  >
+                    Go to Dashboard →
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

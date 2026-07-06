@@ -8,7 +8,7 @@ import { PawPrint } from "lucide-react";
 import * as THREE from "three";
 import { PetBodyHotspot3D } from "@/components/PetBodyHotspot3D";
 
-export const Route = createFileRoute("/app/chat")({
+export const Route = createFileRoute("/dashboard/chat")({
   component: ChatPage,
 });
 
@@ -22,12 +22,10 @@ const suggestions = [
 function renderMessageContent(content: string) {
   if (!content) return "";
   
-  // Check if content contains triple backtick code blocks
   if (content.includes("```")) {
     const segments = content.split("```");
     return segments.map((segment, idx) => {
       if (idx % 2 === 1) {
-        // It's a code block
         const lines = segment.split("\n");
         const language = lines[0].trim();
         const code = lines.slice(1).join("\n");
@@ -128,144 +126,6 @@ function renderUserMessage(content: string) {
   return content;
 }
 
-function ThreeDBodyMap({ setInput }: { setInput: (val: string) => void }) {
-  const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-  
-  const x = useMotionValue(0.5);
-  const y = useMotionValue(0.5);
-  
-  const rotateX = useTransform(y, [0, 1], [15, -15]);
-  const rotateY = useTransform(x, [0, 1], [-15, 15]);
-
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    const el = cardRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const mouseX = (event.clientX - rect.left) / rect.width;
-    const mouseY = (event.clientY - rect.top) / rect.height;
-    x.set(mouseX);
-    y.set(mouseY);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0.5);
-    y.set(0.5);
-    setHoveredLabel(null);
-  };
-
-  const nodesData = [
-    { id: "ears", label: "Ears 👂", top: "18%", left: "46%", prompt: "My pet is shaking their head, scratching their ears, and has some discharge. What could this indicate, and how should I clean their ears?" },
-    { id: "eyes", label: "Eyes/Face 👁️", top: "28%", left: "54%", prompt: "I'm noticing redness and watering in my pet's eyes, and their nose feels dry. What are normal facial health signs to check?" },
-    { id: "stomach", label: "Stomach 🥩", top: "48%", left: "38%", prompt: "My pet's stomach feels hard, and they are trying to vomit but nothing is coming out. What should I check, and is this bloat?" },
-    { id: "paws", label: "Paws/Skin 🐾", top: "78%", left: "42%", prompt: "My pet is constantly chewing and licking their paws, and the skin looks raw. Is this likely allergies, and how can I soothe it?" },
-    { id: "joints", label: "Spine/Joints 🦴", top: "54%", left: "26%", prompt: "My pet is hesitating to jump, limping slightly on their hind legs, or showing stiffness when getting up. How can I support their joints?" }
-  ];
-
-  return (
-    <div 
-      style={{
-        perspective: 1000,
-        width: 280,
-        height: 160,
-        flexShrink: 0
-      }}
-    >
-      <motion.div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          rotateX,
-          rotateY,
-          width: "100%",
-          height: "100%",
-          background: "rgba(128,82,255,0.02)",
-          border: "1px solid rgba(128,82,255,0.15)",
-          borderRadius: 20,
-          position: "relative",
-          overflow: "hidden",
-          cursor: "pointer",
-          transformStyle: "preserve-3d"
-        }}
-      >
-        {/* Shaded 3D Cat Photo */}
-        <img 
-          src="/triage-cat-3d.png" 
-          alt="3D Triage Cat" 
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-            opacity: 0.9,
-            pointerEvents: "none",
-            transform: "translateZ(-20px) scale(0.95)"
-          }}
-        />
-
-        {/* Hotspot Nodes overlaid in 3D perspective space */}
-        {nodesData.map((node) => (
-          <button
-            key={node.id}
-            onClick={(e) => {
-              e.stopPropagation();
-              setInput(node.prompt);
-            }}
-            onMouseEnter={() => setHoveredLabel(node.label)}
-            onMouseLeave={() => setHoveredLabel(null)}
-            style={{
-              position: "absolute",
-              top: node.top,
-              left: node.left,
-              width: 14,
-              height: 14,
-              borderRadius: "50%",
-              background: "rgba(128,82,255,0.9)",
-              border: "2px solid #ffffff",
-              cursor: "pointer",
-              transform: "translateZ(20px)",
-              boxShadow: "0 0 10px #8052ff",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: 0
-            }}
-          >
-            <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#ffffff" }} />
-          </button>
-        ))}
-
-        {hoveredLabel && (
-          <div 
-            style={{
-              position: "absolute",
-              bottom: 8,
-              left: 0,
-              right: 0,
-              textAlign: "center",
-              color: "#ffffff",
-              fontSize: 11,
-              fontWeight: 600,
-              fontFamily: "'Space Grotesk', sans-serif",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              pointerEvents: "none",
-              background: "rgba(0,0,0,0.75)",
-              padding: "2px 8px",
-              borderRadius: 8,
-              width: "fit-content",
-              margin: "0 auto",
-              transform: "translateZ(30px)"
-            }}
-          >
-            {hoveredLabel}
-          </div>
-        )}
-      </motion.div>
-    </div>
-  );
-}
-
 class SafePetBodyHotspot extends Component<
   { children: React.ReactNode; fallback: React.ReactNode },
   { hasError: boolean }
@@ -296,7 +156,6 @@ function ChatPage() {
   const [selectedPetId, setSelectedPetId] = useState<string | undefined>(undefined);
   const { messages, sending, error, sendMessage, clearHistory } = useChat(selectedPetId);
   const [input, setInput] = useState("");
-  const [activeNode, setActiveNode] = useState<string | null>(null);
   const [showPetMenu, setShowPetMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isListening, setIsListening] = useState(false);
@@ -363,7 +222,16 @@ function ChatPage() {
         setRecognition(rec);
       }
     }
-  }, []);
+
+    // Set command listener for clearing chat history
+    const handleClearHistoryCmd = () => {
+      clearHistory();
+    };
+    window.addEventListener("pawpal_clear_chat", handleClearHistoryCmd);
+    return () => {
+      window.removeEventListener("pawpal_clear_chat", handleClearHistoryCmd);
+    };
+  }, [clearHistory]);
 
   const toggleListening = () => {
     if (!recognition) {
@@ -401,6 +269,12 @@ function ChatPage() {
   };
 
   const selectedPet = pets.find((p) => p.id === selectedPetId);
+
+  // Dynamic placeholder copy
+  const selectedPetName = selectedPet?.name || pets[0]?.name;
+  const inputPlaceholderText = selectedPetName 
+    ? `Ask about ${selectedPetName}, or describe any symptoms...` 
+    : "Describe your pet's symptoms...";
 
   return (
     <div style={{ background: "#000000", height: "calc(100vh - 100px)", display: "flex", flexDirection: "column", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "24px", overflow: "hidden" }}>
@@ -638,7 +512,6 @@ function ChatPage() {
                 </span>
               </motion.div>
             ))}
-            {/* Typing indicator */}
             {sending && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -720,7 +593,7 @@ function ChatPage() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") handleSend(); }}
-          placeholder="Describe your pet's symptoms..."
+          placeholder={inputPlaceholderText}
           style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 24, padding: "14px 20px", fontSize: 15, color: "#ffffff", outline: "none", transition: "border-color 0.2s, box-shadow 0.2s" }}
           onFocus={(e) => { e.currentTarget.style.borderColor = "#8052ff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(128,82,255,0.1)"; }}
           onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }}

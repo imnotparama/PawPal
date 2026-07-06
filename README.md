@@ -272,6 +272,12 @@ GEMINI_API_KEY=
 
 ---
 
+## 🐱 Hack the Kitty 2026 — Theme Integration
+
+Cats already run the internet. Now it's time they run everything. PawPal AI is built specifically for **wholesome kitty world-domination**. By equipping cats and cat owners with clinical-grade health tracking, real-time AI triage, and secure health passports, we ensure our future feline overlords are healthy, happy, and fully supported in their rise to global power. PawPal AI aligns with the theme by driving positive impact for cats, cat owners, and the broader cat community, proving that world domination can be wholesome, one health record at a time.
+
+---
+
 ## 📁 Project Structure
 ```
 PawPal/

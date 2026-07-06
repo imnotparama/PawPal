@@ -52,7 +52,7 @@ export class ErrorBoundary extends Component<Props, State> {
             {this.state.error?.message ?? "An unexpected error occurred."}
           </p>
           <button
-            onClick={() => (window.location.href = "/app")}
+            onClick={() => (window.location.href = "/dashboard")}
             style={{
               background: "#8052ff",
               color: "#ffffff",

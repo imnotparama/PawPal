@@ -11,18 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
-import { Route as AppIndexRouteImport } from './routes/app/index'
-import { Route as AppVaccinationsRouteImport } from './routes/app/vaccinations'
-import { Route as AppTimelineRouteImport } from './routes/app/timeline'
-import { Route as AppRecordsRouteImport } from './routes/app/records'
-import { Route as AppProfileRouteImport } from './routes/app/profile'
-import { Route as AppPetsRouteImport } from './routes/app/pets'
-import { Route as AppChatRouteImport } from './routes/app/chat'
+import { Route as DashboardVaccinationsRouteImport } from './routes/dashboard/vaccinations'
+import { Route as DashboardTimelineRouteImport } from './routes/dashboard/timeline'
+import { Route as DashboardRecordsRouteImport } from './routes/dashboard/records'
+import { Route as DashboardChatRouteImport } from './routes/dashboard/chat'
 import { Route as DashboardSupportIndexRouteImport } from './routes/dashboard/support/index'
 import { Route as DashboardProfileIndexRouteImport } from './routes/dashboard/profile/index'
+import { Route as DashboardPetsIndexRouteImport } from './routes/dashboard/pets/index'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -34,55 +32,40 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRoute = AppRouteImport.update({
-  id: '/app',
-  path: '/app',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/auth/',
   path: '/auth/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppVaccinationsRoute = AppVaccinationsRouteImport.update({
+const DashboardVaccinationsRoute = DashboardVaccinationsRouteImport.update({
   id: '/vaccinations',
   path: '/vaccinations',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => DashboardRoute,
 } as any)
-const AppTimelineRoute = AppTimelineRouteImport.update({
+const DashboardTimelineRoute = DashboardTimelineRouteImport.update({
   id: '/timeline',
   path: '/timeline',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => DashboardRoute,
 } as any)
-const AppRecordsRoute = AppRecordsRouteImport.update({
+const DashboardRecordsRoute = DashboardRecordsRouteImport.update({
   id: '/records',
   path: '/records',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => DashboardRoute,
 } as any)
-const AppProfileRoute = AppProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPetsRoute = AppPetsRouteImport.update({
-  id: '/pets',
-  path: '/pets',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppChatRoute = AppChatRouteImport.update({
+const DashboardChatRoute = DashboardChatRouteImport.update({
   id: '/chat',
   path: '/chat',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardSupportIndexRoute = DashboardSupportIndexRouteImport.update({
   id: '/support/',
@@ -94,52 +77,51 @@ const DashboardProfileIndexRoute = DashboardProfileIndexRouteImport.update({
   path: '/profile/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardPetsIndexRoute = DashboardPetsIndexRouteImport.update({
+  id: '/pets/',
+  path: '/pets/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
-  '/app/chat': typeof AppChatRoute
-  '/app/pets': typeof AppPetsRoute
-  '/app/profile': typeof AppProfileRoute
-  '/app/records': typeof AppRecordsRoute
-  '/app/timeline': typeof AppTimelineRoute
-  '/app/vaccinations': typeof AppVaccinationsRoute
-  '/app/': typeof AppIndexRoute
+  '/dashboard/chat': typeof DashboardChatRoute
+  '/dashboard/records': typeof DashboardRecordsRoute
+  '/dashboard/timeline': typeof DashboardTimelineRoute
+  '/dashboard/vaccinations': typeof DashboardVaccinationsRoute
   '/auth/': typeof AuthIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/pets/': typeof DashboardPetsIndexRoute
   '/dashboard/profile/': typeof DashboardProfileIndexRoute
   '/dashboard/support/': typeof DashboardSupportIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
-  '/app/chat': typeof AppChatRoute
-  '/app/pets': typeof AppPetsRoute
-  '/app/profile': typeof AppProfileRoute
-  '/app/records': typeof AppRecordsRoute
-  '/app/timeline': typeof AppTimelineRoute
-  '/app/vaccinations': typeof AppVaccinationsRoute
-  '/app': typeof AppIndexRoute
+  '/dashboard/chat': typeof DashboardChatRoute
+  '/dashboard/records': typeof DashboardRecordsRoute
+  '/dashboard/timeline': typeof DashboardTimelineRoute
+  '/dashboard/vaccinations': typeof DashboardVaccinationsRoute
   '/auth': typeof AuthIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/pets': typeof DashboardPetsIndexRoute
   '/dashboard/profile': typeof DashboardProfileIndexRoute
   '/dashboard/support': typeof DashboardSupportIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/app': typeof AppRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
-  '/app/chat': typeof AppChatRoute
-  '/app/pets': typeof AppPetsRoute
-  '/app/profile': typeof AppProfileRoute
-  '/app/records': typeof AppRecordsRoute
-  '/app/timeline': typeof AppTimelineRoute
-  '/app/vaccinations': typeof AppVaccinationsRoute
-  '/app/': typeof AppIndexRoute
+  '/dashboard/chat': typeof DashboardChatRoute
+  '/dashboard/records': typeof DashboardRecordsRoute
+  '/dashboard/timeline': typeof DashboardTimelineRoute
+  '/dashboard/vaccinations': typeof DashboardVaccinationsRoute
   '/auth/': typeof AuthIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/pets/': typeof DashboardPetsIndexRoute
   '/dashboard/profile/': typeof DashboardProfileIndexRoute
   '/dashboard/support/': typeof DashboardSupportIndexRoute
 }
@@ -147,55 +129,48 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/app'
     | '/dashboard'
     | '/login'
-    | '/app/chat'
-    | '/app/pets'
-    | '/app/profile'
-    | '/app/records'
-    | '/app/timeline'
-    | '/app/vaccinations'
-    | '/app/'
+    | '/dashboard/chat'
+    | '/dashboard/records'
+    | '/dashboard/timeline'
+    | '/dashboard/vaccinations'
     | '/auth/'
+    | '/dashboard/'
+    | '/dashboard/pets/'
     | '/dashboard/profile/'
     | '/dashboard/support/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/dashboard'
     | '/login'
-    | '/app/chat'
-    | '/app/pets'
-    | '/app/profile'
-    | '/app/records'
-    | '/app/timeline'
-    | '/app/vaccinations'
-    | '/app'
+    | '/dashboard/chat'
+    | '/dashboard/records'
+    | '/dashboard/timeline'
+    | '/dashboard/vaccinations'
     | '/auth'
+    | '/dashboard'
+    | '/dashboard/pets'
     | '/dashboard/profile'
     | '/dashboard/support'
   id:
     | '__root__'
     | '/'
-    | '/app'
     | '/dashboard'
     | '/login'
-    | '/app/chat'
-    | '/app/pets'
-    | '/app/profile'
-    | '/app/records'
-    | '/app/timeline'
-    | '/app/vaccinations'
-    | '/app/'
+    | '/dashboard/chat'
+    | '/dashboard/records'
+    | '/dashboard/timeline'
+    | '/dashboard/vaccinations'
     | '/auth/'
+    | '/dashboard/'
+    | '/dashboard/pets/'
     | '/dashboard/profile/'
     | '/dashboard/support/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRoute: typeof AppRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
   LoginRoute: typeof LoginRoute
   AuthIndexRoute: typeof AuthIndexRoute
@@ -217,19 +192,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/auth/': {
       id: '/auth/'
@@ -238,54 +213,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/': {
-      id: '/app/'
-      path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/vaccinations': {
-      id: '/app/vaccinations'
+    '/dashboard/vaccinations': {
+      id: '/dashboard/vaccinations'
       path: '/vaccinations'
-      fullPath: '/app/vaccinations'
-      preLoaderRoute: typeof AppVaccinationsRouteImport
-      parentRoute: typeof AppRoute
+      fullPath: '/dashboard/vaccinations'
+      preLoaderRoute: typeof DashboardVaccinationsRouteImport
+      parentRoute: typeof DashboardRoute
     }
-    '/app/timeline': {
-      id: '/app/timeline'
+    '/dashboard/timeline': {
+      id: '/dashboard/timeline'
       path: '/timeline'
-      fullPath: '/app/timeline'
-      preLoaderRoute: typeof AppTimelineRouteImport
-      parentRoute: typeof AppRoute
+      fullPath: '/dashboard/timeline'
+      preLoaderRoute: typeof DashboardTimelineRouteImport
+      parentRoute: typeof DashboardRoute
     }
-    '/app/records': {
-      id: '/app/records'
+    '/dashboard/records': {
+      id: '/dashboard/records'
       path: '/records'
-      fullPath: '/app/records'
-      preLoaderRoute: typeof AppRecordsRouteImport
-      parentRoute: typeof AppRoute
+      fullPath: '/dashboard/records'
+      preLoaderRoute: typeof DashboardRecordsRouteImport
+      parentRoute: typeof DashboardRoute
     }
-    '/app/profile': {
-      id: '/app/profile'
-      path: '/profile'
-      fullPath: '/app/profile'
-      preLoaderRoute: typeof AppProfileRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/pets': {
-      id: '/app/pets'
-      path: '/pets'
-      fullPath: '/app/pets'
-      preLoaderRoute: typeof AppPetsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/chat': {
-      id: '/app/chat'
+    '/dashboard/chat': {
+      id: '/dashboard/chat'
       path: '/chat'
-      fullPath: '/app/chat'
-      preLoaderRoute: typeof AppChatRouteImport
-      parentRoute: typeof AppRoute
+      fullPath: '/dashboard/chat'
+      preLoaderRoute: typeof DashboardChatRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/dashboard/support/': {
       id: '/dashboard/support/'
@@ -301,37 +255,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardProfileIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/pets/': {
+      id: '/dashboard/pets/'
+      path: '/pets'
+      fullPath: '/dashboard/pets/'
+      preLoaderRoute: typeof DashboardPetsIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
-interface AppRouteChildren {
-  AppChatRoute: typeof AppChatRoute
-  AppPetsRoute: typeof AppPetsRoute
-  AppProfileRoute: typeof AppProfileRoute
-  AppRecordsRoute: typeof AppRecordsRoute
-  AppTimelineRoute: typeof AppTimelineRoute
-  AppVaccinationsRoute: typeof AppVaccinationsRoute
-  AppIndexRoute: typeof AppIndexRoute
-}
-
-const AppRouteChildren: AppRouteChildren = {
-  AppChatRoute: AppChatRoute,
-  AppPetsRoute: AppPetsRoute,
-  AppProfileRoute: AppProfileRoute,
-  AppRecordsRoute: AppRecordsRoute,
-  AppTimelineRoute: AppTimelineRoute,
-  AppVaccinationsRoute: AppVaccinationsRoute,
-  AppIndexRoute: AppIndexRoute,
-}
-
-const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
-
 interface DashboardRouteChildren {
+  DashboardChatRoute: typeof DashboardChatRoute
+  DashboardRecordsRoute: typeof DashboardRecordsRoute
+  DashboardTimelineRoute: typeof DashboardTimelineRoute
+  DashboardVaccinationsRoute: typeof DashboardVaccinationsRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardPetsIndexRoute: typeof DashboardPetsIndexRoute
   DashboardProfileIndexRoute: typeof DashboardProfileIndexRoute
   DashboardSupportIndexRoute: typeof DashboardSupportIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardChatRoute: DashboardChatRoute,
+  DashboardRecordsRoute: DashboardRecordsRoute,
+  DashboardTimelineRoute: DashboardTimelineRoute,
+  DashboardVaccinationsRoute: DashboardVaccinationsRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+  DashboardPetsIndexRoute: DashboardPetsIndexRoute,
   DashboardProfileIndexRoute: DashboardProfileIndexRoute,
   DashboardSupportIndexRoute: DashboardSupportIndexRoute,
 }
@@ -342,7 +293,6 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppRoute: AppRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
   LoginRoute: LoginRoute,
   AuthIndexRoute: AuthIndexRoute,

@@ -41,7 +41,7 @@ function AuthPage() {
     } else {
       const { error } = await signIn(email, password);
       if (error) setError(error.message);
-      else navigate({ to: "/app" });
+      else navigate({ to: "/dashboard" });
     }
     setLoading(false);
   };

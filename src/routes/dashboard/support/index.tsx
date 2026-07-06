@@ -409,12 +409,12 @@ function SupportPage() {
 
             <div style={{ display: "flex", flexDirection: "column" }}>
               {[
-                { label: "Dashboard", to: "/app", icon: LayoutDashboard },
-                { label: "My Pets", to: "/app/pets", icon: Heart },
-                { label: "AI Chat", to: "/app/chat", icon: MessageSquare },
-                { label: "Vaccinations", to: "/app/vaccinations", icon: Syringe },
-                { label: "Medical Records", to: "/app/records", icon: FileText },
-                { label: "Health Timeline", to: "/app/timeline", icon: Activity },
+                { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
+                { label: "My Pets", to: "/dashboard/pets", icon: Heart },
+                { label: "AI Chat", to: "/dashboard/chat", icon: MessageSquare },
+                { label: "Vaccinations", to: "/dashboard/vaccinations", icon: Syringe },
+                { label: "Medical Records", to: "/dashboard/records", icon: FileText },
+                { label: "Health Timeline", to: "/dashboard/timeline", icon: Activity },
                 { label: "My Profile", to: "/dashboard/profile", icon: User }
               ].map((item) => (
                 <div
@@ -454,6 +454,9 @@ function SupportPage() {
             }}
           >
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#ffffff", margin: "0 0 16px 0", fontFamily: "'Space Grotesk', sans-serif" }}>About PawPal AI</h3>
+            <p style={{ fontSize: 12, color: "#9a9a9a", lineHeight: 1.5, marginBottom: 16 }}>
+              Cats already run the internet. Now it's time they run everything. PawPal AI is built to support our future feline overlords with state-of-the-art clinical compliance.
+            </p>
 
             <div style={{ display: "flex", flexDirection: "column" }}>
               {[
@@ -461,6 +464,7 @@ function SupportPage() {
                 { label: "Built with", value: "React 19 + Supabase" },
                 { label: "AI Model", value: "Gemini 1.5 Flash" },
                 { label: "Hackathon", value: "Hack the Kitty 2026" },
+                { label: "Theme", value: "Wholesome Kitty Domination" },
                 { label: "License", value: "MIT" },
                 { label: "Last Updated", value: "July 2026" }
               ].map((row) => (
