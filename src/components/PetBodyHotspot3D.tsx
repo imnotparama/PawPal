@@ -56,7 +56,7 @@ const categories: CategoryData[] = [
   }
 ];
 
-// Helper canvas particles background
+// Helper canvas particles background (sized to 320x360)
 const ParticleField = () => {
   const mountRef = useRef<HTMLCanvasElement>(null);
 
@@ -64,8 +64,8 @@ const ParticleField = () => {
     const canvas = mountRef.current;
     if (!canvas) return;
 
-    const width = 300;
-    const height = 320;
+    const width = 320;
+    const height = 360;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
@@ -150,8 +150,8 @@ const ParticleField = () => {
         position: "absolute",
         top: 0,
         left: 0,
-        width: 300,
-        height: 320,
+        width: 320,
+        height: 360,
         zIndex: 0,
         pointerEvents: "none"
       }}
@@ -167,27 +167,11 @@ interface PetBodyHotspot3DProps {
 export function PetBodyHotspot3D({ setInput, focusInput }: PetBodyHotspot3DProps) {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [rotation, setRotation] = useState({ x: 4, y: -8 });
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const rotY = ((mouseX / rect.width) - 0.5) * 20;
-    const rotX = -((mouseY / rect.height) - 0.5) * 15;
-    setRotation({ x: rotX, y: rotY });
-  };
-
-  const handleMouseLeave = () => {
-    setRotation({ x: 4, y: -8 });
-    setActiveCategory(null);
-  };
 
   const handleSelect = (category: CategoryData) => {
     setSelectedCategory(category.name);
     setInput(category.prompt);
-    // Slight timeout to let DOM render/update and then focus the input
     setTimeout(() => {
       focusInput();
     }, 50);
@@ -204,167 +188,171 @@ export function PetBodyHotspot3D({ setInput, focusInput }: PetBodyHotspot3DProps
   return (
     <div style={{ display: "flex", justifyContent: "center", width: "100%", maxWidth: 700, margin: "0 auto", background: "transparent" }}>
       <style dangerouslySetInnerHTML={{ __html: pulseStyles }} />
-      <div className="flex flex-col md:flex-row gap-6 items-center justify-center w-full">
+      <div 
+        style={{
+          display: "flex",
+          gap: 20,
+          alignItems: "flex-start",
+          justifyContent: "center",
+          width: "100%"
+        }}
+      >
         
-        {/* Left Side: 3D Pet Visual Panel */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6 }}
+        {/* Left Side: 3D Pet Visual Panel (Sized to 320x360) */}
+        <div
           ref={containerRef}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
+          onMouseMove={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+            e.currentTarget.style.transform = `perspective(800px) rotateY(${x * 20}deg) rotateX(${-y * 15}deg)`;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "perspective(800px) rotateY(-8deg) rotateX(4deg)";
+            setActiveCategory(null);
+          }}
           style={{
-            width: 300,
-            height: 320,
+            transform: "perspective(800px) rotateY(-8deg) rotateX(4deg)",
+            transition: "transform 0.1s ease",
+            transformStyle: "preserve-3d",
+            width: 320,
+            height: 360,
             position: "relative",
-            perspective: 800,
-            flexShrink: 0
+            flexShrink: 0,
+            borderRadius: 16,
+            overflow: "hidden",
+            border: "1px solid rgba(128,82,255,0.15)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
           }}
         >
           {/* Particle Field Behind Pet */}
           <ParticleField />
 
-          {/* Interactive Card Container */}
-          <motion.div
+          {/* Shaded Dark-Background Cat Image */}
+          <img
+            src="https://images.unsplash.com/photo-1533743983669-94fa5c4338ec?w=400"
+            alt="Ginger Cat"
             style={{
               width: "100%",
               height: "100%",
-              rotateX: rotation.x,
-              rotateY: rotation.y,
-              transformStyle: "preserve-3d",
-              position: "relative",
-              zIndex: 1,
-              borderRadius: 16,
-              overflow: "hidden",
-              border: "1px solid rgba(128,82,255,0.15)",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
+              objectFit: "cover",
+              filter: "brightness(0.9) contrast(1.05) saturate(0.9)",
+              pointerEvents: "none",
+              transform: "translateZ(-10px) scale(1.05)",
+              zIndex: 0
             }}
-            transition={{ type: "spring", stiffness: 120, damping: 20 }}
-          >
-            {/* Shaded Orange Cat Image */}
-            <img
-              src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=300"
-              alt="Orange Cat"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                filter: "brightness(0.85) contrast(1.1)",
-                pointerEvents: "none",
-                transform: "translateZ(-10px) scale(1.05)"
-              }}
-            />
+          />
 
-            {/* Dark Sci-Fi Overlay Grid */}
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                background: "linear-gradient(135deg, rgba(128,82,255,0.15) 0%, transparent 50%, rgba(0,0,0,0.3) 100%)",
-                pointerEvents: "none"
-              }}
-            />
+          {/* Dark Overlay Gradient */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%)",
+              pointerEvents: "none",
+              zIndex: 1,
+              borderRadius: "inherit"
+            }}
+          />
 
-            {/* Hotspot Pins */}
-            {categories.map((item, index) => {
-              const isHovered = activeCategory === item.name;
-              const isSelected = selectedCategory === item.name;
-              const isHighlighted = isHovered || isSelected;
+          {/* Hotspot Pins (on z-index 2 above overlay) */}
+          {categories.map((item, index) => {
+            const isHovered = activeCategory === item.name;
+            const isSelected = selectedCategory === item.name;
+            const isHighlighted = isHovered || isSelected;
 
-              return (
-                <motion.div
-                  key={item.id}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.3 + index * 0.15, type: "spring", stiffness: 150 }}
+            return (
+              <motion.div
+                key={item.id}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.3 + index * 0.15, type: "spring", stiffness: 150 }}
+                style={{
+                  position: "absolute",
+                  top: item.pinTop,
+                  left: item.pinLeft,
+                  width: 28,
+                  height: 28,
+                  transform: "translate(-50%, -50%) translateZ(20px)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 2
+                }}
+              >
+                {/* Pin Circle Button */}
+                <button
+                  onClick={() => handleSelect(item)}
+                  onMouseEnter={() => setActiveCategory(item.name)}
+                  onMouseLeave={() => setActiveCategory(null)}
                   style={{
-                    position: "absolute",
-                    top: item.pinTop,
-                    left: item.pinLeft,
                     width: 28,
                     height: 28,
-                    transform: "translate(-50%, -50%) translateZ(20px)",
+                    borderRadius: "50%",
+                    background: isHighlighted ? "rgba(128,82,255,0.45)" : "rgba(128,82,255,0.2)",
+                    border: isHighlighted ? "2px solid rgba(128,82,255,0.9)" : "1px solid rgba(128,82,255,0.6)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    zIndex: 10
+                    cursor: "pointer",
+                    transform: `scale(${isHighlighted ? 1.3 : 1})`,
+                    boxShadow: isHighlighted ? "0 0 16px rgba(128,82,255,0.6)" : "none",
+                    animation: isHighlighted ? "none" : "pinPulse 2s infinite ease-in-out",
+                    animationDelay: `${item.animationDelay}s`,
+                    transition: "transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
+                    padding: 0
                   }}
                 >
-                  {/* Pin Circle Button */}
-                  <button
-                    onClick={() => handleSelect(item)}
-                    onMouseEnter={() => setActiveCategory(item.name)}
-                    onMouseLeave={() => setActiveCategory(null)}
+                  <div
                     style={{
-                      width: 28,
-                      height: 28,
+                      width: 10,
+                      height: 10,
                       borderRadius: "50%",
-                      background: isHighlighted ? "rgba(128,82,255,0.45)" : "rgba(128,82,255,0.2)",
-                      border: isHighlighted ? "2px solid rgba(128,82,255,0.9)" : "1px solid rgba(128,82,255,0.6)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      transform: `scale(${isHighlighted ? 1.3 : 1})`,
-                      boxShadow: isHighlighted ? "0 0 16px rgba(128,82,255,0.6)" : "none",
-                      animation: isHighlighted ? "none" : "pinPulse 2s infinite ease-in-out",
-                      animationDelay: `${item.animationDelay}s`,
-                      transition: "transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
-                      padding: 0
+                      background: isHighlighted ? "#ffffff" : "#8052ff",
+                      boxShadow: isHighlighted ? "0 0 12px #ffffff" : "0 0 8px rgba(128,82,255,0.8)",
+                      transition: "background-color 0.2s ease, box-shadow 0.2s ease"
                     }}
-                  >
-                    <div
+                  />
+                </button>
+
+                {/* Pin label Tooltip */}
+                <AnimatePresence>
+                  {isHovered && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4, scale: 0.9 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 4, scale: 0.9 }}
+                      transition={{ duration: 0.15 }}
                       style={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: "50%",
-                        background: isHighlighted ? "#ffffff" : "#8052ff",
-                        boxShadow: isHighlighted ? "0 0 12px #ffffff" : "0 0 8px rgba(128,82,255,0.8)",
-                        transition: "background-color 0.2s ease, box-shadow 0.2s ease"
+                        position: "absolute",
+                        bottom: "135%",
+                        left: "50%",
+                        transform: "translateX(-50%) translateZ(30px)",
+                        background: "rgba(0,0,0,0.9)",
+                        border: "1px solid rgba(128,82,255,0.3)",
+                        borderRadius: "20px",
+                        padding: "4px 10px",
+                        color: "#ffffff",
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        fontWeight: 500,
+                        fontSize: 11,
+                        whiteSpace: "nowrap",
+                        pointerEvents: "none",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                        zIndex: 100
                       }}
-                    />
-                  </button>
+                    >
+                      {item.name}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
 
-                  {/* Pin label Tooltip */}
-                  <AnimatePresence>
-                    {isHovered && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 4, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 4, scale: 0.9 }}
-                        transition={{ duration: 0.15 }}
-                        style={{
-                          position: "absolute",
-                          bottom: "135%",
-                          left: "50%",
-                          transform: "translateX(-50%) translateZ(30px)",
-                          background: "rgba(0,0,0,0.9)",
-                          border: "1px solid rgba(128,82,255,0.3)",
-                          borderRadius: "20px",
-                          padding: "4px 10px",
-                          color: "#ffffff",
-                          fontFamily: "'Space Grotesk', sans-serif",
-                          fontWeight: 500,
-                          fontSize: 11,
-                          whiteSpace: "nowrap",
-                          pointerEvents: "none",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
-                          zIndex: 100
-                        }}
-                      >
-                        {item.name}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </motion.div>
-
-        {/* Right Side: Symptom Category Grid */}
-        <div style={{ flex: 1, width: "100%", minWidth: 280, alignSelf: "stretch", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        {/* Right Side: Symptom Category Grid (Aligned, exactly same height scale) */}
+        <div style={{ flex: 1, width: "100%", maxWidth: 280, display: "flex", flexDirection: "column", alignSelf: "flex-start" }}>
           <p
             style={{
               fontSize: 10,
@@ -372,18 +360,17 @@ export function PetBodyHotspot3D({ setInput, focusInput }: PetBodyHotspot3DProps
               color: "#9a9a9a",
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              marginBottom: 12,
+              marginBottom: 10,
               fontFamily: "'Space Grotesk', sans-serif"
             }}
           >
             SELECT SYMPTOM OR CLICK INTERACTIVE HOTSPOT:
           </p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             {categories.map((item, index) => {
               const isHovered = activeCategory === item.name;
               const isSelected = selectedCategory === item.name;
-              const isHighlighted = isHovered || isSelected;
 
               return (
                 <motion.div
@@ -394,6 +381,7 @@ export function PetBodyHotspot3D({ setInput, focusInput }: PetBodyHotspot3DProps
                   onClick={() => handleSelect(item)}
                   onMouseEnter={() => setActiveCategory(item.name)}
                   onMouseLeave={() => setActiveCategory(null)}
+                  whileHover="hover"
                   style={{
                     background: isSelected 
                       ? "rgba(128,82,255,0.15)" 
@@ -414,38 +402,61 @@ export function PetBodyHotspot3D({ setInput, focusInput }: PetBodyHotspot3DProps
                     borderWidth: "1px",
                     borderStyle: "solid",
                     borderRadius: 12,
-                    padding: 16,
+                    padding: "16px 12px",
                     cursor: "pointer",
                     transition: "all 0.2s ease",
                     textAlign: "left",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
+                    position: "relative",
+                    overflow: "hidden",
                     height: "100%",
                     minHeight: 84
                   }}
                 >
+                  {/* Premium Shimmer sweep effect */}
+                  <motion.div
+                    variants={{
+                      hover: { backgroundPosition: ["-200% 0", "200% 0"] }
+                    }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "linear-gradient(105deg, transparent 40%, rgba(128,82,255,0.08) 50%, transparent 60%)",
+                      backgroundSize: "200% 100%",
+                      backgroundPosition: "-200% 0",
+                      pointerEvents: "none",
+                      zIndex: 1
+                    }}
+                  />
+
                   <span
                     style={{
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: 600,
                       color: "#ffffff",
                       fontFamily: "'Space Grotesk', sans-serif",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      gap: 4
+                      gap: 4,
+                      position: "relative",
+                      zIndex: 2
                     }}
                   >
-                    {item.name} <span style={{ fontSize: 16 }}>{item.emoji}</span>
+                    {item.name} <span style={{ fontSize: 15 }}>{item.emoji}</span>
                   </span>
                   <span
                     style={{
-                      fontSize: 11,
+                      fontSize: 10,
                       color: "#9a9a9a",
                       fontFamily: "'Space Grotesk', sans-serif",
                       lineHeight: 1.3,
-                      marginTop: 4
+                      marginTop: 4,
+                      position: "relative",
+                      zIndex: 2
                     }}
                   >
                     {item.keywords}

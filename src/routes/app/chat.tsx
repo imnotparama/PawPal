@@ -486,8 +486,7 @@ function ChatPage() {
             flex: 1,
             height: "100%",
             minHeight: 0,
-            gap: 24,
-            padding: "48px 0"
+            paddingBottom: "40px"
           }}>
             
             {/* Paw Illustration with Breathing Animation */}
@@ -509,14 +508,14 @@ function ChatPage() {
             </motion.div>
 
             <div style={{ textAlign: "center" }}>
-              <p style={{ fontSize: 18, color: "#ffffff", textAlign: "center", margin: 0, fontWeight: 500, fontFamily: "'Space Grotesk', sans-serif" }}>Ask PawPal AI anything about your pet's health.</p>
+              <p style={{ fontSize: 18, color: "#ffffff", textAlign: "center", marginTop: "16px", marginBottom: 0, fontWeight: 500, fontFamily: "'Space Grotesk', sans-serif" }}>Ask PawPal AI anything about your pet's health.</p>
               <p style={{ fontSize: 12, color: "#9a9a9a", textAlign: "center", marginTop: 8, marginBottom: 0, fontFamily: "'Space Grotesk', sans-serif", fontWeight: 400 }}>
                 Powered by Google Gemini · Responses are not a substitute for professional veterinary advice.
               </p>
             </div>
 
             {/* AI Feature Pills Row */}
-            <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 8 }}>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginTop: "16px", marginBottom: 0 }}>
               {[
                 "🎤 Voice Input",
                 "📷 Photo Analysis",
@@ -540,7 +539,7 @@ function ChatPage() {
             </div>
 
             {/* Triage Dashboard Container */}
-            <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 12 }}>
+            <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: "24px" }}>
               <SafePetBodyHotspot
                 fallback={
                   <div style={{ width: "100%", maxWidth: 440, margin: "0 auto" }}>
