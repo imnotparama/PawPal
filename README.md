@@ -166,6 +166,7 @@ create policy "own messages" on chat_messages
 - **Data Privacy Cache Polish**: Completely removed local storage caching of sensitive pet records, vaccination history, and medical logs to avoid plaintext data exposure in the browser.
 - **Secure Sign-Out Storage Wipe**: Wipes all client-side browser local and session storage values upon logging out to secure shared machine profile environments.
 - **Database Exception Sanitization**: Replaced Postgres and Supabase backend error reflections with generic, database-neutral messaging during login/register flows to block account enumeration attacks.
+- **Two-Factor Authentication (MFA) & Secure Verification Redirects**: Integrates dynamic origin redirects (`window.location.origin`) for Supabase email confirmation links to prevent dead local/prod redirects. Standard Supabase Multi-Factor Authentication (MFA) endpoints are ready to be enabled as an upgrade path to satisfy stricter corporate/veterinary security requirements.
 - Input sanitization on all user inputs before DB writes.
 - File uploads scoped to `{user_id}/` paths in Supabase Storage.
 - Password complexity requirements and strict RLS policies enabled.
