@@ -1,3 +1,4 @@
+// PawPal AI v1.0.0 Production Release
 import { createFileRoute } from "@tanstack/react-router";
 import { ParticleMorph3D } from "@/components/ParticleMorph3D";
 import { CursorGlow } from "@/components/CursorGlow";
