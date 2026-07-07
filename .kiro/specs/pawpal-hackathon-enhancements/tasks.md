@@ -50,3 +50,25 @@ This plan outlines the visual, operational, and layout changes implemented to op
 
 - [x] 9. Vercel verification checks
   - [x] Run `$env:NITRO_PRESET="vercel"; npm run build` and ensure compilation is correct
+
+- [x] 10. Security Audit & Client Privacy Polish
+  - [x] Validate Supabase authorization JWT session token inside `getGeminiResponse` on server
+  - [x] Deconstruct unencrypted local storage cache layers for pets, medical records, and vaccinations
+  - [x] Replace verbose Supabase/PostgreSQL authentication inputs with generic feedback to prevent account enumeration
+  - [x] Reset all local and session variables on sign-out trigger in `auth.tsx`
+  - _Requirements: 9_
+
+- [x] 11. iCalendar (.ics) vaccine schedules
+  - [x] Create helper exporter to generate and fetch raw calendar blobs on client clicks
+  - [x] Mount calendar download icon action next to list layout items
+  - _Requirements: 10_
+
+- [x] 12. Dashboard alerts and notifications
+  - [x] Bind browser alert prompts and trigger notifications on dashboard viewport mounts for items due within 7 days
+  - _Requirements: 11_
+
+- [x] 13. Pet weight check-in tracker
+  - [x] Implement togglable navigation tabs inside PassportModal dialog
+  - [x] Log weight metrics as customized medical checkup documents
+  - [x] Plot historic check-ins in clean responsive SVG grids
+  - _Requirements: 12_

@@ -49,3 +49,18 @@ This document outlines the visual and behavioral requirements implemented to pol
 ### Requirement 8: Account Deletion Confirmations
 - **AC 8.1**: Clicking "Delete Account" SHALL trigger a Radix UI `AlertDialog` popup modal instead of basic browser confirms
 - **AC 8.2**: The delete option SHALL display warning text in red highlighting the destructive scope of operations
+
+### Requirement 9: Security Audit & Data Privacy Compliance
+- **AC 9.1**: Server Actions proxying LLM endpoints (Gemini) SHALL securely authorize the user identity by validating session JWT tokens on the server.
+- **AC 9.2**: Client hooks SHALL NOT cache sensitive records, pets, or immunizations in plain local storage files to prevent exposure.
+- **AC 9.3**: Authentication endpoints (sign-in/sign-up) SHALL catch Postgres/Supabase failures and output standardized, generic message blocks preventing database detail leakage and account enumeration.
+- **AC 9.4**: The logout trigger SHALL clear all client local and session storage values to secure shared browser profiles.
+
+### Requirement 10: Vaccination Scheduling Exporter
+- **AC 10.1**: The vaccinations dashboard table SHALL provide a button to export immunization dates directly to standard iCalendar (.ics) files, allowing direct scheduling in Google, Apple, and Outlook calendars.
+
+### Requirement 11: Real-time Near-Due Browser Notifications
+- **AC 11.1**: The dashboard SHALL request user authorization and trigger real-time HTML5 browser push notifications when a vaccination is due within 7 days.
+
+### Requirement 12: Interactive Pet Weight Tracker Graph
+- **AC 12.1**: The pet profile passport modal SHALL include a dedicated Weight Tracker panel, allowing check-in logs and drawing a dynamic custom SVG trend line graph mapping historic growth details.

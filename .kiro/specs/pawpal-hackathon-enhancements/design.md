@@ -15,7 +15,7 @@ class ErrorBoundary extends React.Component {
 ```
 
 ### 2. URLSearchParams Judge Banner Trigger
-On `src/routes/app/index.tsx`, we retrieve query values on render:
+On `src/routes/dashboard/index.tsx`, we retrieve query values on render:
 ```typescript
 const searchParams = new URLSearchParams(window.location.search);
 const isJudgeView = searchParams.get("judgeview") === "true";
@@ -34,7 +34,7 @@ The empty state of the chat component displays a pulsing badge containing `PawPr
 ```
 
 ### 4. Dynamic Life Phase Calculation
-Age calculation mapping inside `src/routes/app/pets.tsx`:
+Age calculation mapping inside `src/routes/dashboard/pets/index.tsx`:
 ```typescript
 const getPetLifePhase = (age: number, species: string) => {
   const isCat = species?.toLowerCase() === "cat";
@@ -58,3 +58,17 @@ const getPetLifePhase = (age: number, species: string) => {
 To secure dangerous account triggers, we styled standard Radix elements with custom dark panels:
 - Content panel: `#111111` background, border `1px solid rgba(255,255,255,0.08)`.
 - Action buttons: `#ff4444` red button for confirmation, transparent outline for cancellation.
+
+### 6. Secure Server Actions and Account Data Isolation
+- Gemini endpoints verify user JWT authentication sessions before forwarding content to Google API.
+- All browser cache elements (`localStorage` and `sessionStorage`) are explicitly wiped on account logout in `auth.tsx` to isolate user profiles completely.
+
+### 7. Client-Side iCalendar Exporter
+- Vaccination dates map to raw iCalendar text blocks on the client, which are compiled into calendar `.ics` attachments and downloaded on click.
+
+### 8. HTML5 Native System Notifications
+- Mount effect queries for upcoming immunization warnings and triggers native operating system warnings if scheduled within 7 days.
+
+### 9. Interactive Pet Passport Weight SVG Graphs
+- Passport details toggle between general checklists and historical growth metrics.
+- Historical check-ins log to `medical_records` as custom entities and are drawn in clean SVG polylines with linear gradient backgrounds.
