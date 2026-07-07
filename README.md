@@ -32,8 +32,8 @@ Pet owners face three universal problems:
 ## 🌟 Key Features
 
 ### 🌌 3D Particle Morph Landing Page
-- **Instanced GPU Rendering**: 6,000 instanced Three.js triangles rendered as a single draw call with custom GLSL vertex + fragment shaders for a target 60 FPS on any device.
-- **Scroll-Driven Morphing**: Particles morph in real-time between three high-fidelity silhouettes (Cat → Dog → Girl-with-Cat) as users scroll.
+- **Instanced GPU Rendering**: 11,000 instanced Three.js triangles rendered as a single draw call with custom GLSL vertex + fragment shaders for a target 60 FPS on any device.
+- **Scroll-Driven Morphing**: Particles morph in real-time between three high-fidelity silhouettes as users scroll.
 - **Cinematic Visuals**: ACES Filmic Tone Mapping, dynamic per-particle rotation, position-based gradient mapping (amber → white → plum violet), and mouse parallax tracking.
 - **Explosion Transition**: Interactive scroll-driven particle explosion effect on the final panel.
 
@@ -225,7 +225,7 @@ health_timeline VIEW (
 
 ## ⚡ Performance
 
-- **Single GPU draw call** for all 6,000 particles 
+- **Single GPU draw call** for all 11,000 particles 
   (THREE.InstancedMesh)
 - **SSR** — first paint is server-rendered HTML, 
   not a blank loading screen
@@ -319,7 +319,7 @@ handovers, and rescue organizations — directly
 supporting the cat rehoming community.
 
 **The deeper connection:**
-The landing page opens with 6,000 particles 
+The landing page opens with 11,000 particles 
 assembling into a cat silhouette. The Cat Purr 
 Sound Therapy synthesizes clinically accurate 
 25-50 Hz healing frequencies. The interactive 
