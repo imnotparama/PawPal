@@ -373,6 +373,16 @@ function OnboardingAddPetForm({ addPet, onSuccess }: { addPet: any, onSuccess: (
   const [age, setAge] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPhoto(file);
+      setPhotoPreview(URL.createObjectURL(file));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -393,7 +403,8 @@ function OnboardingAddPetForm({ addPet, onSuccess }: { addPet: any, onSuccess: (
         name,
         species: species.toLowerCase() === "cat" ? "Cat" : "Dog",
         breed: breed || "Mixed Breed",
-        age_years: ageNum
+        age_years: ageNum,
+        photo: photo || undefined
       });
       onSuccess(name);
     } catch (err) {
@@ -405,7 +416,9 @@ function OnboardingAddPetForm({ addPet, onSuccess }: { addPet: any, onSuccess: (
 
   return (
     <form onSubmit={handleSubmit} style={{ textAlign: "left" }}>
-      <h2 style={{ fontSize: 24, fontWeight: 300, color: "#ffffff", marginBottom: 8, textAlign: "center", fontFamily: "'Space Grotesk', sans-serif" }}>Tell us about your cat</h2>
+      <h2 style={{ fontSize: 24, fontWeight: 300, color: "#ffffff", marginBottom: 8, textAlign: "center", fontFamily: "'Space Grotesk', sans-serif" }}>
+        Tell us about your {species}
+      </h2>
       <p style={{ fontSize: 13, color: "#9a9a9a", marginBottom: 24, textAlign: "center" }}>Provide a few quick details to get started.</p>
 
       {error && (
@@ -413,6 +426,19 @@ function OnboardingAddPetForm({ addPet, onSuccess }: { addPet: any, onSuccess: (
           {error}
         </div>
       )}
+
+      {/* Photo upload picker */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 16 }}>
+        <label style={{ width: 80, height: 80, borderRadius: "50%", background: photoPreview ? "none" : "rgba(128,82,255,0.08)", border: photoPreview ? "2px solid #8052ff" : "2px dashed rgba(128,82,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", overflow: "hidden", transition: "all 0.2s" }}>
+          {photoPreview ? (
+            <img src={photoPreview} alt="Pet" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8052ff" strokeWidth="1.5"><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M3 8h2l1-2h12l1 2h2" /></svg>
+          )}
+          <input type="file" accept="image/*" onChange={handlePhoto} style={{ display: "none" }} />
+        </label>
+        <span style={{ fontSize: 11, color: "#9a9a9a", marginTop: 6 }}>{photoPreview ? "Photo added ✓" : "Upload photo"}</span>
+      </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 28 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -459,7 +485,7 @@ function OnboardingAddPetForm({ addPet, onSuccess }: { addPet: any, onSuccess: (
             <label style={{ fontSize: 11, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em" }}>Breed</label>
             <input
               type="text"
-              placeholder="e.g. Ginger Tabby"
+              placeholder={species === "cat" ? "e.g. Ginger Tabby" : "e.g. Golden Retriever"}
               value={breed}
               onChange={(e) => setBreed(e.target.value)}
               style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: 14, outline: "none", fontFamily: "'Space Grotesk', sans-serif" }}

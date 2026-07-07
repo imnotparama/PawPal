@@ -20,8 +20,8 @@ const categories: CategoryData[] = [
     emoji: "🐾",
     keywords: "Scratching, rashes, tick check",
     prompt: "My pet has been scratching their ears and skin a lot. Could this be an infection or allergies?",
-    pinTop: "18%",
-    pinLeft: "52%",
+    pinTop: "56%",
+    pinLeft: "43%",
     animationDelay: 0
   },
   {
@@ -30,8 +30,8 @@ const categories: CategoryData[] = [
     emoji: "🍖",
     keywords: "Loss of appetite, vomiting risk",
     prompt: "My pet hasn't been eating well and seems nauseous. What could be causing this?",
-    pinTop: "52%",
-    pinLeft: "45%",
+    pinTop: "76%",
+    pinLeft: "41%",
     animationDelay: 0.5
   },
   {
@@ -40,8 +40,8 @@ const categories: CategoryData[] = [
     emoji: "⚡",
     keywords: "Lethargy, sleeping, stiff joints",
     prompt: "My pet seems lethargic and is sleeping more than usual. Should I be concerned?",
-    pinTop: "72%",
-    pinLeft: "35%",
+    pinTop: "82%",
+    pinLeft: "37%",
     animationDelay: 1.0
   },
   {
@@ -50,8 +50,8 @@ const categories: CategoryData[] = [
     emoji: "💉",
     keywords: "Triage checks & routine guidelines",
     prompt: "Can you tell me what routine vaccinations and health checks my pet needs at their current age?",
-    pinTop: "38%",
-    pinLeft: "62%",
+    pinTop: "68%",
+    pinLeft: "46%",
     animationDelay: 1.5
   }
 ];
