@@ -11,7 +11,8 @@
 **Live Demo**: [https://pawpal-wheat.vercel.app]  
 **Demo Video**: [YouTube Demo Video](https://youtu.be/KnAAreB8PVQ)  
 **Built by**: Parameshwaran S  
-**Submission Reference ID**: `Y9NQAHWV`
+**Submission Reference ID**: `Y9NQAHWV`  
+**Version**: `1.0`  
 
 ---
 
