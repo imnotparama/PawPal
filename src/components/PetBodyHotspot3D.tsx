@@ -21,8 +21,8 @@ const categories: CategoryData[] = [
     emoji: "🐾",
     keywords: "Scratching, rashes, tick check",
     prompt: "My pet has been scratching their ears and skin a lot. Could this be an infection or allergies?",
-    pinTop: "56%",
-    pinLeft: "43%",
+    pinTop: "18%",
+    pinLeft: "58%",
     animationDelay: 0
   },
   {
@@ -31,8 +31,8 @@ const categories: CategoryData[] = [
     emoji: "🍖",
     keywords: "Loss of appetite, vomiting risk",
     prompt: "My pet hasn't been eating well and seems nauseous. What could be causing this?",
-    pinTop: "76%",
-    pinLeft: "41%",
+    pinTop: "50%",
+    pinLeft: "48%",
     animationDelay: 0.5
   },
   {
@@ -41,8 +41,8 @@ const categories: CategoryData[] = [
     emoji: "⚡",
     keywords: "Lethargy, sleeping, stiff joints",
     prompt: "My pet seems lethargic and is sleeping more than usual. Should I be concerned?",
-    pinTop: "82%",
-    pinLeft: "37%",
+    pinTop: "75%",
+    pinLeft: "38%",
     animationDelay: 1.0
   },
   {
@@ -51,8 +51,8 @@ const categories: CategoryData[] = [
     emoji: "💉",
     keywords: "Triage checks & routine guidelines",
     prompt: "Can you tell me what routine vaccinations and health checks my pet needs at their current age?",
-    pinTop: "68%",
-    pinLeft: "46%",
+    pinTop: "35%",
+    pinLeft: "62%",
     animationDelay: 1.5
   }
 ];
@@ -170,13 +170,6 @@ export function PetBodyHotspot3D({ setInput, focusInput }: PetBodyHotspot3DProps
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const pinRefs = [
-    useRef<HTMLDivElement>(null),
-    useRef<HTMLDivElement>(null),
-    useRef<HTMLDivElement>(null),
-    useRef<HTMLDivElement>(null)
-  ];
-
   const handleSelect = (category: CategoryData) => {
     setSelectedCategory(category.name);
     setInput(category.prompt);
@@ -234,7 +227,7 @@ export function PetBodyHotspot3D({ setInput, focusInput }: PetBodyHotspot3DProps
           }}
         >
           {/* 3D Rendered Cat Model using Three.js */}
-          <CatModel3D pinRefs={pinRefs} />
+          <CatModel3D />
 
           {/* Hotspot Pins (on z-index 2 above overlay) */}
           {categories.map((item, index) => {
@@ -245,7 +238,6 @@ export function PetBodyHotspot3D({ setInput, focusInput }: PetBodyHotspot3DProps
             return (
               <motion.div
                 key={item.id}
-                ref={pinRefs[index]}
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.3 + index * 0.15, type: "spring", stiffness: 150 }}
@@ -255,7 +247,7 @@ export function PetBodyHotspot3D({ setInput, focusInput }: PetBodyHotspot3DProps
                   left: item.pinLeft,
                   width: 28,
                   height: 28,
-                  transform: "translate(-50%, -50%) translateZ(20px)",
+                  transform: "translate(-50%, -50%) translateZ(25px)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
