@@ -1,5 +1,9 @@
 # 🐾 PawPal AI — Your Pet's Smart Health Companion
 
+<p align="center">
+  <img src="PAWPAL.png" alt="PawPal Logo" width="360" />
+</p>
+
 > A premium AI-powered pet health platform with a 3D particle-morph 
 > landing experience, real-time vet triage, and full health record management.
 
