@@ -92,6 +92,38 @@ function AddVaccinationModal({ pets, onClose, onSubmit, submitting }: { pets: an
   );
 }
 
+function exportToICS(vaccine: any) {
+  const title = `${vaccine.pets?.name || "Pet"}'s Vaccination: ${vaccine.vaccine_name}`;
+  const desc = vaccine.notes || `Scheduled vaccination tracking for ${vaccine.vaccine_name}`;
+  const dateStr = vaccine.date ? vaccine.date.replace(/-/g, "") : "";
+  if (!dateStr) return;
+
+  const icsLines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//PawPal AI//NONSGML Pet Compliance Calendar//EN",
+    "BEGIN:VEVENT",
+    `UID:uid-${vaccine.id || Date.now()}@pawpal.ai`,
+    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").split(".")[0]}Z`,
+    `DTSTART;VALUE=DATE:${dateStr}`,
+    `DTEND;VALUE=DATE:${dateStr}`,
+    `SUMMARY:${title}`,
+    `DESCRIPTION:${desc}`,
+    "END:VEVENT",
+    "END:VCALENDAR"
+  ].join("\r\n");
+
+  const blob = new Blob([icsLines], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${vaccine.pets?.name || "pet"}_${vaccine.vaccine_name.toLowerCase().replace(/[^a-z0-9]/g, "_")}.ics`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 function VaccinationsPage() {
   const { pets } = usePets();
   const { vaccinations, loading, adding, addVaccination, markComplete } = useVaccinations();
@@ -240,7 +272,7 @@ function VaccinationsPage() {
         <div style={{ overflowX: "auto" }} className="w-full">
           <div style={{ minWidth: 600 }}>
             {/* Table Header */}
-            <div style={{ display: "grid", gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr 1fr", gap: 16, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1.2fr 2fr 1.3fr 1fr 1.8fr", gap: 16, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
               {["PET", "VACCINE", "DATE", "STATUS", "ACTION"].map((h) => (
                 <span key={h} style={{ fontSize: 11, fontWeight: 400, color: "#9a9a9a", letterSpacing: "0.07em", textTransform: "uppercase" }}>{h}</span>
               ))}
@@ -255,7 +287,7 @@ function VaccinationsPage() {
                 transition={{ delay: 0.3 + i * 0.05, duration: 0.35, ease: "easeOut" }}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "1.5fr 2fr 1.5fr 1fr 1fr",
+                  gridTemplateColumns: "1.2fr 2fr 1.3fr 1fr 1.8fr",
                   gap: 16,
                   padding: "16px 0",
                   borderBottom: "1px solid rgba(255,255,255,0.04)",
@@ -290,7 +322,7 @@ function VaccinationsPage() {
                 </div>
 
                 {/* Action */}
-                <div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   {v.status !== "Completed" ? (
                     <button
                       onClick={(e) => {
@@ -314,6 +346,28 @@ function VaccinationsPage() {
                       Mark Complete
                     </button>
                   ) : null}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      exportToICS(v);
+                    }}
+                    style={{
+                      background: "transparent",
+                      border: "1px solid rgba(128,82,255,0.3)",
+                      color: "#8052ff",
+                      borderRadius: 20,
+                      padding: "4px 12px",
+                      fontSize: 12,
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      transition: "all 0.15s"
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(128,82,255,0.1)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                    title="Export to Calendar (.ics)"
+                  >
+                    📅 Export
+                  </button>
                 </div>
               </motion.div>
             ))}

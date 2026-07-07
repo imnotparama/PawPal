@@ -34,7 +34,12 @@ function PassportModal({ pet, onClose }: { pet: any; onClose: () => void }) {
   const passportId = `PP-${pet.species.toUpperCase().slice(0, 3)}-${(pet.id || crypto.randomUUID()).slice(0, 8).toUpperCase()}`;
   
   const { vaccinations, loading: vacsLoading } = useVaccinations();
-  const { records, loading: recsLoading } = useMedicalRecords();
+  const { records, loading: recsLoading, addRecord } = useMedicalRecords();
+
+  const [activeTab, setActiveTab] = useState<"clinical" | "weight">("clinical");
+  const [newWeight, setNewWeight] = useState("");
+  const [newWeightDate, setNewWeightDate] = useState(new Date().toISOString().split("T")[0]);
+  const [loggingWeight, setLoggingWeight] = useState(false);
 
   const petVaccines = vaccinations.filter(v => v.pet_id === pet.id);
   const petRecords = records.filter(r => r.pet_id === pet.id);
@@ -43,6 +48,99 @@ function PassportModal({ pet, onClose }: { pet: any; onClose: () => void }) {
   const completedVaccines = petVaccines.filter(v => v.status === "Completed").length;
   const expectedVaccines = petVaccines.length;
   const healthScore = expectedVaccines > 0 ? Math.round((completedVaccines / expectedVaccines) * 100) : 100;
+
+  const weightLogs = petRecords
+    .filter(r => r.record_type === 'Weight')
+    .map(r => ({
+      id: r.id,
+      weight: parseFloat(r.notes || "0") || parseFloat(r.title.match(/[\d.]+/)?.[0] || "0"),
+      date: r.date
+    }))
+    .filter(w => w.weight > 0)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  const handleLogWeightSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const val = parseFloat(newWeight);
+    if (isNaN(val) || val <= 0) {
+      toast.error("Please enter a valid weight");
+      return;
+    }
+    setLoggingWeight(true);
+    try {
+      await addRecord({
+        pet_id: pet.id,
+        title: `Weight Check-in: ${val} kg`,
+        record_type: "Weight",
+        date: newWeightDate,
+        notes: String(val)
+      });
+      setNewWeight("");
+      toast.success("Weight logged successfully!");
+    } catch (err) {
+      toast.error("Failed to log weight check-in");
+    } finally {
+      setLoggingWeight(false);
+    }
+  };
+
+  const drawWeightChart = () => {
+    if (weightLogs.length === 0) {
+      return (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 100, background: "rgba(0,0,0,0.2)", borderRadius: 8, border: "1px dashed rgba(255,255,255,0.08)", color: "#9a9a9a", fontSize: 11, fontStyle: "italic" }}>
+          <span>No weight points logged yet.</span>
+        </div>
+      );
+    }
+
+    const chartWidth = 444;
+    const chartHeight = 90;
+    const padX = 24;
+    const padY = 16;
+
+    const weightsVal = weightLogs.map(w => w.weight);
+    const minW = Math.min(...weightsVal) * 0.9;
+    const maxW = Math.max(...weightsVal) * 1.1;
+    const wRange = maxW - minW || 1;
+
+    const pts = weightLogs.map((w, idx) => {
+      const x = padX + (idx / Math.max(1, weightLogs.length - 1)) * (chartWidth - padX * 2);
+      const y = chartHeight - padY - ((w.weight - minW) / wRange) * (chartHeight - padY * 2);
+      return { x, y, val: w.weight, d: w.date };
+    });
+
+    const pathD = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+    const areaD = pts.length > 0
+      ? `${pathD} L ${pts[pts.length - 1].x} ${chartHeight - padY} L ${pts[0].x} ${chartHeight - padY} Z`
+      : "";
+
+    return (
+      <svg width="100%" height={chartHeight} viewBox={`0 0 ${chartWidth} ${chartHeight}`} style={{ overflow: "visible", background: "rgba(0,0,0,0.2)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.05)", padding: "4px 8px" }}>
+        <defs>
+          <linearGradient id="chartGlow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#8052ff" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#8052ff" stopOpacity="0.0" />
+          </linearGradient>
+        </defs>
+        
+        <line x1={padX} y1={padY} x2={chartWidth - padX} y2={padY} stroke="rgba(255,255,255,0.03)" strokeWidth={1} />
+        <line x1={padX} y1={chartHeight / 2} x2={chartWidth - padX} y2={chartHeight / 2} stroke="rgba(255,255,255,0.03)" strokeWidth={1} />
+        <line x1={padX} y1={chartHeight - padY} x2={chartWidth - padX} y2={chartHeight - padY} stroke="rgba(255,255,255,0.03)" strokeWidth={1} />
+
+        {areaD && <path d={areaD} fill="url(#chartGlow)" />}
+        {pathD && <path d={pathD} fill="none" stroke="#8052ff" strokeWidth={2} />}
+
+        {pts.map((p, i) => (
+          <g key={i}>
+            <circle cx={p.x} cy={p.y} r={4} fill="#8052ff" stroke="#ffffff" strokeWidth={1} />
+            <text x={p.x} y={p.y - 8} fill="#ffffff" fontSize={9} textAnchor="middle" fontWeight={600}>
+              {p.val}kg
+            </text>
+          </g>
+        ))}
+      </svg>
+    );
+  };
 
   const handlePrint = () => {
     if (typeof window !== "undefined") {
@@ -85,6 +183,7 @@ function PassportModal({ pet, onClose }: { pet: any; onClose: () => void }) {
     ctx.fillStyle = "#ffffff";
     ctx.fillText(pet.name, 160, 130);
 
+    // Breed/Type
     ctx.font = "12px 'Space Grotesk', sans-serif";
     ctx.fillStyle = "#9a9a9a";
     ctx.fillText("BREED / TYPE", 160, 170);
@@ -92,6 +191,7 @@ function PassportModal({ pet, onClose }: { pet: any; onClose: () => void }) {
     ctx.fillStyle = "#ffffff";
     ctx.fillText(pet.breed || "Mixed breed", 160, 190);
 
+    // Age/Species
     ctx.font = "12px 'Space Grotesk', sans-serif";
     ctx.fillStyle = "#9a9a9a";
     ctx.fillText("AGE & SPECIES", 340, 110);
@@ -99,6 +199,7 @@ function PassportModal({ pet, onClose }: { pet: any; onClose: () => void }) {
     ctx.fillStyle = "#ffffff";
     ctx.fillText(`${pet.age_years} yrs old · ${pet.species}`, 340, 130);
 
+    // Document ID
     ctx.font = "12px 'Space Grotesk', sans-serif";
     ctx.fillStyle = "#9a9a9a";
     ctx.fillText("DOCUMENT ID", 340, 170);
@@ -298,7 +399,7 @@ function PassportModal({ pet, onClose }: { pet: any; onClose: () => void }) {
               </div>
               <div>
                 <span style={{ display: "block", fontSize: 9, color: "#9a9a9a", textTransform: "uppercase" }}>Weight</span>
-                <span style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>{pet.weight_kg ? `${pet.weight_kg} kg` : "—"}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>{weightLogs.length > 0 ? `${weightLogs[weightLogs.length - 1].weight} kg` : pet.weight_kg ? `${pet.weight_kg} kg` : "—"}</span>
               </div>
               <div>
                 <span style={{ display: "block", fontSize: 9, color: "#9a9a9a", textTransform: "uppercase" }}>Document ID</span>
@@ -319,31 +420,125 @@ function PassportModal({ pet, onClose }: { pet: any; onClose: () => void }) {
             </div>
           </div>
 
-          {/* Expanded Health Log History Table */}
+          {/* Toggle structure */}
           <div style={{ marginTop: 20, borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 16 }}>
-            <span style={{ display: "block", fontSize: 10, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8, fontWeight: 600 }}>Clinical Logs Summary</span>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 180, overflowY: "auto" }}>
-              {[
-                ...petVaccines.map(v => ({ title: v.vaccine_name, date: v.date, status: v.status })),
-                ...petRecords.map(r => ({ title: r.title, date: r.date, status: r.record_type }))
-              ].slice(0, 4).map((ev, i) => (
-                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: 4 }}>
-                  <span style={{ color: "#ffffff", fontWeight: 500 }}>{ev.title}</span>
-                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                    <span style={{ color: "#9a9a9a" }}>{ev.date ? new Date(ev.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}</span>
-                    <span style={{ 
-                      color: ev.status === "Completed" ? "#15846e" : ev.status === "Upcoming" ? "#ffb829" : "#8052ff", 
-                      fontSize: 10, 
-                      fontWeight: 600, 
-                      textTransform: "uppercase" 
-                    }}>{ev.status}</span>
-                  </div>
-                </div>
-              ))}
-              {petVaccines.length === 0 && petRecords.length === 0 && (
-                <span style={{ color: "#9a9a9a", fontSize: 11, fontStyle: "italic" }}>No vaccination or checkup history logged.</span>
-              )}
+            <div style={{ display: "flex", gap: 16, borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 8, marginBottom: 12 }}>
+              <button
+                type="button"
+                onClick={() => setActiveTab("clinical")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: activeTab === "clinical" ? "#8052ff" : "#9a9a9a",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  borderBottom: activeTab === "clinical" ? "2px solid #8052ff" : "none",
+                  paddingBottom: 4
+                }}
+              >
+                Clinical Logs
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("weight")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: activeTab === "weight" ? "#8052ff" : "#9a9a9a",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  borderBottom: activeTab === "weight" ? "2px solid #8052ff" : "none",
+                  paddingBottom: 4
+                }}
+              >
+                Weight Tracker
+              </button>
             </div>
+
+            {activeTab === "clinical" ? (
+              <div>
+                <span style={{ display: "block", fontSize: 10, color: "#9a9a9a", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8, fontWeight: 600 }}>Clinical Logs Summary</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 120, overflowY: "auto" }}>
+                  {[
+                    ...petVaccines.map(v => ({ title: v.vaccine_name, date: v.date, status: v.status })),
+                    ...petRecords.map(r => ({ title: r.title, date: r.date, status: r.record_type }))
+                  ].slice(0, 4).map((ev, i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: 4 }}>
+                      <span style={{ color: "#ffffff", fontWeight: 500 }}>{ev.title}</span>
+                      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                        <span style={{ color: "#9a9a9a" }}>{ev.date ? new Date(ev.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}</span>
+                        <span style={{ 
+                          color: ev.status === "Completed" ? "#15846e" : ev.status === "Upcoming" ? "#ffb829" : "#8052ff", 
+                          fontSize: 10, 
+                          fontWeight: 600, 
+                          textTransform: "uppercase" 
+                        }}>{ev.status}</span>
+                      </div>
+                    </div>
+                  ))}
+                  {petVaccines.length === 0 && petRecords.length === 0 && (
+                    <span style={{ color: "#9a9a9a", fontSize: 11, fontStyle: "italic" }}>No vaccination or checkup history logged.</span>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {drawWeightChart()}
+
+                <form onSubmit={handleLogWeightSubmit} style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 4 }}>
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder="Weight (kg)"
+                    value={newWeight}
+                    onChange={(e) => setNewWeight(e.target.value)}
+                    style={{
+                      flex: 1,
+                      background: "rgba(255,255,255,0.03)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      borderRadius: 12,
+                      padding: "8px 12px",
+                      color: "#fff",
+                      fontSize: 13,
+                      outline: "none"
+                    }}
+                  />
+                  <input
+                    type="date"
+                    value={newWeightDate}
+                    onChange={(e) => setNewWeightDate(e.target.value)}
+                    style={{
+                      width: 120,
+                      background: "rgba(255,255,255,0.03)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      borderRadius: 12,
+                      padding: "8px 12px",
+                      color: "#fff",
+                      fontSize: 13,
+                      outline: "none"
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={loggingWeight}
+                    style={{
+                      background: "#8052ff",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 12,
+                      padding: "8px 16px",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: loggingWeight ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    {loggingWeight ? "..." : "Log +"}
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
         </div>
 

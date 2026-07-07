@@ -55,12 +55,15 @@ Pet owners face three universal problems:
 - **Interactive Health Timeline**: Chronological layout automatically grouping veterinary visits, tests, and events by calendar year.
 - **Dynamic Health Score Indicator**: Computes real-time compliance metrics (vaccines_completed / expected_vaccinations * 100) shown on a premium 78px dashboard arc wrapper.
 - **Canvas-Compressed Uploads**: Profiles compress image uploads on the client canvas before uploading to Supabase Storage, saving client bandwidth and server storage.
+- **Interactive SVG Weight Tracker & Trend Graph**: Built directly into the pet passport modal. Owners can log weight updates over time, showing a dynamic, custom SVG progress chart displaying growth fluctuations and trend lines.
 
 ### 💎 Premium UX & Visual Polish
 - **Cat Purr Sound Therapy Widget**: Calming synthesizer using Web Audio API low-frequency oscillators (sine + triangle waves) modulated by breathing cycle gains (~0.18 Hz) to simulate standard cat purring, complete with a custom neon canvas vibration visualizer.
 - **Ctrl+K Command Palette**: Linear-style global command interface for instant navigation across all app sections — keyboard-first power users can reach any page without touching the mouse.
 - **Guided Onboarding Flow**: First-time users see a 3-step welcome modal that walks through adding their first pet, with localStorage persistence so it never shows twice.
 - **Hackathon Judge Conditonal Banner**: Conditionally renders a premium "Hack the Kitty" judge view panel if URL parameters contain `?judgeview=true`.
+- **iCalendar Exporter (.ics generation)**: Generate and download standard calendar invitation files for upcoming vaccinations with a single click, allowing easy scheduling across Google Calendar, Apple Calendar, and Outlook.
+- **HTML5 Browser Push Notifications**: Requests user notification permission on dashboard load to fire native operating-system level alerts for critical near-due immunizations (7 days).
 - **Global Error Boundary Wrapper**: Graceful error boundary intercepts React thread crashes and presents a styled recovery panel.
 - **Version drawer popups**: VERSION drawer in the navigation sidebar footer details release metadata.
 - Custom cursor glows, spring-physics magnet controls, loading skeleton grids, and Radix UI Confirmation AlertDialog wrappers.
