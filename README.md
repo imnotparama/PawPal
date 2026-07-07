@@ -34,11 +34,11 @@ Pet owners face three universal problems:
 - **Explosion Transition**: Interactive scroll-driven particle explosion effect on the final panel.
 
 ### 🐈 Interactive 3D Pet Triage Dashboard
-- **Dark-Theme 3D Panel**: Sleek, glassmorphic card housing a high-contrast ginger cat blended into a dark backdrop with a floating Three.js WebGL particle field.
-- **Dynamic 3D Parallax Tilt**: Real-time cursor tracking on the visual panel calculates mouse offsets to apply smooth perspective rotation transforms (`rotateX` / `rotateY`).
-- **Interactive Hotspot Pins**: Pulsing hotspots mapped to anatomical sectors (Ears 👂, Eyes/Face 👁️, Stomach 🥩, Paws/Skin 🐾, Spine/Joints 🦴).
+- **Interactive 3D Holographic Parallax Cat Panel**: A premium, high-contrast visual display of a black cat layered with a transparent Three.js WebGL particle canvas.
+- **Genuine 3D Parallax Depth**: Combines CSS 3D `preserve-3d` perspective transforms with mouse cursor tracking; tilting the card causes the background cat (`translateZ(-10px)`) and orbiting particles (`translateZ(15px)`) to shift at different depth rates.
+- **Floating 3D Hotspot Pins**: Anatomical symptom nodes (Ears, Stomach, Paws, Back) are positioned at `translateZ(25px)` to float dynamically in front of the visual panel during tilts.
 - **Auto-Focus Prompt Injection**: Clicking any hotspot automatically inserts a targeted vet diagnostic query and instantly focuses the chat input bar.
-- **Shimmering Symptom Grid**: Companion list with premium Framer Motion hover states animating a white gradient sweep across the cards.
+- **Shimmering Symptom Grid**: Category buttons with premium Framer Motion hover states animating a white gradient sweep across the cards.
 
 ### 🤖 AI Pet Health Triage (Google Gemini)
 - **Gemini-Powered Diagnosis**: Real-time triage analysis utilizing Google Gemini 1.5 Flash.
@@ -158,12 +158,14 @@ create policy "own messages" on chat_messages
 ```
 
 ### Additional Measures
-- `.env` in `.gitignore` — zero secrets in repo
-- Input sanitization on all user inputs before DB writes
-- File uploads scoped to `{user_id}/` paths in Supabase Storage
-- CSP headers on all server response paths
-- Password minimum enforcement on signup
-- Rate limiting on AI chat (1 message per 2 seconds)
+- **Server-Side Action Authorization Checks**: Validates the Supabase session JWT authorization token on the server side in `getGeminiResponse` before sending prompts to the Gemini API, preventing API key/usage leakage.
+- **Data Privacy Cache Polish**: Completely removed local storage caching of sensitive pet records, vaccination history, and medical logs to avoid plaintext data exposure in the browser.
+- **Secure Sign-Out Storage Wipe**: Wipes all client-side browser local and session storage values upon logging out to secure shared machine profile environments.
+- **Database Exception Sanitization**: Replaced Postgres and Supabase backend error reflections with generic, database-neutral messaging during login/register flows to block account enumeration attacks.
+- Input sanitization on all user inputs before DB writes.
+- File uploads scoped to `{user_id}/` paths in Supabase Storage.
+- Password complexity requirements and strict RLS policies enabled.
+- Rate limiting on AI chat (1 message per 2 seconds) with client toast alerts.
 
 > 📎 **Security Audit & Triage Report**: [Aikido Security Scan Report (PDF)](https://drive.google.com/file/d/1nheg4vK91LAIj0XFDHxqvAWX50kCO2sc/view?usp=sharing) — PawPal AI is audited and verified clean of all security vulnerabilities (including path traversals and generative key exposures).
 >
