@@ -528,22 +528,7 @@ function Dashboard() {
     }
   }, []);
 
-  useEffect(() => {
-    if (urgentUpcoming && typeof window !== "undefined" && "Notification" in window) {
-      if (Notification.permission === "default") {
-        Notification.requestPermission();
-      } else if (Notification.permission === "granted") {
-        const lastNotified = sessionStorage.getItem(`pawpal_notified_${urgentUpcoming.id}`);
-        if (!lastNotified) {
-          new Notification("🐾 PawPal Vaccination Reminder", {
-            body: `${urgentUpcoming.pets?.name || "Your pet"}'s ${urgentUpcoming.vaccine_name} is due in ${urgentUpcoming.diffDays} days!`,
-            icon: "/favicon.ico"
-          });
-          sessionStorage.setItem(`pawpal_notified_${urgentUpcoming.id}`, "true");
-        }
-      }
-    }
-  }, [urgentUpcoming]);
+
 
   useEffect(() => {
     if (!petsLoading) {
@@ -594,6 +579,23 @@ function Dashboard() {
     })
     .filter(v => v.diffDays >= 0 && v.diffDays <= 7)
     .sort((a, b) => a.diffDays - b.diffDays)[0];
+
+  useEffect(() => {
+    if (urgentUpcoming && typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "default") {
+        Notification.requestPermission();
+      } else if (Notification.permission === "granted") {
+        const lastNotified = sessionStorage.getItem(`pawpal_notified_${urgentUpcoming.id}`);
+        if (!lastNotified) {
+          new Notification("🐾 PawPal Vaccination Reminder", {
+            body: `${urgentUpcoming.pets?.name || "Your pet"}'s ${urgentUpcoming.vaccine_name} is due in ${urgentUpcoming.diffDays} days!`,
+            icon: "/favicon.ico"
+          });
+          sessionStorage.setItem(`pawpal_notified_${urgentUpcoming.id}`, "true");
+        }
+      }
+    }
+  }, [urgentUpcoming]);
 
   const getVaccineStatusDetails = (v: any) => {
     const dueDate = new Date(v.date);
