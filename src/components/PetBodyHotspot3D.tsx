@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import * as THREE from "three";
+import { CatModel3D } from "./CatModel3D";
 
 interface CategoryData {
   id: string;
@@ -169,6 +170,13 @@ export function PetBodyHotspot3D({ setInput, focusInput }: PetBodyHotspot3DProps
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const pinRefs = [
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null)
+  ];
+
   const handleSelect = (category: CategoryData) => {
     setSelectedCategory(category.name);
     setInput(category.prompt);
@@ -225,35 +233,8 @@ export function PetBodyHotspot3D({ setInput, focusInput }: PetBodyHotspot3DProps
             boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
           }}
         >
-          {/* Particle Field Behind Pet */}
-          <ParticleField />
-
-          {/* Shaded Dark-Background Cat Image */}
-          <img
-            src="https://images.unsplash.com/photo-1533743983669-94fa5c4338ec?w=400"
-            alt="Ginger Cat"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              filter: "brightness(0.9) contrast(1.05) saturate(0.9)",
-              pointerEvents: "none",
-              transform: "translateZ(-10px) scale(1.05)",
-              zIndex: 0
-            }}
-          />
-
-          {/* Dark Overlay Gradient */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%)",
-              pointerEvents: "none",
-              zIndex: 1,
-              borderRadius: "inherit"
-            }}
-          />
+          {/* 3D Rendered Cat Model using Three.js */}
+          <CatModel3D pinRefs={pinRefs} />
 
           {/* Hotspot Pins (on z-index 2 above overlay) */}
           {categories.map((item, index) => {
@@ -264,6 +245,7 @@ export function PetBodyHotspot3D({ setInput, focusInput }: PetBodyHotspot3DProps
             return (
               <motion.div
                 key={item.id}
+                ref={pinRefs[index]}
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.3 + index * 0.15, type: "spring", stiffness: 150 }}
