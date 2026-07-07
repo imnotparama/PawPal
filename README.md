@@ -163,6 +163,8 @@ create policy "own messages" on chat_messages
 - Rate limiting on AI chat (1 message per 2 seconds)
 
 > 📎 **Security Audit & Triage Report**: [Aikido Security Scan Report (PDF)](https://drive.google.com/file/d/1nheg4vK91LAIj0XFDHxqvAWX50kCO2sc/view?usp=sharing) — PawPal AI is audited and verified clean of all security vulnerabilities (including path traversals and generative key exposures).
+>
+> ![Security Audit Report](docs/security_audit_report.png)
 
 ---
 
