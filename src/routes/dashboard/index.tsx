@@ -1087,7 +1087,7 @@ function Dashboard() {
                   <path d="M12 22c-4 0-6-3-6-6 0-2 2-4 6-4s6 2 6 4c0 3-2 6-6 6z" />
                 </svg>
                 <h3 style={{ fontSize: 16, fontWeight: 500, color: "#ffffff", marginTop: 12 }}>
-                  Rhoni is waiting to meet their health companion 🐾
+                  Your pet is waiting to meet their health companion 🐾
                 </h3>
                 <p style={{ fontSize: 13, color: "#9a9a9a", marginTop: 6, textAlign: "center" }}>
                   Add your first pet to start tracking their health
@@ -1162,7 +1162,7 @@ function Dashboard() {
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {nextVaccines.length === 0 ? (
                 <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", padding: "20px 0" }}>
-                  <p style={{ fontSize: 13, color: "#9a9a9a", margin: 0 }}>Rhoni is all caught up! Add the next vaccine when your vet schedules one.</p>
+                  <p style={{ fontSize: 13, color: "#9a9a9a", margin: 0 }}>{pets[0]?.name || "Your pet"} is all caught up! Add the next vaccine when your vet schedules one.</p>
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
