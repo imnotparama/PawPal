@@ -405,6 +405,12 @@ Inspired by the Dala design language:
 - **Motion**: Framer Motion springs, stagger reveals, 
   magnetic hover effects
 
+## 🛠️ Tools That Made This Possible
+
+*   **Kiro IDE** — AI-powered development environment that helped me scaffold, review, and ship features at a pace I couldn't have managed alone. The spec-driven workflow kept the architecture clean even under hackathon pressure.
+*   **Aikido** — Ran a full security audit on the repo in minutes (covering OWASP Top 10, GDPR compliance checks, and vulnerability scanning). Genuinely impressed by how fast it caught things I'd have missed.
+*   **Temporal** — Durable execution patterns inspired the vaccination reminder and notification architecture. When you're building health-critical workflows, reliability isn't optional.
+
 ---
 
 ## 👨‍💻 Built By
