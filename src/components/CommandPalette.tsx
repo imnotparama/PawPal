@@ -251,6 +251,9 @@ export function CommandPalette() {
       <AnimatePresence>
         {isOpen && (
           <div 
+            role="dialog"
+            aria-modal="true"
+            aria-label="Command palette"
             style={{
               position: "fixed",
               inset: 0,
@@ -307,8 +310,14 @@ export function CommandPalette() {
               </div>
 
               {/* Items List */}
+              {/* Live region: announces result count to screen readers */}
+              <div aria-live="polite" aria-atomic="true" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap" }}>
+                {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+              </div>
               <div 
                 ref={listRef}
+                role="listbox"
+                aria-label="Command results"
                 style={{
                   maxHeight: 280,
                   overflowY: "auto",
@@ -325,6 +334,9 @@ export function CommandPalette() {
                     return (
                       <div
                         key={item.id}
+                        role="option"
+                        aria-selected={isSelected}
+                        id={`cmd-item-${item.id}`}
                         onClick={item.action}
                         onMouseEnter={() => setActiveIndex(idx)}
                         style={{
