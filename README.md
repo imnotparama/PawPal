@@ -413,7 +413,33 @@ Inspired by the Dala design language:
 
 ---
 
+## 🧪 Testing
+
+Run unit tests:
+
+```bash
+npm run test
+```
+
+Current test coverage includes:
+
+| Suite | Tests | Description |
+|---|---|---|
+| `calculateHealthScore` | 4 | Validates scoring algorithm across age, weight, and species inputs |
+| `addPet` | 2 | Verifies correct insertion and data integrity with mocked Supabase |
+| `deletePet` | 3 | Verifies removal by ID, remaining store integrity, and no-op on missing ID |
+
+E2E testing with Playwright *(coming soon)*:
+
+```
+Tests cover: auth flow, pet creation,
+vaccination tracking, AI chat interaction
+```
+
+---
+
 ## 👨‍💻 Built By
+
 
 **Parameshwaran S**  
 GitHub:[@imnotparama](https://github.com/imnotparama)  
